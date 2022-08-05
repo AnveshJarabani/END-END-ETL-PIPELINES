@@ -9,9 +9,9 @@ import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 import base64
-SMRY_PATH = r"C:\Users\ajarabani\Desktop\Parts\DATA ANALYSIS\COSTING ANALYSIS\DASHBOARD DATA\LM_SMRY.PKL"
-PIE_PATH=r"C:\Users\ajarabani\Desktop\Parts\DATA ANALYSIS\COSTING ANALYSIS\DASHBOARD DATA\LAMPIE.PKL"
-ACT_VS_QT_PTH=r"C:\Users\ajarabani\Desktop\Parts\DATA ANALYSIS\COSTING ANALYSIS\DASHBOARD DATA\LM_QT_VS_ACT.PKL"
+SMRY_PATH = r"LM_SMRY.PKL"
+PIE_PATH=r"C:LAMPIE.PKL"
+ACT_VS_QT_PTH=r"LM_QT_VS_ACT.PKL"
 LAM_SMRY = pd.read_pickle(SMRY_PATH)
 PIE_COST=pd.read_pickle(PIE_PATH)
 ACTQTDT=pd.read_pickle(ACT_VS_QT_PTH)
@@ -26,7 +26,7 @@ LAM_SMRY.sort_values(by=['DELTA.CAL'],ignore_index=True,ascending=True,inplace=T
 LAM_SMRY['P/L%']=(LAM_SMRY['DELTA.CAL']/LAM_SMRY['ASP'])
 LAM_SMRY['COLOR']=np.where(LAM_SMRY['DELTA.CAL']<0,'red','green')
 app = dash.Dash(__name__,external_stylesheets=[dbc.themes.CERULEAN])
-LOGO = r"C:\Users\ajarabani\Desktop\Parts\DATA ANALYSIS\COSTING ANALYSIS\DASHBOARD DATA\UCT.PNG"
+LOGO = r"UCT.PNG"
 test_base64 = base64.b64encode(open(LOGO, 'rb').read()).decode('ascii')
 app.layout = dbc.Container([
     dbc.Row([
