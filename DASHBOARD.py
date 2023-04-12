@@ -162,9 +162,9 @@ import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 import base64
-SMRY_PATH = r"C:\Users\ajarabani\Desktop\Parts\DATA ANALYSIS\COSTING ANALYSIS\DASHBOARD DATA\LM_SMRY.PKL"
-PIE_PATH=r"C:\Users\ajarabani\Desktop\Parts\DATA ANALYSIS\COSTING ANALYSIS\DASHBOARD DATA\LAMPIE.PKL"
-ACT_VS_QT_PTH=r"C:\Users\ajarabani\Desktop\Parts\DATA ANALYSIS\COSTING ANALYSIS\DASHBOARD DATA\LM_QT_VS_ACT.PKL"
+SMRY_PATH = r"LM_SMRY.PKL"
+PIE_PATH=r"LAMPIE.PKL"
+ACT_VS_QT_PTH=r"LM_QT_VS_ACT.PKL"
 LAM_SMRY = pd.read_pickle(SMRY_PATH)
 PIE_COST=pd.read_pickle(PIE_PATH)
 ACTQTDT=pd.read_pickle(ACT_VS_QT_PTH)
