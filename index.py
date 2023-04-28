@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 from dash import Output,Input,State,dcc
 from app import app
 import base64
-from apps import TOOLCOSTS,FAB,PARTSEARCH,WO_HRS,DAYS,Version,QLY_TRENDS,WC_LOAD,QLY_RELATIVE_TRENDS,SHEETMETAL_DEMAND #PNL,
+from apps import TOOLCOSTS,FAB,PARTSEARCH,WO_HRS,DAYS,Version,QLY_TRENDS,WC_LOAD,QLY_RELATIVE_TRENDS,SHEETMETAL_DEMAND,PNL
 test_base64 = base64.b64encode(open('UCT.PNG', 'rb').read()).decode('ascii')
 offcanvas = html.Div([
         dbc.Button("Explore",id="Open-offcanvas", n_clicks=0,size='lg',class_name='me-1'),
