@@ -23,7 +23,7 @@ for i in [KLA_ACTQTDT,CYMER_ACTQTDT,LAM_ACTQTDT]:
     i.columns=new_cols+list(i.columns[len(new_cols):])
 KLA_ACTQTDT.rename(columns={'DELTA T3':'DELTA'},inplace=True)
 PIE_COST=pd.concat([LAM_PIE,CYMER_PIE,KLA_PIE])
-PERIODS=pd.read_pickle('FISCAL CAL.PKL').iloc[:,1:]
+PERIODS=pd.read_pickle('FISCAL CAL.PKL')
 PERIODS.drop_duplicates(inplace=True,ignore_index=True)
 QTR=PERIODS.loc[PERIODS['FISCAL PERIOD']=='Period 9','QTR'].reset_index().iloc[0,1]
 PIE_COST_P=PIE_COST.loc[PIE_COST['QTR']==QTR]
