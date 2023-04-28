@@ -26,6 +26,7 @@ WebDriverWait(driver,25).until(EC.presence_of_element_located((By.CSS_SELECTOR, 
 driver.find_element(By.CSS_SELECTOR,"[id*='promptsList-4']").click() # TICKET TYPE PROMPT
 driver.find_element(By.CSS_SELECTOR,"[title*='Show the settings page']").click() # SELECT SETTINGS
 time.sleep(1)
+driver.find_element(By.CSS_SELECTOR,"[title*='Show the settings page']").click()
 driver.find_element(By.CSS_SELECTOR,"[class*='SettingsSearchByKeys']").click() # TURN ON KEY SEARCH
 driver.find_element(By.CSS_SELECTOR,"[class*='SettingsShowKeys']").click() # TURN ON KEY SEARCH
 driver.find_element(By.CSS_SELECTOR,"[title*='Refresh']").click() # REFRESH
@@ -86,4 +87,4 @@ exec(open('ACT VS PLN LBR CST.py').read())
 exec(open('LBR HR WO TRENDS.py').read())                
 # exec(open('PROCESS DAYS.py').read())                
 exec(open('LBR QLY COSTS.py').read())                
-exec(open('WC LOAD HRS.py').read())                                                                             
+exec(open('WC LOAD HRS.py').read())                                                                             .3

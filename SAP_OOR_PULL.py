@@ -18,7 +18,22 @@ pyautogui.press('down')
 pyautogui.press('enter')
 time.sleep(5)
 pyautogui.press('enter')
-subprocess.call(['cscript.exe','SAP OOR.vbs'])
+time.sleep(2)
+pyautogui.typewrite('ZQ2COPENSO\n')
+for i in range(8):
+    pyautogui.typewrite('down')
+pyautogui.typewrite('3321')
+pyautogui.press('tab')
+pyautogui.typewrite('3322')
+for i in range(3):
+    pyautogui.press('tab')
+pyautogui.press('down')
+pyautogui.press('tab')
+pyautogui.press('enter')
+time.sleep(120)
+
+
+subprocess.call(['cscript.exe',r"C:\Users\ajarabani\Downloads\PYTHON\SAP OOR.vbs"])
 mtime=os.path.getmtime(r"C:\Users\ajarabani\Downloads\OOR.XLSX")
 while True:
     if time.time()-mtime<60:

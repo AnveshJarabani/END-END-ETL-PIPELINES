@@ -22,6 +22,7 @@ ttl=pd.read_hdf(r"C:\Users\ajarabani\Downloads\PYTHON\CY_ADJ.H5",key='TOOL_COSTS
 macro_book=xl.Book(r"C:\Users\ajarabani\Downloads\PYTHON\MACRO.XLSM")
 book=xl.Book()
 xw=win32com.client.Dispatch("Excel.Application") 
+xw.WindowState = win32com.client.constants.xlMaximized
 for i in TOOLS:  
     book.sheets.add(name=i,before='Sheet1')
 book.sheets('Sheet1').delete()
@@ -56,4 +57,4 @@ xw.Application.Run("MACRO.XLSM!Module1.calc")
 print("File built in "+str(round((time.time()-start_time),2))+" Seconds")
 macro_book.close()
 del xl
-book.save(r"C:\Users\ajarabani\Downloads\CYMER\CYMER COSTING\UCT Q4 22 Cymer Product Pricing 4.11.23.xlsx")
+# book.save(r"C:\Users\ajarabani\Downloads\CYMER\CYMER COSTING\UCT Q4 22 Cymer Product Pricing 4.14.23.xlsx")
