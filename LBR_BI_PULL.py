@@ -18,7 +18,7 @@ WebDriverWait(driver,25).until(EC.presence_of_element_located((By.ID, '__label0-
 username = driver.find_element(By.ID,"__input3-inner")
 password = driver.find_element(By.ID,"__input4-inner")
 username.send_keys("ajarabani")
-password.send_keys("Zintak1!")
+password.send_keys("Xuiqil9`")
 driver.find_element(By.ID,"__button1-inner").click()
 WebDriverWait(driver,25).until(EC.presence_of_element_located((By.ID, '__vbox5')))
 driver.find_element(By.ID,"__tile0-__container1-0").click() # CLICK ON EMPLOYEE LABOR HRS REPORT FAV TILE
