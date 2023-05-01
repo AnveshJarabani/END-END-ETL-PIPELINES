@@ -24,7 +24,7 @@ driver.get('http://alinbop.uct.local/BOE/BI')
 driver.switch_to.frame(driver.find_element(By.TAG_NAME,'iframe'))
 WebDriverWait(driver,25).until(EC.presence_of_element_located((By.ID, '__label0-bdi')))
 driver.find_element(By.CSS_SELECTOR,"[placeholder='User Name']").send_keys("ajarabani")
-driver.find_element(By.CSS_SELECTOR,"[placeholder='Password']").send_keys("Zintak1!")
+driver.find_element(By.CSS_SELECTOR,"[placeholder='Password']").send_keys("Xuiqil9`")
 driver.find_element(By.CSS_SELECTOR,"[class*='LoginButton']").click()
 WebDriverWait(driver,25).until(EC.presence_of_element_located((By.ID, '__tile0-__container1-2')))
 driver.find_element(By.ID,"__tile0-__container1-3").click() # CLICK ON PURCHASE HIST REPORT FAV TILE
