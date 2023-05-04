@@ -2,20 +2,21 @@ import numpy as np
 import xlwings as xl
 import pandas as pd
 import h5py,pickle,sqlalchemy
-from bigtree import print_tree,tree_to_dot
+from bigtree import print_tree,tree_to_dot,tree_to_dataframe
 import networkx as nx
 import matplotlib.pyplot as plt
 from networkx.drawing.nx_agraph import graphviz_layout
-cn=sqlalchemy.create_engine('mysql+pymysql://anveshjarabani:Zintak1!@mysql12--2.mysql.database.azure.com:3306/uct_data',
-                            connect_args={'ssl_ca':'DigiCertGlobalRootCA.crt.pem'})
 
-lbr_raw=pd.read_pickle('LBR M-18.PKL')
-lbr_raw.to_sql(name='lbr m-18',con=cn,if_exists='replace',index=False)
+# cn=sqlalchemy.create_engine('mysql+pymysql://anveshjarabani:Zintak1!@mysql12--2.mysql.database.azure.com:3306/uct_data',
+#                             connect_args={'ssl_ca':'DigiCertGlobalRootCA.crt.pem'})
+
+# lbr_raw=pd.read_pickle('LBR M-18.PKL')
+# lbr_raw.to_sql(name='lbr m-18',con=cn,if_exists='replace',index=False)
 
 with open('FOREST.PKL', 'rb') as f:
     FOREST = pickle.load(f)
 
-tree=FOREST['0730923-001']
+tree=FOREST['839-198032-001']
 # create a graph
 G = nx.DiGraph()
 # Add nodes and edges to the graph
