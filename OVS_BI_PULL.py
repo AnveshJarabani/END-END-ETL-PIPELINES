@@ -60,6 +60,12 @@ df=pd.read_csv(zf.open('OVS Purchase Order Report.csv'))
 df.select_dtypes(include=[float]).astype(np.float16)
 df.select_dtypes(include=[int]).astype(np.int16)
 df.to_pickle('OVS_RAW.PKL')
+import sqlalchemy
+cn=sqlalchemy.create_engine('mysql+pymysql://anveshjarabani:Zintak1!@mysql12--2.mysql.database.azure.com:3306/uct_data',
+                            connect_args={'ssl_ca':'DigiCertGlobalRootCA.crt.pem'})
+df.replace([np.inf,-np.inf],np.nan,inplace=True)
+cn.execute('DROP TABLE IF EXISTS OVS_RAW')
+df.to_sql(name='OVS_RAW',con=cn,if_exists='replace',index=False)
 print('OVS_RAW.PKL COMPLETE')
 zf.close()
 os.remove(crNew)
