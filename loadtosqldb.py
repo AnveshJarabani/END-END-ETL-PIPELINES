@@ -31,7 +31,7 @@ for x in pkl_files:
 #         df=pd.read_hdf(x,key=i)
 #         df.replace([np.inf,-np.inf],np.nan,inplace=True)
 #         df.columns = df.columns.str.replace('\n', '').str.strip()
-#         nm=x[:x.index('.')]+'_'+i
+#         6
 #         df.to_sql(name=nm.lower(),con=cn,if_exists='replace',index=False)
 #         print('Uploaded',nm)
 

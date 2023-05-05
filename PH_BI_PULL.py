@@ -83,6 +83,12 @@ df=pd.read_csv(zf.open('Purchase History Report Summary.csv'))
 df.select_dtypes(include=[float]).astype(np.float16)
 df.select_dtypes(include=[int]).astype(np.int16)
 df.to_hdf('PH_RAW.H5',key=QS[0],mode='a')
+import sqlalchemy
+cn=sqlalchemy.create_engine('mysql+pymysql://anveshjarabani:Zintak1!@mysql12--2.mysql.database.azure.com:3306/uct_data',
+                            connect_args={'ssl_ca':'DigiCertGlobalRootCA.crt.pem'})
+df.replace([np.inf,-np.inf],np.nan,inplace=True)
+cn.execute('DROP TABLE IF EXISTS PH_RAW_{QS[0]}')
+df.to_sql(name='PH_RAW_{QS[0]}',con=cn,if_exists='replace',index=False)
 print('PH.H5 Q COMPLETE')
 ven=pd.read_csv(zf.open('Purchase History Report Detaile.csv'))
 ven=ven[['Material - Key','Vendor - Text']]
