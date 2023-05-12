@@ -26,15 +26,13 @@ pi.replace([np.inf, -np.inf], np.nan, inplace=True)
 pi.dropna(how='any',inplace=True)
 pi=pi.loc[pi['COST']!=0]
 pi=pi[['Order - Material (Key)', 'Order', 'Standard Text Key', 'ACT COST/EA', 'HRS/EA']]
-
 def remove_outliers(group):
-    mean = group.mean()
+    mean = group.mean()  
     median = group.median()
-    mad = np.median(np.abs(group - median))
+    mad = np.median(np.abs(group - median))  
 #     std = group.std()
     z_scores = 0.6745*np.abs((group - mean)/mad)
     return group[z_scores < 3.5]
-
 # def remove_outliers(group):
 #     Q1 = group.quantile(0.25)
 #     Q3 = group.quantile(0.75)
