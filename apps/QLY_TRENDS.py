@@ -1,3 +1,4 @@
+
 import dash
 from dash import dcc, html, callback
 from dash.dependencies import Output,Input
@@ -189,8 +190,7 @@ def update_graph(PART):
             font={'family':'Arial','size':12},yaxis_tickformat='$,')
         OVS.update_xaxes(tickfont_family="Arial Black")
         OVS.update_yaxes(tickfont_family="Arial Black")
-    gs1 = []
-    gs2=[]
+    gs1 , gs2 = [] , []
     m=1
     if len(DT_PH['PN'].unique())!=1:
         DT_PH=DT_PH.loc[DT_PH['BUY COST']>10]

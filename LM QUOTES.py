@@ -33,7 +33,7 @@ def costed_bom(x):
                 break 
         if sheet is None:
             return None
-        # wb=opxl.load_workbook(x,data_only=True)
+        wb=opxl.load_workbook(x,data_only=True)
         dt = pd.read_excel(x,sheet_name=sheet,usecols='A:AB',skiprows=[0],engine='openpyxl')
         dt.columns = dt.columns.str.upper()
         dt.insert(0,"TOP LEVEL",ft.loc[ft['Files']==x,'PN'].iloc[0])
