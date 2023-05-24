@@ -3,13 +3,11 @@ import warnings,time,subprocess,win32com.client
 import pandas as pd
 warnings.simplefilter(action='ignore', category=(FutureWarning,UserWarning))
 pd.options.mode.chained_assignment=None
-subprocess.call(['taskkill','/f','/im','EXCEL.EXE'])
+# subprocess.call(['taskkill','/f','/im','EXCEL.EXE'])
 import xlwings as xl
 from decimal import Decimal
 start_time=time.time()
 yt = pd.read_hdf(r"C:\Users\ajarabani\Downloads\PYTHON\QUOTES.H5",key='CY')
-# yt.loc[yt['P/N'].str.contains('Labor'),'NEW COST EA']=yt['NEW COST EA']*(100/85)
-# yt.loc[yt['P/N'].str.contains('Labor'),'NEW COST EXT']=yt['NEW COST EXT']*(100/85)
 TYPE=pd.read_hdf(r"C:\Users\ajarabani\Downloads\PYTHON\CY_ADJ.H5",key='OLD-NEW TYPES')
 typ=pd.DataFrame(columns=['TYP'])
 typ['TYP']=TYPE['TYPE'].unique()
@@ -23,15 +21,18 @@ macro_book=xl.Book(r"C:\Users\ajarabani\Downloads\PYTHON\MACRO.XLSM")
 book=xl.Book()
 xw=win32com.client.Dispatch("Excel.Application") 
 xw.WindowState = win32com.client.constants.xlMaximized
+book.app.activate(steal_focus=True)
 for i in TOOLS:  
     book.sheets.add(name=i,before='Sheet1')
 book.sheets('Sheet1').delete()
 for i in TOOLS:  
     sht=book.sheets(i)
+    sht.select()
     df=yt.loc[yt['TOP LEVEL']==i]
     df.sort_values(by=['DELTA'],inplace=True)
     x=len(df)+1
     sht.range('A1').options(index=False).value=df
+    # time.sleep(.05)
     if i=='CY-210257':
         sht.range('A1:M1').font.bold=True
         sht.range('F1:G' + str(x)).color = (162, 217, 242)
@@ -57,4 +58,4 @@ xw.Application.Run("MACRO.XLSM!Module1.calc")
 print("File built in "+str(round((time.time()-start_time),2))+" Seconds")
 macro_book.close()
 del xl
-book.save(r"C:\Users\ajarabani\Downloads\CYMER\CYMER COSTING\UCT Q4 22 Cymer Product Pricing 5.10.23.xlsx")
+# book.save(r"C:\Users\ajarabani\Downloads\CYMER\CYMER COSTING\UCT Q4 22 Cymer Product Pricing 5.10.23.xlsx")

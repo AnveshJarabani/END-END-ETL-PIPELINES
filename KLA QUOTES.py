@@ -45,31 +45,31 @@ cls=['TOP LEVEL', 'PART#','DESCRIPTION','VENDOR', 'QTY',
                             'COST EXT T10','COST EXT T15',
                             'COST EXT T20','COST EXT T25']
 bm = pd.DataFrame(columns=cls)
-def dt_scrub(dtf):
-    dtf=dtf.dropna(how='all',axis=0).dropna(how='all',axis=1)
-    dtf.columns=dtf.columns.str.strip()
-    dtf = dtf.filter(regex='(?i)^(?!QTY$|COST EA|QTY\.)',axis=1)
-    dtf.columns=dtf[dtf.isin(['PART#']).any(axis=1)].reset_index(drop=True).iloc[0]
-    dtf=dtf.loc[~dtf.isin(['PART#']).any(axis=1)]
-    dtf=dtf.loc[:,pd.notna(dtf.columns)]
-    dtf=dtf.loc[:,dtf.columns!=0]
+def dt_scrub(df_kla):
+    df_kla=df_kla.dropna(how='all',axis=0).dropna(how='all',axis=1)
+    df_kla.columns=df_kla.columns.str.strip()
+    df_kla = df_kla.filter(regex='(?i)^(?!QTY$|COST EA|QTY\.)',axis=1)
+    df_kla.columns=df_kla[df_kla.isin(['PART#']).any(axis=1)].reset_index(drop=True).iloc[0]
+    df_kla=df_kla.loc[~df_kla.isin(['PART#']).any(axis=1)]
+    df_kla=df_kla.loc[:,pd.notna(df_kla.columns)]
+    df_kla=df_kla.loc[:,df_kla.columns!=0]
     n=0
-    for i in dtf.columns:
+    for i in df_kla.columns:
         if isinstance(i,int)|isinstance(i,float):
-            dtf.columns.values[n]='COST EXT T' + str(round(i))
+            df_kla.columns.values[n]='COST EXT T' + str(round(i))
         n=n+1
-    dtf=dtf.filter(regex='^.+(?!Unnamed).+$',axis=1)
-    dtf=dtf.loc[dtf['PART#'].notna()]
-    dtf=dtf.filter(regex='(?i)^(?!QTY$)',axis=1)
-    dtf.rename(columns={'EXT':'QTY'},inplace=True)
-    dtf.dropna(how='all',axis=1,inplace=True)
-    dtf=dtf.loc[:,~dtf.columns.duplicated()]
-    dtf=dtf.loc[dtf['QTY']!=0,:]
-    dtf=dtf.loc[dtf.filter(regex='^COST EXT',axis=1).iloc[:,0]!=0,:]
-    dtf.insert(0,"TOP LEVEL",ft.loc[ft['Files']==x,'PN'].iloc[0])
-    dtf.columns=dtf.columns.str.upper()
-    dtf=dtf[dtf.columns.intersection(cls)]
-    return dtf
+    df_kla=df_kla.filter(regex='^.+(?!Unnamed).+$',axis=1)
+    df_kla=df_kla.loc[df_kla['PART#'].notna()]
+    df_kla=df_kla.filter(regex='(?i)^(?!QTY$)',axis=1)
+    df_kla.rename(columns={'EXT':'QTY'},inplace=True)
+    df_kla.dropna(how='all',axis=1,inplace=True)
+    df_kla=df_kla.loc[:,~df_kla.columns.duplicated()]
+    df_kla=df_kla.loc[df_kla['QTY']!=0,:]
+    df_kla=df_kla.loc[df_kla.filter(regex='^COST EXT',axis=1).iloc[:,0]!=0,:]
+    df_kla.insert(0,"TOP LEVEL",ft.loc[ft['Files']==x,'PN'].iloc[0])
+    df_kla.columns=df_kla.columns.str.upper()
+    df_kla=df_kla[df_kla.columns.intersection(cls)]
+    return df_kla
 def scrub_datatab(dtx):
     dtx=dtx.dropna(how='all',axis=0).dropna(how='all',axis=1)
     dtx.columns=dtx.columns.str.strip()

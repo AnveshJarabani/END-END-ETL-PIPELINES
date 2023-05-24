@@ -30,16 +30,16 @@ def remove_outliers(group):
     mean = group.mean()  
     median = group.median()
     mad = np.median(np.abs(group - median))  
-#     std = group.std()
     z_scores = 0.6745*np.abs((group - mean)/mad)
     return group[z_scores < 3.5]
-# def remove_outliers(group):
-#     Q1 = group.quantile(0.25)
-#     Q3 = group.quantile(0.75)
-#     IQR = Q3 - Q1
-#     upper_bound = Q3 + 0.5*IQR
-#     lower_bound = Q1 - 0.5*IQR
-#     return group[(group > lower_bound) & (group < upper_bound)]
+def remove_outliers(group):
+    Q1 = group.quantile(0.25)
+    Q3 = group.quantile(0.75)
+    IQR = Q3 - Q1
+    upper_bound = Q3 + 0.5*IQR
+    lower_bound = Q1 - 0.5*IQR
+    return group[(group > lower_bound) & \
+                  (group < upper_bound)]
 pi[['ACT COST/EA_t', 'HRS/EA_t']] = pi.groupby(['Order - Material (Key)', 'Standard Text Key'])[['ACT COST/EA', 'HRS/EA']].transform(remove_outliers)
 pi_temp = pi.pivot_table(index=["Order - Material (Key)",'Standard Text Key'],values = ['ACT COST/EA'],aggfunc= np.mean)
 pi_temp.reset_index(inplace=True)
