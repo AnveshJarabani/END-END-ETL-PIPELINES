@@ -5,22 +5,28 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 chromeOptions = webdriver.ChromeOptions()
+# chromeOptions.add_argument('--headless')
+# chromeOptions.add_argument('--no-sandbox')
+# chromeOptions.add_argument('--disable-dev-shm-usage')
 driver = webdriver.Chrome('sldr.exe')
 driver.maximize_window()
 MPN_df=xl.books.active.sheets(2).range('A1').expand('down').options(index=False).options(pd.DataFrame,index=False).value
 MPN_df['link'] = 'https://www.mcmaster.com/'+MPN_df['PN']+'/'
 for i in MPN_df['link']:
     driver.get(i)
-    try:
-        WebDriverWait(driver, 5).until(EC.text_to_be_present_in_element(
-            (By.CSS_SELECTOR, "[class*='PrceTxt']"),'$'))
-        element=driver.find_element(By.CSS_SELECTOR, "[class*='PrceTxt']")
-        if element:
-            x=element.text
-            MPN_df.loc[MPN_df['link']==i,'COST']=x
-            MPN_df.loc[MPN_df['link']==i,'TIER']='STD'
-            print(x)
-    except:
+    WebDriverWait(driver, 5).until(EC.any_of(
+        EC.text_to_be_present_in_element(
+        (By.CSS_SELECTOR, "[class*='PrceTxt']"),'$'),
+        EC.presence_of_element_located(
+        (By.CSS_SELECTOR,"data-mcm-prce-lvl"))
+        ))
+    element=driver.find_element(By.CSS_SELECTOR, "[class*='PrceTxt']")
+    if element:
+        x=element.text
+        MPN_df.loc[MPN_df['link']==i,'COST']=x
+        MPN_df.loc[MPN_df['link']==i,'TIER']='STD'
+        print(x)
+    else:
         m=1
         while driver.find_elements(By.CSS_SELECTOR,"[data-mcm-prce-lvl='{}']".format(m)):
             lst = driver.find_elements(
@@ -30,9 +36,9 @@ for i in MPN_df['link']:
                 MPN_df.loc[MPN_df['link']==i,'COST']=lst[1].text
             else:
                 MPN_df.loc[len(MPN_df)]={'link':i,
-                                         'PN': MPN_df.loc[MPN_df['link'] == i, 'PN'].reset_index().loc[0, 'PN'],
-                                         'COST':lst[1].text,
-                                         'TIER':lst[0].text}
+                                        'PN': MPN_df.loc[MPN_df['link'] == i, 'PN'].reset_index().loc[0, 'PN'],
+                                        'COST':lst[1].text,
+                                        'TIER':lst[0].text}
             m+=1
             print(lst[0].text,lst[1].text)
 MPN_df['$$'] = MPN_df['COST'].str.extract('(\$\d+\.\d+)')
