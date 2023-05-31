@@ -1,18 +1,24 @@
 import numpy as np
 import xlwings as xl
 import pandas as pd
-import h5py,pickle,sqlalchemy
-from bigtree import print_tree,tree_to_dot,tree_to_dataframe
-import networkx as nx
-import matplotlib.pyplot as plt
-from networkx.drawing.nx_agraph import graphviz_layout
-
+# import h5py,pickle,sqlalchemy
+# from bigtree import print_tree,tree_to_dot,tree_to_dataframe
+# import networkx as nx
+# import matplotlib.pyplot as plt
+# from networkx.drawing.nx_agraph import graphviz_layout
+yt = pd.read_hdf(r"C:\Users\ajarabani\Downloads\PYTHON\QUOTES.H5", key='CY')
+rw = yt[(yt['TOP LEVEL'] == 'CY-217644') &
+        (yt['P/N'] == 'CY-210151')].index[0]
+for i in range(1, 13):
+    val = yt.loc[(yt['P/N'] == 'CY-217185') &
+                 (yt['TOP LEVEL']== 'CY-213633'), yt.columns[i]].values[0]
+    yt.iat[rw, i] = val
 # cn=sqlalchemy.create_engine('mysql+pymysql://anveshjarabani:Zintak1!@mysql12--2.mysql.database.azure.com:3306/uct_data',
 #                             connect_args={'ssl_ca':'DigiCertGlobalRootCA.crt.pem'})
 
 # lbr_raw=pd.read_pickle('LBR M-18.PKL')
 # lbr_raw.to_sql(name='lbr m-18',con=cn,if_exists='replace',index=False)
-
+yt.to_hdf(r"C:\Users\ajarabani\Downloads\PYTHON\QUOTES.H5", key='CY',mode='a')
 with open('FOREST.PKL', 'rb') as f:
     FOREST = pickle.load(f)
 
