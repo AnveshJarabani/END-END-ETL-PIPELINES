@@ -3,7 +3,6 @@ import xlwings as xl
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import json
 from selenium import webdriver
 chromeOptions = webdriver.ChromeOptions()
 driver = webdriver.Chrome('sldr.exe')
@@ -36,7 +35,7 @@ for i in MPN_df['link']:
                                          'TIER':lst[0].text}
             m+=1
             print(lst[0].text,lst[1].text)
-MPN_df['$$']=MPN_df['COST'].str.extract('\$(\d+\.\d+)')
+MPN_df['$$'] = MPN_df['COST'].str.extract('(\$\d+\.\d+)')
 MPN_df=MPN_df.sort_values('PN')
 xl.books.active.sheets.active.range('N1').options(index=False).value=MPN_df
 
