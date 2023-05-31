@@ -3,7 +3,7 @@ import warnings,time,subprocess,win32com.client
 import pandas as pd
 warnings.simplefilter(action='ignore', category=(FutureWarning,UserWarning))
 pd.options.mode.chained_assignment=None
-# subprocess.call(['taskkill','/f','/im','EXCEL.EXE'])
+subprocess.call(['taskkill','/f','/im','EXCEL.EXE'])
 import xlwings as xl
 from decimal import Decimal
 start_time=time.time()
@@ -32,7 +32,6 @@ for i in TOOLS:
     df.sort_values(by=['DELTA'],inplace=True)
     x=len(df)+1
     sht.range('A1').options(index=False).value=df
-    # time.sleep(.05)
     if i=='CY-210257':
         sht.range('A1:M1').font.bold=True
         sht.range('F1:G' + str(x)).color = (162, 217, 242)
@@ -58,4 +57,4 @@ xw.Application.Run("MACRO.XLSM!Module1.calc")
 print("File built in "+str(round((time.time()-start_time),2))+" Seconds")
 macro_book.close()
 del xl
-# book.save(r"C:\Users\ajarabani\Downloads\CYMER\CYMER COSTING\UCT Q4 22 Cymer Product Pricing 5.10.23.xlsx")
+# book.save(r"C:\Users\ajarabani\Downloads\CYMER\CYMER COSTING\UCT Q4 22 Cymer Product Pricing 5.30.23.xlsx")
