@@ -1,8 +1,7 @@
 import requests,json
 def cost_extractor(i, raw, cookies):
     lnk = raw.format(i)
-    jsn_string = requests.get(lnk, cookies=cookies).text
-    dict = json.loads(jsn_string)
+    dict = json.loads(requests.get(lnk, cookies=cookies).text)
     if not dict['PrceTiers']:
         # print(dict['PrceTxt'])
         data = {'PN': [i],
