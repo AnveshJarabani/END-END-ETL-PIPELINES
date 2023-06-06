@@ -9,14 +9,16 @@ import warnings,os,time,re
 warnings.simplefilter(action='ignore', category=(FutureWarning, UserWarning))
 os.environ['PYDEVD_DISABLE_FILE_VALIDATION'] = '1'
 chromeOptions = webdriver.ChromeOptions()
-chromeOptions.add_argument('--blink-settings=imagesEnabled=false')
-chromeOptions.add_argument('--headless')
-chromeOptions.add_argument('--log-level=3')
-chromeOptions.add_argument('--log-path=nul')
+# chromeOptions.add_argument('--blink-settings=imagesEnabled=false')
+# chromeOptions.add_argument('--headless')
+# chromeOptions.add_argument('--log-level=3')
+# chromeOptions.add_argument('--log-path=nul')
 start=time.time()
 # driver.maximize_window()
 driver = webdriver.Chrome('sldr.exe',options=chromeOptions)
 MPN_df=xl.books.active.sheets(2).range('A1').expand('down').options(index=False).options(pd.DataFrame,index=False).value
+lnk1 = 'https://www.mcmaster.com/mv1685653428/WebParts/Ordering/InLnOrdWebPart/ItmPrsnttnDynamicDat.aspx?acttxt=getstockstatus&partnbrtxt=92510A476&possiblecompnbrtxt=&isinlnspec=false&attrCompIds=&attrnm=&attrval=&cssAlias=undefined&useEs6=true'
+driver.get(lnk1)
 def cost_extractor(i):
     lnk='https://www.mcmaster.com/{}/'.format(i)
     driver.get(lnk)
@@ -62,8 +64,9 @@ if __name__ == '__main__':
                                       '{} Pack'.format(re.search('\d+$', x)[0]))
     res_df.loc[res_df['T'].notna(),'TIER']=res_df['T']
     res_df=res_df[['link','PN','TIER','COST']]
-    xl.books.active.sheets.add()
-    xl.books.active.sheets.active.range('A1').options(index=False).value=res_df
+    # xl.books.active.sheets.add()
+    # xl.books.active.sheets.active.range('A1').options(index=False).value=res_df
+    print(res_df)
     print('processed in {} secs'.format(round(time.time()-start,2)))
 
 
