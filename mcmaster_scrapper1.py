@@ -5,6 +5,7 @@ if __name__ == '__main__':
     from selenium import webdriver
     import multiprocessing as mp
     import warnings,os,time,re,json
+    from rich import print
     warnings.simplefilter(action='ignore', category=(FutureWarning, UserWarning))
     os.environ['PYDEVD_DISABLE_FILE_VALIDATION'] = '1'
     from def_cost_extractor import cost_extractor
@@ -31,7 +32,6 @@ if __name__ == '__main__':
             if 'response' in i['params']:
                 if 'aspx' in i['params']['response']['url']:
                     t = re.search(r"\/(\w+)\/",i['params']['response']['url']).group(1)
-                    print(t)
                     break
     raw = f"https://www.mcmaster.com/{t}/WebParts/Ordering/InLnOrdWebPart/ItmPrsnttnDynamicDat.aspx?"+ \
         "acttxt=getstockstatus&partnbrtxt={}&possiblecompnbrtxt=&isinlnspec=false&"+ \
@@ -53,10 +53,6 @@ if __name__ == '__main__':
     res_df.loc[res_df['T'].notna(),'TIER']=res_df['T']
     res_df=res_df[['link','PN','TIER','COST']]
     # xl.books.active.sheets.add()
+    print('processed in {} secs'.format(round(time.time()-start,2)))
     xl.books.active.sheets.active.range('N1').options(index=False).value=res_df
     print(res_df)
-    print('processed in {} secs'.format(round(time.time()-start,2)))
-
-
-
-
