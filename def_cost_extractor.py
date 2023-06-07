@@ -1,4 +1,5 @@
 import requests,json
+from rich import print
 def cost_extractor(i, raw, cookies):
     dict = json.loads(requests.get(raw.format(i), cookies=cookies).text)
     if not dict['PrceTiers']:

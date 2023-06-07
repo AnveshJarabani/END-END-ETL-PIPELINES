@@ -22,7 +22,7 @@ if __name__ == '__main__':
     MPN_df=xl.books.active.sheets(2).range('A1').expand('down').options(index=False).options(pd.DataFrame,index=False).value
     home_raw = 'https://www.mcmaster.com/{}/'
     driver = webdriver.Chrome('sldr.exe',options=chromeOptions,desired_capabilities=caps)
-    test_raw = 'https://www.mcmaster.com/WebParts/Ordering/InLnOrdWebPart/ItmPrsnttnDynamicDat.aspx?acttxt=dynamicdat&partnbrtxt={}'
+    raw = 'https://www.mcmaster.com/WebParts/Ordering/InLnOrdWebPart/ItmPrsnttnDynamicDat.aspx?acttxt=dynamicdat&partnbrtxt={}'
     driver.get(home_raw.format(MPN_df.iloc[0,0]))
     time.sleep(2)
     all_cookies=driver.get_cookies()
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     driver.close()
     start=time.time()
     pool = mp.Pool(processes=10)
-    results=pool.starmap(cost_extractor, [(i,test_raw,cookies) for i in MPN_df.iloc[:,0]])
+    results=pool.starmap(cost_extractor, [(i,raw,cookies) for i in MPN_df.iloc[:,0]])
     res_df=pd.concat([pd.DataFrame(i) for i in results],ignore_index=True)
     res_df['COST'] = res_df['$$'].str.extract('(\$\d+\.\d+)')
     res_df=res_df.sort_values(['PN','COST'],ascending=[True,False],ignore_index=True)
