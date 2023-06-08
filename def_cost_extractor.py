@@ -1,7 +1,6 @@
 import requests
 import json
 import re
-# from rich import print
 def cost_extractor(i, raw, cookies):
     asp_lnk = 'https://www.mcmaster.com/WebParts/Content/ItmPrsnttnWebPart.aspx?partnbrtxt={}'.format(
         i)
@@ -9,8 +8,10 @@ def cost_extractor(i, raw, cookies):
     ext = re.search(r'"ThumbnailSrc":"([^"]+)"', r).group(1)
     png_lnk = 'https://www.mcmaster.com/{}'.format(ext)
     dict = json.loads(requests.get(raw.format(i), cookies=cookies).text)
+    local_path = r"C:\Users\ajarabani\Downloads\{}.png".format(i)
+    with open(local_path,'wb') as f:
+        f.write(requests.get(png_lnk).content)
     if not dict['PrceTiers']:
-        # print(dict['PrceTxt'])
         return {'PN': [i],
                 '$$': [dict['PrceTxt']],
                 'T': [None],
@@ -23,4 +24,3 @@ def cost_extractor(i, raw, cookies):
                 'T': [i['PrceTierQtyTxt']
                       for i in dct],
                 'png': [png_lnk]*len(dct)}
-

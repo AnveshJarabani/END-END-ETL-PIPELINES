@@ -9,7 +9,7 @@ import numpy as np
 import zipfile,time,glob,os
 chromeOptions = webdriver.ChromeOptions()
 today=datetime.today().strftime('%m/%d/%y')
-START_DATE=(datetime.today()+delt.relativedelta(months=-1)).strftime('%m/%d/%y')
+START_DATE=(datetime.today()+delt.relativedelta(months=-18)).strftime('%m/%d/%y')
 driver=webdriver.Chrome('sldr.exe')
 driver.maximize_window()
 driver.get('http://alinbop.uct.local/BOE/BI')
@@ -85,6 +85,7 @@ print('LBR M-18.PKL COMPLETE')
 # BUILD FOLLOWUP PICKLE FILES
 exec(open('ACT VS PLN LBR CST.py').read())                
 exec(open('LBR HR WO TRENDS.py').read())                
-# exec(open('PROCESS DAYS.py').read())                
+exec(open('PROCESS DAYS.py').read())                
 exec(open('LBR QLY COSTS.py').read())                
-exec(open('WC LOAD HRS.py').read())                                                                          
+exec(open('WC LOAD HRS.py').read())         
+driver.close()                                                                 

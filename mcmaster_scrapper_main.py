@@ -1,21 +1,8 @@
-import xlwings as xl
-import traceback
-
-
-def add_image(l, sht_name, rn, row):
-    try:
-        xl.books.active.sheets[sht_name].pictures.add(
-            image=row['png'])  #, name=f'{row["PN"]} {rn}', left=l, top=(rn*30)+2, height=27)
-        print(f'Sucess {row["PN"]} link {row["png"]}')
-    except Exception as e:
-        print(traceback.format_exc())
-        print(f'fail {row["PN"]} link {row["png"]}')
-
 if __name__ == '__main__':
     import pandas as pd
     import xlwings as xl
-    xl.books.active.sheets['Test'].delete()
-    # from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+    if 'Test' in xl.books.active.sheet_names:
+        xl.books.active.sheets['Test'].delete()
     from selenium import webdriver
     import multiprocessing as mp
     import warnings,os,time,re,json
@@ -24,8 +11,6 @@ if __name__ == '__main__':
     warnings.simplefilter(action='ignore', category=(FutureWarning, UserWarning))
     os.environ['PYDEVD_DISABLE_FILE_VALIDATION'] = '1'
     chromeOptions = webdriver.ChromeOptions()
-    # caps=DesiredCapabilities.CHROME
-    # caps['goog:loggingPrefs']={'performance':"ALL"}
     chromeOptions.add_argument('--blink-settings=imagesEnabled=false')
     chromeOptions.add_argument('--headless')
     chromeOptions.add_argument('--log-level=3')
@@ -62,30 +47,17 @@ if __name__ == '__main__':
     sht.range('A1').options(
         index=False).value = res_df.iloc[:, 0:4]
     sht.range('E1').value='Image'
-    rnge = sht.range('E1:R{}'.format(len(res_df)+2))
+    rnge = sht.range('R1:R{}'.format(len(res_df)+2))
     sht_name=sht.name
     rnge.row_height=30
-    rnge.column_width=10
+    rnge.column_width=30
     l = sht.range('E2').left+10/4
-    pool.starmap(add_image,[(l,sht_name,rn+1,row) for rn,row in res_df.iterrows()])
-
-
-    # def add_image(l, sht_name, rn, row):
-    #     xl.books.active.sheets[sht_name].pictures.add(
-    #         row['png'], name=f'{row["PN"]} {rn}', left=l, top=(rn*30)+2, height=27)
-
-    # for rn,row in res_df.iterrows():
-    #     rn+=1
-    #     add_image(l,sht_name,rn,row)
-    # browser_log=driver.get_log('performance')
-    # events=[log_entry(entry) for entry in browser_log]
-    # events=[event for event in events if 'Network.response' in event['method']]
-    # for i in events:
-    #     if 'params' in i.keys():
-    #         if 'response' in i['params']:
-    #             if 'aspx' in i['params']['response']['url']:
-    #                 t = re.search(r"\/(\w+)\/",i['params']['response']['url']).group(1)
-    #                 break
-    # raw = f"https://www.mcmaster.com/{t}/WebParts/Ordering/InLnOrdWebPart/ItmPrsnttnDynamicDat.aspx?"+ \
-    #     "acttxt=dynamicdat&partnbrtxt={}&possiblecompnbrtxt=&isinlnspec=false&"+ \
-    #     "attrCompIds=&attrnm=&attrval=&cssAlias=undefined&useEs6=true"
+    pool = mp.Pool(processes=5)
+    for rn,i in enumerate(res_df['PN']):
+        rn+=1
+        local_path = r"C:\Users\ajarabani\Downloads\{}.png".format(i)
+        xl.books.active.sheets[sht_name].pictures.add(
+            image=local_path, name=f'{i} {rn}', left=l, top=(rn*30)+2, height=27)
+    for i in res_df['PN'].unique():
+        local_path = r"C:\Users\ajarabani\Downloads\{}.png".format(i)
+        os.remove(local_path)
