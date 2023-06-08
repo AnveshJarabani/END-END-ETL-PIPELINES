@@ -36,7 +36,7 @@ for i in QS:
     # FOR PLANT SELECTION - CHANDLER FAB & INTEGRATION , SELECTING KEYS
     if i==QS[0]:    
         driver.find_element(By.CSS_SELECTOR,"[title*='Reset prompts']").click() # CLICK RESET
-        driver.find_element(By.CSS_SELECTOR,"[id*='promptsList-5']").click() # CLICK PLANT PROMT
+        # driver.find_element(By.CSS_SELECTOR,"[id*='promptsList-5']").click() # CLICK PLANT PROMT
         driver.find_element(By.CSS_SELECTOR,"[title*='Show the settings page']").click() # SELECT SETTINGS
         time.sleep(1)
         driver.find_element(By.CSS_SELECTOR,"[class*='SettingsSearchByKeys']").click() # TURN ON KEY SEARCH
