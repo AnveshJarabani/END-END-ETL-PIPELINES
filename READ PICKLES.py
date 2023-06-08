@@ -1,6 +1,25 @@
 import numpy as np
 import xlwings as xl
 import pandas as pd
+import glob,PyPDF2,tabula
+from rich import print
+local_pth = r"C:\Users\ajarabani\Downloads"
+lst = glob.glob(local_pth+'/*pdf')
+for pdf in lst:
+    reader=PyPDF2.PdfReader(open(pdf,'rb'))
+    num_pages=len(reader.pages)
+    for page in range(num_pages):
+        print(reader.pages[page].extract_text())
+        print('\n')
+    # try:
+    #     tables=tabula.read_pdf(pdf,pages='all')
+    #     for table in tables:
+    #         print(table)
+    #         print('\n')
+    # except:
+    #     continue
+
+
 # import h5py,pickle,sqlalchemy
 # from bigtree import print_tree,tree_to_dot,tree_to_dataframe
 # import networkx as nx
