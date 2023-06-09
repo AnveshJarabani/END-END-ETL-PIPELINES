@@ -14,7 +14,7 @@ if __name__ == '__main__':
     for root, dirs, files in os.walk(r"C:\UCT-CORP-ePDM"):
         if any('AJARABANI'.lower()==item.lower() for item in dirs):
                 pass
-        print(root,dirs)
+        print(root,dirs,files)
         pdm_files.extend(files)
     pdm_parts=[i.split('.')[0] for i in pdm_files]
     chromeOptions = webdriver.ChromeOptions()
