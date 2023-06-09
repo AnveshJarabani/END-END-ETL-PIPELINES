@@ -70,8 +70,8 @@ while wait:
         crNew_path=os.path.join(DLOADS_PATH,crNew)
         wait=False
 #SIMPLIFY THE CSV FILE AND SAVE IT AS A PICIKLE FILE.
-crNew_path='C:\\Users\\ajarabani\\Downloads\\Employee Labor Hours Report_P2M018.zip'
-zf=zipfile.ZipFile(crNew_path)
+# crNew_path='C:\\Users\\ajarabani\\Downloads\\Employee Labor Hours Report_P2M018.zip'
+zf=zipfile.ZipFile(crNew)
 df=pd.read_csv(zf.open('Employee Labor Hours.csv'))
 df=df.loc[df.iloc[:,0].notna()]
 df.replace(',','',regex=True,inplace=True)
