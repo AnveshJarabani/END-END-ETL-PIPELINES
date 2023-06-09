@@ -47,4 +47,4 @@ cn.dispose()
 # tables=inspector.get_table_names()
 # for table in tables:
 #     if '.' in table:
-#         cn.execute(f"DROP TABLE IF EXISTS `{table}`")
+#         cn.execute(f"DROP TABLE IF EXISTS `{table}`")C:\UCT-CORP-ePDM\(101)-uct\2-workspace\06-manufacturing\02-uct-cad\users\AJarabani
