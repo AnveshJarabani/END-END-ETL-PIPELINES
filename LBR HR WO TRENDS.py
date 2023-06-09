@@ -4,7 +4,8 @@ wl=pd.read_pickle('LBR M-18.PKL')
 rout=pd.read_hdf('ST_BM_BR.H5',key='ROUT') 
 BURCOST=pd.read_hdf('ST_BM_BR.H5',key='BR') 
 BURCOST.dropna(inplace=True,how='all')
-wl = wl[(wl['Order - Material (Key)'] != '#') & (wl['Order'] != '#')]
+wl = wl[(wl['Order - Material (Key)'] != '#') &
+    (wl['Order'] != '#') & (wl['Standard Text Key'] != '#')]
 def filteroverheadkeys(x,y):
      x = x.merge(BURCOST,left_on=y,right_on='ST KEY',how='left')
      x.drop(columns=['ST KEY'],axis=1,inplace=True)
