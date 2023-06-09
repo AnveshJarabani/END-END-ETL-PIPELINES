@@ -10,6 +10,13 @@ if __name__ == '__main__':
     from def_cost_extractor import cost_extractor
     warnings.simplefilter(action='ignore', category=(FutureWarning, UserWarning))
     os.environ['PYDEVD_DISABLE_FILE_VALIDATION'] = '1'
+    pdm_files=[]
+    for root, dirs, files in os.walk(r"C:\UCT-CORP-ePDM"):
+        if any('AJARABANI'.lower()==item.lower() for item in dirs):
+                pass
+        print(root,dirs)
+        pdm_files.extend(files)
+    pdm_parts=[i.split('.')[0] for i in pdm_files]
     chromeOptions = webdriver.ChromeOptions()
     chromeOptions.add_argument('--blink-settings=imagesEnabled=false')
     chromeOptions.add_argument('--headless')
@@ -39,19 +46,20 @@ if __name__ == '__main__':
                                       '{} Pack'.format(re.search('\d+$', x)[0]))
     res_df['link']=res_df['PN'].apply(lambda x:home_raw.format(x))
     res_df.loc[res_df['T'].notna(),'TIER']=res_df['T']
-    res_df=res_df[['link','PN','TIER','COST','png']]
+    res_df['PDM Y/N']=res_df['PN'].apply(lambda x: 'Yes' if any(x in part for part in pdm_parts) else 'No')
+    res_df=res_df[['link','PN','TIER','COST','PDM Y/N']]
     xl.books.active.sheets.add(after='Sheet1',name='Test')
     print(res_df)
     print('processed in {} secs'.format(round(time.time()-start,2)))
     sht=xl.books.active.sheets['Test']
     sht.range('A1').options(
-        index=False).value = res_df.iloc[:, 0:4]
-    sht.range('E1').value='Image'
-    rnge = sht.range('R1:R{}'.format(len(res_df)+2))
+        index=False).value = res_df
+    sht.range('F1').value='Image'
+    rnge = sht.range('F1:F{}'.format(len(res_df)+2))
     sht_name=sht.name
     rnge.row_height=30
     rnge.column_width=30
-    l = sht.range('E2').left+10/4
+    l = sht.range('F2').left+10/4
     pool = mp.Pool(processes=5)
     for rn,i in enumerate(res_df['PN']):
         rn+=1

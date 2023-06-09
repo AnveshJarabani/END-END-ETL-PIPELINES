@@ -3,9 +3,8 @@ import numpy as np
 from datetime import datetime,timedelta
 RAWLBR=pd.read_pickle('LBR M-18.PKL')
 RAWLBR=RAWLBR[['Order - Material (Key)','Order', 'Operation', 'Standard Text Key','End Date' ]]
-RAWLBR=RAWLBR.loc[RAWLBR['Order - Material (Key)']!='#']
-RAWLBR=RAWLBR.loc[RAWLBR['Order']!='#']
-RAWLBR=RAWLBR.loc[RAWLBR['Standard Text Key']!='#']
+RAWLBR = RAWLBR[(RAWLBR['Order - Material (Key)'] != '#') &
+            (RAWLBR['Order'] != '#') & (RAWLBR['Standard Text Key'] != '#')]
 RAWLBR=RAWLBR.loc[RAWLBR['End Date'].notna()]
 RAWLBR['End Date']=RAWLBR['End Date'].astype('datetime64[ns]')
 filt_date=RAWLBR['End Date'].max()-timedelta(days=7*30)

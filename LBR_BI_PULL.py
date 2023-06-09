@@ -73,7 +73,6 @@ while wait:
 crNew_path='C:\\Users\\ajarabani\\Downloads\\Employee Labor Hours Report_P2M018.zip'
 zf=zipfile.ZipFile(crNew_path)
 df=pd.read_csv(zf.open('Employee Labor Hours.csv'))
-df = df[(df['Order - Material (Key)'] != '#') & (df['Order'] != '#') & (df['Standard Text Key'] != '#')]
 df=df.loc[df.iloc[:,0].notna()]
 df.replace(',','',regex=True,inplace=True)
 df['Operation Quantity']=df['Operation Quantity'].astype(float)
