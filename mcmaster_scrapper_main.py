@@ -10,13 +10,15 @@ if __name__ == '__main__':
     from def_cost_extractor import cost_extractor
     warnings.simplefilter(action='ignore', category=(FutureWarning, UserWarning))
     os.environ['PYDEVD_DISABLE_FILE_VALIDATION'] = '1'
-    pdm_files=[]
-    for root, dirs, files in os.walk(r"C:\UCT-CORP-ePDM"):
-        if any('AJARABANI'.lower()==item.lower() for item in dirs):
-                pass
-        print(root,dirs,files)
-        pdm_files.extend(files)
-    pdm_parts=[i.split('.')[0] for i in pdm_files]
+    pdm_df = pd.read_csv(r"C:\Users\ajarabani\Downloads\PDM File List.txt",delimiter=',',encoding='UTF-16')
+    parts=pdm_df['File Name'].apply(lambda x: x.split('.')[0])
+    # pdm_files=[]
+    # for root, dirs, files in os.walk(r"C:\UCT-CORP-ePDM"):
+    #     if any('AJARABANI'.lower()==item.lower() for item in dirs):
+    #             pass
+    #     print(root,dirs,files)
+    #     pdm_files.extend(files)
+    # pdm_parts=[i.split('.')[0] for i in pdm_files]
     chromeOptions = webdriver.ChromeOptions()
     chromeOptions.add_argument('--blink-settings=imagesEnabled=false')
     chromeOptions.add_argument('--headless')
@@ -46,7 +48,7 @@ if __name__ == '__main__':
                                       '{} Pack'.format(re.search('\d+$', x)[0]))
     res_df['link']=res_df['PN'].apply(lambda x:home_raw.format(x))
     res_df.loc[res_df['T'].notna(),'TIER']=res_df['T']
-    res_df['PDM Y/N']=res_df['PN'].apply(lambda x: 'Yes' if any(x in part for part in pdm_parts) else 'No')
+    res_df['PDM Y/N']=res_df['PN'].apply(lambda x: 'Yes' if any(x in part for part in parts) else 'No')
     res_df=res_df[['link','PN','TIER','COST','PDM Y/N']]
     xl.books.active.sheets.add(after='Sheet1',name='Test')
     print(res_df)
@@ -60,7 +62,6 @@ if __name__ == '__main__':
     rnge.row_height=30
     rnge.column_width=30
     l = sht.range('F2').left+10/4
-    pool = mp.Pool(processes=5)
     for rn,i in enumerate(res_df['PN']):
         rn+=1
         local_path = r"C:\Users\ajarabani\Downloads\{}.png".format(i)
