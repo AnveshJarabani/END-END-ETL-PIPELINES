@@ -20,11 +20,11 @@ for pdf in lst:
     #     continue
 
 
-# import h5py,pickle,sqlalchemy
-# from bigtree import print_tree,tree_to_dot,tree_to_dataframe
-# import networkx as nx
-# import matplotlib.pyplot as plt
-# from networkx.drawing.nx_agraph import graphviz_layout
+import h5py,pickle,sqlalchemy
+from bigtree import print_tree,tree_to_dot,tree_to_dataframe
+import networkx as nx
+import matplotlib.pyplot as plt
+from networkx.drawing.nx_agraph import graphviz_layout
 yt = pd.read_hdf(r"C:\Users\ajarabani\Downloads\PYTHON\QUOTES.H5", key='CY')
 rw = yt[(yt['TOP LEVEL'] == 'CY-217644') &
         (yt['P/N'] == 'CY-210151')].index[0]
