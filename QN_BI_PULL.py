@@ -6,10 +6,14 @@ from datetime import datetime
 import dateutil.relativedelta as delt
 import pandas as pd
 import numpy as np
-import zipfile,time,glob,os
+import zipfile
+import time
+import glob
+import os
 chromeOptions = webdriver.ChromeOptions()
 today = datetime.today().strftime('%m/%d/%y')
-START_DATE = (datetime.today()+delt.relativedelta(months=-18)).strftime('%m/%d/%y')
+START_DATE = (datetime.today()+delt.relativedelta(months=-18)
+              ).strftime('%m/%d/%y')
 driver = webdriver.Chrome('sldr.exe')
 driver.maximize_window()
 find = driver.find_element
@@ -33,7 +37,7 @@ elm = find(css, "ul[id*='promptsList']")
 promts_lst = elm.find_elements(By.TAG_NAME, 'li')
 #  ------------------------- ADD PLANTS TO PROMPT LIST -------------------------
 for i in promts_lst:
-    if 'Plant' in i.text: 
+    if 'Plant' in i.text:
         i.click()
         break
 find(css, "[title*='Reset prompts']").click()  # CLICK RESET
@@ -76,14 +80,14 @@ zf = zipfile.ZipFile(crNew)
 df = pd.read_csv(zf.open('Notification (Defect) Analysis .csv'))
 df = df.loc[df.iloc[:, 0].notna()]
 df.replace(',', '', regex=True, inplace=True)
-df.rename(columns={'Total QN  Quantity': 'Total QN Quantity'},inplace=True)
+df.rename(columns={'Total QN  Quantity': 'Total QN Quantity'}, inplace=True)
 df['Total QN Quantity'] = df['Total QN Quantity'].astype(float)
 df.select_dtypes(include=[float]).astype(np.float16)
 df.select_dtypes(include=[int]).astype(np.int8)
-df = df[['Plant', 'Calendar Year/Week', 'Notification PS Text - Long Text',
-            'CAUSEDBY', 'Defect Type', 'Defect Group', 'Vendor-Key',
-             'Vendor Desc', 'Material group', 'Material - Key', 'Material - Medium Text',
-             'Standard Price', 'Rejected Amount', 'Total QN Quantity']]
+df = df[['Plant', 'Calendar Year/Week', 'Required Start Date', 'Notification PS Text - Long Text',
+         'CAUSEDBY', 'Defect Type', 'Defect Group', 'Vendor-Key',
+         'Vendor Desc', 'Material group', 'Material - Key', 'Material - Medium Text',
+         'Standard Price', 'Rejected Amount', 'Total QN Quantity']]
 for col in ['Rejected Amount', 'Standard Price']:
     df[col] = pd.to_numeric(df[col].str.replace('$', ''))
 df.to_pickle('QN M-18.pkl')
