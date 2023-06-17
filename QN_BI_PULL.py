@@ -90,6 +90,7 @@ df = df[['Plant', 'Calendar Year/Week', 'Required Start Date', 'Notification PS 
          'Standard Price', 'Rejected Amount', 'Total QN Quantity']]
 for col in ['Rejected Amount', 'Standard Price']:
     df[col] = pd.to_numeric(df[col].str.replace('$', ''))
+df['Required Start Date']=pd.to_datetime(df['Required Start Date'])
 df.to_pickle('QN M-18.pkl')
 os.remove(crNew)
 print('QN M-18.PKL COMPLETE')
