@@ -1,16 +1,20 @@
 import numpy as np
 import xlwings as xl
 import pandas as pd
-import glob,PyPDF2,tabula
+import glob
+
+# import glob , PyPDF2, tabula
 from rich import print
+
+
 local_pth = r"C:\Users\ajarabani\Downloads"
-lst = glob.glob(local_pth+'/*pdf')
+lst = glob.glob(local_pth + "/*pdf")
 for pdf in lst:
-    reader=PyPDF2.PdfReader(open(pdf,'rb'))
-    num_pages=len(reader.pages)
+    reader = PyPDF2.PdfReader(open(pdf, "rb"))
+    num_pages = len(reader.pages)
     for page in range(num_pages):
         print(reader.pages[page].extract_text())
-        print('\n')
+        print("\n")
     # try:
     #     tables=tabula.read_pdf(pdf,pages='all')
     #     for table in tables:
@@ -20,28 +24,29 @@ for pdf in lst:
     #     continue
 
 
-import h5py,pickle,sqlalchemy
-from bigtree import print_tree,tree_to_dot,tree_to_dataframe
+import h5py, pickle, sqlalchemy
+from bigtree import print_tree, tree_to_dot, tree_to_dataframe
 import networkx as nx
 import matplotlib.pyplot as plt
 from networkx.drawing.nx_agraph import graphviz_layout
-yt = pd.read_hdf(r"C:\Users\ajarabani\Downloads\PYTHON\QUOTES.H5", key='CY')
-rw = yt[(yt['TOP LEVEL'] == 'CY-217644') &
-        (yt['P/N'] == 'CY-210151')].index[0]
+
+yt = pd.read_hdf(r"C:\Users\ajarabani\Downloads\PYTHON\QUOTES.H5", key="CY")
+rw = yt[(yt["TOP LEVEL"] == "CY-217644") & (yt["P/N"] == "CY-210151")].index[0]
 for i in range(1, 13):
-    val = yt.loc[(yt['P/N'] == 'CY-217185') &
-                 (yt['TOP LEVEL']== 'CY-213633'), yt.columns[i]].values[0]
+    val = yt.loc[
+        (yt["P/N"] == "CY-217185") & (yt["TOP LEVEL"] == "CY-213633"), yt.columns[i]
+    ].values[0]
     yt.iat[rw, i] = val
 # cn=sqlalchemy.create_engine('mysql+pymysql://anveshjarabani:Zintak1!@mysql12--2.mysql.database.azure.com:3306/uct_data',
 #                             connect_args={'ssl_ca':'DigiCertGlobalRootCA.crt.pem'})
 
 # lbr_raw=pd.read_pickle('LBR M-18.PKL')
 # lbr_raw.to_sql(name='lbr m-18',con=cn,if_exists='replace',index=False)
-yt.to_hdf(r"C:\Users\ajarabani\Downloads\PYTHON\QUOTES.H5", key='CY',mode='a')
-with open('FOREST.PKL', 'rb') as f:
-    FOREST = pickle.load(f) 
+yt.to_hdf(r"C:\Users\ajarabani\Downloads\PYTHON\QUOTES.H5", key="CY", mode="a")
+with open("FOREST.PKL", "rb") as f:
+    FOREST = pickle.load(f)
 
-tree=FOREST['839-198032-001']
+tree = FOREST["839-198032-001"]
 # create a graph
 G = nx.DiGraph()
 # Add nodes and edges to the graph
@@ -67,7 +72,9 @@ for node, level in levels.items():
 # Set the positions of the nodes
 pos = {}
 for level in set(levels.values()):
-    nodes_in_level = [node for node, node_level in levels.items() if node_level == level]
+    nodes_in_level = [
+        node for node, node_level in levels.items() if node_level == level
+    ]
     level_width = len(nodes_in_level)
     for i, node in enumerate(nodes_in_level):
         pos[node.name] = ((i + 0.5) / level_width, -level)
@@ -84,14 +91,27 @@ for level in set(levels.values()):
 # Draw the graph
 # G.graph['rankdir']='BT'
 # pos = nx.spring_layout(G, seed=42)
-nx.draw_networkx(G, pos=pos, with_labels=True, node_color="lightblue", node_size=1000, font_size=10, font_weight="bold")
+nx.draw_networkx(
+    G,
+    pos=pos,
+    with_labels=True,
+    node_color="lightblue",
+    node_size=1000,
+    font_size=10,
+    font_weight="bold",
+)
 plt.axis("off")
 plt.show()
 
 print(FOREST)
-sm=pd.read_hdf('ST_BM_BR.H5',key='AGILE_BOM')
+sm = pd.read_hdf("ST_BM_BR.H5", key="AGILE_BOM")
 # x=pd.read_hdf('LBR.H5',key='WO_TRENDS')
-multi=xl.books.active.sheets.active.range('A1:DF3105').options(index=False).options(pd.DataFrame,index=False).value
+multi = (
+    xl.books.active.sheets.active.range("A1:DF3105")
+    .options(index=False)
+    .options(pd.DataFrame, index=False)
+    .value
+)
 
 # x=xl.books.active.sheets.active.range('A1').current_region.options(index=False).options(pd.DataFrame,index=False).value
 
@@ -131,4 +151,3 @@ print(multi)
 # dt=pd.read_excel("LABOR HOURS 2020 - 9.22.22.xlsx",sheet_name='Employee Labor Hours',skiprows=[0],usecols="A:AR")
 # dt.to_pickle('LABOR HOURS 2020 - 9.22.22.PKL')
 # xl.books.active.sheets.active.range('A1').options(index=False).value=ma
- 
