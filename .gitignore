@@ -6,6 +6,6 @@ venv/
 *pkl
 *5
 *PKL
-__pycache__/
+*pycache*/
 PKL/
 H5/
