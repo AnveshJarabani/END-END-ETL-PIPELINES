@@ -1,1 +1,9 @@
 *.pem
+venv/
+*pyc
+*xlsm
+*XLSM
+*pkl
+*5
+*PKL
+__pycache__/
