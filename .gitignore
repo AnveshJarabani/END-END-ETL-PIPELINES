@@ -7,3 +7,5 @@ venv/
 *5
 *PKL
 __pycache__/
+PKL/
+H5/

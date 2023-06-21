@@ -1,0 +1,6 @@
+exec(open("LBR_BI_PULL.py").read())
+exec(open("PH_BI_PULL.py").read())
+exec(open("SHP_BI_PULL.py").read())
+exec(open("OVS_BI_PULL.py").read())
+exec(open("STD_BI_PULL.py").read())
+exec(open("SM_DEMAND 3 MONTHS.py").read())

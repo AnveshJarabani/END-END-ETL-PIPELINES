@@ -10,7 +10,9 @@
       "request": "launch",
       "program": "${file}",
       "console": "internalConsole",
-      "justMyCode": true
+      "justMyCode": true,
+      "internalConsoleOptions": "openOnSessionStart",
+      "cwd": "${fileDirname}"
     }
   ]
 }
