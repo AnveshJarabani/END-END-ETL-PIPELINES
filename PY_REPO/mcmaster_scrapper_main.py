@@ -29,7 +29,7 @@ if __name__ == '__main__':
         return response
     MPN_df=xl.books.active.sheets['Sheet1'].range('A1').expand('down').options(index=False).options(pd.DataFrame,index=False).value
     home_raw = 'https://www.mcmaster.com/{}/'
-    driver = webdriver.Chrome('sldr.exe',options=chromeOptions)
+    driver = webdriver.Chrome(,options=chromeOptions)
     raw = 'https://www.mcmaster.com/WebParts/Ordering/InLnOrdWebPart/ItmPrsnttnDynamicDat.aspx?acttxt=dynamicdat&partnbrtxt={}'
     driver.get(home_raw.format(MPN_df.iloc[0,0]))
     time.sleep(2)
