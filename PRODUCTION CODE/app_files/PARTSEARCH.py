@@ -8,11 +8,10 @@ import pandas as pd
 import numpy as np
 dash.register_page(__name__)
 COSTS = None
-Num = None
-BOM=pd.read_hdf('ST_BM_BR.H5',key='BOM')
-FRAMECOSTS=pd.read_pickle('FRAME.COSTS.PKL')
+BOM=pd.read_hdf('../H5/ST_BM_BR.H5',key='BOM')
+FRAMECOSTS=pd.read_pickle('../PKL/FRAME.COSTS.PKL')
 FRAMECOSTS.iloc[:,1] = FRAMECOSTS.iloc[:,1].astype(str)
-PIE_COST=pd.read_pickle('FRAMES_PIE.PKL')
+PIE_COST=pd.read_pickle('../PKL/FRAMES_PIE.PKL')
 PIE_COST=PIE_COST.transpose().reset_index()
 PIE_COST.columns=PIE_COST.iloc[0]
 PIE_COST=PIE_COST.drop(index=0)
@@ -52,12 +51,11 @@ layout = dbc.Container([
     Output('PARTCOSTS','figure'),
     Input('PART','value'))
 def pie_table(PN):
-    global COSTS, Num
-    Num=PN
+    global COSTS
     if PN is None:
         PN='UC-66-112093-00'
-    BOM = pd.read_hdf('ST_BM_BR.H5',key='BOM')
-    PH = pd.read_hdf('PH.H5',key='PH')
+    BOM = pd.read_hdf('../H5/ST_BM_BR.H5',key='BOM')
+    PH = pd.read_hdf('../H5/PH.H5',key='PH')
     PH.rename(columns={'Material - Key':'PH'},inplace=True)
     LVLBOMS = pd.DataFrame(columns=['TOPLEVEL','MATERIAL','COMP', 'QTY','TOP LVL QTY'])
     # BOM EXTRACT ----------------------------------------
@@ -97,9 +95,9 @@ def pie_table(PN):
     LVLBOMS=LVLBOMS[LVLBOMS['TOPLEVEL'].notnull()]
     LVLBOMS=LVLBOMS.loc[~LVLBOMS['COMP'].str.endswith('-UCT',na=False)]
     # ---------------------------------- ADD COSTS TO LEVEL BOMS --------------------------------------
-    STD=pd.read_hdf('ST_BM_BR.H5',key="STD")
-    LBR = pd.read_hdf('LBR.H5',key="ACT_V_PL_CST")
-    OVS = pd.read_hdf("OVS.H5",key='OVS')
+    STD=pd.read_hdf('../H5/ST_BM_BR.H5',key="STD")
+    LBR = pd.read_hdf('../H5/LBR.H5',key="ACT_V_PL_CST")
+    OVS = pd.read_hdf("../H5/OVS.H5",key='OVS')
     COSTS = LVLBOMS.merge(PH,left_on='COMP',right_on='PH',how='left')
     COSTS.drop(columns=['PH'],axis=1,inplace=True)
     COSTS = COSTS.merge(STD,left_on='COMP',right_on='MATERIAL',how='left')
@@ -149,7 +147,8 @@ def pie_table(PN):
 @callback(
     Output('download-prcomp','data'),
     Input('BTN_PN','n_clicks'),
+    Input('PART','value'),
     prevent_initial_call=True
 )
-def func(n_clicks):
-    return dcc.send_data_frame(COSTS.to_excel,str(Num)+' ACTUAL COST.xlsx',index=False,engine='xlsxwriter')
+def func(n_clicks,PN):
+    return dcc.send_data_frame(COSTS.to_excel,str(PN)+' ACTUAL COST.xlsx',index=False,engine='xlsxwriter')

@@ -5,7 +5,7 @@ import plotly.express as px
 import dash_bootstrap_components as dbc
 import pandas as pd
 dash.register_page(__name__)
-WC_LOAD=pd.read_hdf('LBR.H5',key='WC_LOAD')
+WC_LOAD=pd.read_hdf('../H5/LBR.H5',key='WC_LOAD')
 layout = dbc.Container([
   dbc.Row([
         dbc.Col([

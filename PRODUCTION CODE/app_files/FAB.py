@@ -7,11 +7,11 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import numpy as np
 dash.register_page(__name__)
-ACTVSQT=pd.read_pickle('FRAMES_QT_VS_ACT.PKL')
+ACTVSQT=pd.read_pickle('../PKL/FRAMES_QT_VS_ACT.PKL')
 ACTVSQT=ACTVSQT.fillna(0)
-FRAMECOSTS=pd.read_pickle('FRAME.COSTS.PKL')
+FRAMECOSTS=pd.read_pickle('../PKL/FRAME.COSTS.PKL')
 FRAMECOSTS.iloc[:,1] = FRAMECOSTS.iloc[:,1].astype(str)
-PIE_COST=pd.read_pickle('FRAMES_PIE.PKL')
+PIE_COST=pd.read_pickle('../PKL/FRAMES_PIE.PKL')
 PIE_COST=PIE_COST.transpose().reset_index()
 PIE_COST.columns=PIE_COST.iloc[0]
 PIE_COST=PIE_COST.drop(index=0)

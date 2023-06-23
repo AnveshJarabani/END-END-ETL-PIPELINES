@@ -7,7 +7,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import numpy as np
 dash.register_page(__name__)
-SM_DEMAND=pd.read_pickle('SM_DEMAND_FORECAST.PKL')
+SM_DEMAND=pd.read_pickle('../PKL/SM_DEMAND_FORECAST.PKL')
 layout = dbc.Container([
   dbc.Row([
         dbc.Col([

@@ -5,8 +5,8 @@ import plotly.express as px
 import dash_bootstrap_components as dbc
 import pandas as pd
 dash.register_page(__name__)
-ACT_HRS=pd.read_hdf('LBR.H5',key='WO_TRENDS')
-PLN_HRS=pd.read_hdf('LBR.H5',key='PLN_HR')
+ACT_HRS=pd.read_hdf('../H5/LBR.H5',key='WO_TRENDS')
+PLN_HRS=pd.read_hdf('../H5/LBR.H5',key='PLN_HR')
 layout = dbc.Container([
   dbc.Row([
         dbc.Col([
