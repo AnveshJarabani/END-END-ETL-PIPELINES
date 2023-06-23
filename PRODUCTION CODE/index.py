@@ -1,6 +1,5 @@
-import dash
 from dash import html
-from app_files import app
+from app import app
 import dash_bootstrap_components as dbc
 from dash import Output,Input,State,dcc
 import base64
