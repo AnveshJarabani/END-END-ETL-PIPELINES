@@ -7,10 +7,11 @@ import re,json
 import numpy as np
 import datetime
 keys= json.load(open("../PRIVATE/encrypt.json", "r"))
-
+pth=os.path.abspath("../PRIVATE/vscode.pem")
 cn = sqlalchemy.create_engine( keys['con_str'],
-    connect_args={"ssl_ca": keys['ssl_ca']}
+    connect_args={"ssl_ca": "vscode.pem"}
 )
+
 print(cn.table_names())
 
 # ! UCT DATA SCHEMA CONNECTION
