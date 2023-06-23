@@ -7,23 +7,27 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import numpy as np
 dash.register_page(__name__)
-LAM_SMRY = pd.read_hdf('TOOLCOSTS.H5',key='LM_SMRY')
-LAM_PIE=pd.read_hdf('TOOLCOSTS.H5',key='LM_PIE')
-LAM_ACTQTDT=pd.read_hdf('TOOLCOSTS.H5',key='LM_QT_VS_ACT')
+LAM_SMRY = pd.read_hdf('../H5/TOOLCOSTS.H5',key='LM_SMRY')
+LAM_PIE=pd.read_hdf('../H5/TOOLCOSTS.H5',key='LM_PIE')
+LAM_ACTQTDT=pd.read_hdf('../H5/TOOLCOSTS.H5',key='LM_QT_VS_ACT')
 LAM_ACTQTDT['VENDOR']=LAM_ACTQTDT['VENDOR'].str[:10]
-CYMER_SMRY=pd.read_hdf('TOOLCOSTS.H5',key='CY_SMRY')
-CYMER_PIE=pd.read_hdf('TOOLCOSTS.H5',key='CY_PIE')
-CYMER_ACTQTDT=pd.read_hdf('TOOLCOSTS.H5',key='CY_QT_VS_ACT')
-KLA_SMRY=pd.read_hdf('TOOLCOSTS.H5',key='KLA_SMRY')
-KLA_PIE=pd.read_hdf('TOOLCOSTS.H5',key='KLA_PIE')
-KLA_ACTQTDT=pd.read_hdf('TOOLCOSTS.H5',key='KLA_QT_VS_ACT')
+CYMER_SMRY=pd.read_hdf('../H5/TOOLCOSTS.H5',key='CY_SMRY')
+CYMER_PIE=pd.read_hdf('../H5/TOOLCOSTS.H5',key='CY_PIE')
+CYMER_ACTQTDT=pd.read_hdf('../H5/TOOLCOSTS.H5',key='CY_QT_VS_ACT')
+KLA_SMRY=pd.read_hdf('../H5/TOOLCOSTS.H5',key='KLA_SMRY')
+KLA_PIE=pd.read_hdf('../H5/TOOLCOSTS.H5',key='KLA_PIE')
+KLA_ACTQTDT=pd.read_hdf('../H5/TOOLCOSTS.H5',key='KLA_QT_VS_ACT')
 KLA_ACTQTDT['VENDOR']=KLA_ACTQTDT['VENDOR'].str[:10]
 new_cols=['TOP LEVEL','PN','DESC','VENDOR','QTY']
 for i in [KLA_ACTQTDT,CYMER_ACTQTDT,LAM_ACTQTDT]:
     i.columns=new_cols+list(i.columns[len(new_cols):])
 KLA_ACTQTDT.rename(columns={'DELTA T3':'DELTA'},inplace=True)
 PIE_COST=pd.concat([LAM_PIE,CYMER_PIE,KLA_PIE])
-PERIODS=pd.read_pickle('FISCAL CAL.PKL')
+
+import os
+print(os.getcwd())
+
+PERIODS=pd.read_pickle('../PKL/FISCAL CAL.PKL')
 PERIODS.drop_duplicates(inplace=True,ignore_index=True)
 QTR=PERIODS.loc[PERIODS['FISCAL PERIOD']=='Period 9','QTR'].reset_index().iloc[0,1]
 PIE_COST_P=PIE_COST.loc[PIE_COST['QTR']==QTR]

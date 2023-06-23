@@ -1,4 +1,3 @@
-
 import dash
 from dash import dcc, html, callback
 from dash.dependencies import Output,Input
@@ -8,27 +7,30 @@ import pandas as pd
 import numpy as np
 def costby_bom(DF,PART):
     LVLBOM=BOM_EXTRACT(PART)
-    COST_CLM=DF.columns[2]
+    REL_CLM=DF.columns[4]
+    CST_CLM=DF.columns[2]
     PN=DF.columns[1]
     DT_LBR=LVLBOM.merge(DF,left_on='COMP',right_on=PN,how='left')
-    DT_LBR=DT_LBR.loc[DT_LBR[COST_CLM].notna()]
-    DT_LBR[COST_CLM]=DT_LBR[COST_CLM]*DT_LBR['TOP LVL QTY']
-    DT_LBR=DT_LBR.pivot_table(index=['Q+YR','TOPLEVEL'],values=[COST_CLM],aggfunc=np.sum)
+    DT_LBR=DT_LBR.loc[DT_LBR[REL_CLM].notna()]
+    DT_LBR[REL_CLM]=DT_LBR[REL_CLM]*DT_LBR['TOP LVL QTY']
+    DT_LBR=DT_LBR.pivot_table(index=['Q+YR','TOPLEVEL'],values=[CST_CLM,REL_CLM],aggfunc=np.sum)
     DT_LBR.reset_index(inplace=True)
     DT_LBR.rename(columns={'TOPLEVEL':'PN'},inplace=True)
+    DT_LBR=DT_LBR[['Q+YR','PN',CST_CLM,REL_CLM]]
     DT_LBR=sort_QS(DT_LBR)
     return DT_LBR
 def costby_buy_bom(DF,PART):
     LVLBOM=BOM_EXTRACT(PART)
-    COST_CLM=DF.columns[2]
+    REL_CLM=DF.columns[4]
+    CST_CLM=DF.columns[2]
     PN=DF.columns[1]
-    DT_LBR=LVLBOM.merge(DF,left_on='COMP',right_on=PN,how='left')
-    DT_LBR=DT_LBR.loc[DT_LBR[COST_CLM].notna()]
-    DT_LBR=DT_LBR[['Q+YR','PN',COST_CLM]].drop_duplicates()
-    DT_LBR.reset_index(inplace=True,drop=True)
-    DT_LBR.rename(columns={'TOPLEVEL':'PN'},inplace=True)
-    DT_LBR=sort_QS(DT_LBR)
-    return DT_LBR
+    DT_BUY=LVLBOM.merge(DF,left_on='COMP',right_on=PN,how='left')
+    DT_BUY=DT_BUY.loc[DT_BUY[REL_CLM].notna()]
+    DT_BUY=DT_BUY[['Q+YR','PN',CST_CLM,REL_CLM]].drop_duplicates()
+    DT_BUY.reset_index(inplace=True,drop=True)
+    DT_BUY.rename(columns={'TOPLEVEL':'PN'},inplace=True)
+    DT_BUY=sort_QS(DT_BUY)
+    return DT_BUY
 def sort_QS(DF):
     pi=DF.merge(QS,left_on='Q+YR',right_on='Q+YR',how='left')
     pi.sort_values(by=['YR','MONTH'],ascending=True,inplace=True)
@@ -78,41 +80,47 @@ def BOM_EXTRACT(PN):
     LVLBOMS.reset_index(inplace=True)
     return LVLBOMS
 def fig(PN,DT_PN):
+        # CST_22=DT_PN.iloc[-1,2]
+        # CST_21=DT_PN.iloc[-5,2]
+        # CHANGE=(CST_22-CST_21)/CST_21
         graph=px.bar(
-        DT_PN,x='Q+YR',y='BUY COST',
-        hover_data={'PN':True,'BUY COST':':$,.2f'},
+        DT_PN,x='Q+YR',y='DELTA %',
+        hover_data={'PN':True,'DELTA %':True},
         template='seaborn',text_auto=True,
-        labels={'Q+YR': '<b>Y.LY QUARTERS','BUY COST':'<b> BUY COST TREND (QLY. AVG.)'})
+        labels={'Q+YR': '<b>Y.LY QUARTERS','DELTA %':'<b> QLY RELATIVE COST TREND'})
         graph.update_traces(textfont_size=16)
         graph.update_layout(title = dict(text='<b>'+PN + ' BUY Cost Trend',font_size=30,
             yanchor='bottom', x=0.5,y=.95),
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)',
-            font={'family':'Arial','size':12},yaxis_tickformat='$,')
+            font={'family':'Arial','size':12},yaxis_tickformat='.2%') 
         graph.update_yaxes(tickfont_family="Arial Black")
         graph.update_xaxes(tickfont_family="Arial Black")
+        # graph.add_hline(y=CHANGE,line_dash='dot',
+        # annotation_text='<b>% CHANGE in 2022: '+str(('{:.2f}%').format(CHANGE*100)),
+        # annotation_position='top left',line=dict(color='blue',width=2.5))
         return graph
 dash.register_page(__name__)
-LBR_COSTS=pd.read_hdf('LBR.H5',key='Q_TRENDS')
-OVS_COSTS=pd.read_hdf('OVS.H5',key='TREND')
-PH_COSTS=pd.read_hdf('PH.H5',key='TREND')
-PH=pd.read_hdf('PH.H5',key='PH')
-BOM=pd.read_hdf('ST_BM_BR.H5',key='BOM')
-QS=pd.read_pickle('QLY INTS.PKL')
+LBR_COSTS_REL=pd.read_hdf('../H5/LBR.H5',key='Q_TRENDS')
+OVS_COSTS_REL=pd.read_hdf('../H5/OVS.H5',key='TREND')
+PH_COSTS_REL=pd.read_hdf('../H5/PH.H5',key='TREND')
+PH=pd.read_hdf('../H5/PH.H5',key='PH')
+BOM=pd.read_hdf('../H5/ST_BM_BR.H5',key='BOM')
+QS=pd.read_pickle('../PKL/QLY INTS.PKL')
 layout = dbc.Container([
   dbc.Row([
         dbc.Col([
-        html.H1('PLACEHOLDER',
+        html.H1('PLACEHOLDER',  
         className='text-center',style={'color':'#1172FF','font-weight':'bold','width': '80vw','height':'15vh',
         'font-size':50,'display':'inline-block'}),
         ])]),
     dbc.Row([
         dbc.Col([
-            html.H2('QUARTERLY COST TRENDS',
+            html.H2('QLY RELATIVE COST TRENDS',
             style={'font':'Arial Black','color':'BLACK','font-weight':'bold','font-size':30,'text-decoration':'underline'})]
             ,width={'size':4}),
         dbc.Col([
-        dcc.Input(id='PART-COSTS', 
+        dcc.Input(id='PART-COSTS_REL', 
         debounce=True,
         value='CY-133400',
         placeholder='ENTER PART NUMBER...',
@@ -121,53 +129,59 @@ layout = dbc.Container([
         'font-size':'22px','margin-bottom':'20px'})],width={'offset':1,'size':3})]),
     dbc.Collapse(dbc.Row(
         dbc.Col([
-        dcc.Graph(id='LBR_COSTS',
+        dcc.Graph(id='LBR_COSTS_REL',
         style={'padding-left':'30px','width': '40vw','height':'50vh','display':'inline-block'}),
-        dcc.Graph(id='OVS_COSTS',
+        dcc.Graph(id='OVS_COSTS_REL',
         style={'padding-left':'60px','width': '40vw','height':'50vh','display':'inline-block'})
         ]
-        ,width={'offset':1})),id='hide',is_open=True),        
+        ,width={'offset':1})),id='hide_1',is_open=True),        
     dbc.Row([
         dbc.Col([
-    dcc.Loading(html.Div(id='1set',children=[]),type='dot',fullscreen=True),
+    dcc.Loading(html.Div(id='1set_rel',children=[]),type='dot',fullscreen=True),
     ],width={'offset':1,'size':3}),
     dbc.Col([
-    html.Div(id='2set',children=[])
+    html.Div(id='2set_rel',children=[])
     ],width={'offset':2,'size':3})
     ]),
     dcc.Store(id='session', storage_type='session'),
 ],style={'height':'200vh'},fluid=True)
 @callback(
-    Output('LBR_COSTS','figure'),
-    Output('OVS_COSTS','figure'),
-    Output('1set','children'),
-    Output('2set','children'),
-    Output('hide','is_open'),
-    Input('PART-COSTS','value'),
+    Output('LBR_COSTS_REL','figure'),
+    Output('OVS_COSTS_REL','figure'),
+    Output('1set_rel','children'),
+    Output('2set_rel','children'),
+    Output('hide_1','is_open'),
+    Input('PART-COSTS_REL','value'),
  )
 def update_graph(PART):
-    DT_LBR=costby_bom(LBR_COSTS,PART)
-    DT_OVS=costby_bom(OVS_COSTS,PART)
-    DT_PH=costby_buy_bom(PH_COSTS,PART)
+    DT_LBR=costby_bom(LBR_COSTS_REL,PART)
+    DT_OVS=costby_bom(OVS_COSTS_REL,PART)
+    DT_PH=costby_buy_bom(PH_COSTS_REL,PART)
     is_open=True
     if len(DT_LBR)==0:
         LBR=px.bar()
         is_open=False
     else:
+        # CST_22=DT_LBR.iloc[-1,2]
+        # CST_21=DT_LBR.iloc[-5,2]
+        # CHANGE=(CST_22-CST_21)/CST_21
         LBR = px.bar(
-            DT_LBR,x='Q+YR',y='ACT LBR COST/EA',
-            hover_data={'PN':True,'ACT LBR COST/EA':':$,.2f'},
+            DT_LBR,x='Q+YR',y='DELTA %',
+            hover_data={'PN':True,'DELTA %':True},
             template='seaborn',text_auto=True,
-            labels={'Q+YR': '<b>Y.LY QUARTERS','ACT LBR COST/EA':'<b> ACT LABOR COST TREND (QLY. AVG.)'}
+            labels={'Q+YR': '<b>Y.LY QUARTERS','DELTA %':'<b> ACT LABOR RELATIVE COST TREND'}
             )
         LBR.update_traces(textfont_size=16)
         LBR.update_layout(title = dict(text='<b>'+PART + ' Labor Trend (Includes Subs)',font_size=30,
             yanchor='bottom', x=0.5,y=.95),
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)',
-            font={'family':'Arial','size':12},yaxis_tickformat='$,')
+            font={'family':'Arial','size':12},yaxis_tickformat='.2%')
         LBR.update_yaxes(tickfont_family="Arial Black")
         LBR.update_xaxes(tickfont_family="Arial Black")
+        # LBR.add_hline(y=CHANGE,line_dash='dot',
+        # annotation_text='<b>% CHANGE in 2022: '+str(('{:.2f}%').format(CHANGE*100)),
+        # annotation_position='top left',line=dict(color='blue',width=2.5))
     if len(DT_OVS)==0:
         OVS=px.bar()
         OVS.update_layout(title = dict(text='<b>'+PART + ' has NO OVS Cost',font_size=30,
@@ -176,21 +190,28 @@ def update_graph(PART):
             paper_bgcolor='rgba(0,0,0,0)',
         font={'family':'Arial','size':12})
     else:
+        # CST_22=DT_OVS.iloc[-1,2]
+        # CST_21=DT_OVS.iloc[-5,2]
+        # CHANGE=(CST_22-CST_21)/CST_21
         OVS = px.bar(
-            DT_OVS,x='Q+YR',y='OVS COST',
-            hover_data={'PN':True,'OVS COST':':$,.2f'},
+            DT_OVS,x='Q+YR',y='DELTA %',
+            hover_data={'PN':True,'DELTA %':True},
             template='seaborn',text_auto=True,
-            labels={'Q+YR': '<b>Y.LY QUARTERS','OVS COST':'<b> OVS COST TREND (QLY. AVG.)'}
+            labels={'Q+YR': '<b>Y.LY QUARTERS','DELTA %':'<b> OVS COST RELATIVE TREND'}
             )
         OVS.update_traces(textfont_size=16)
         OVS.update_layout(title = dict(text='<b>'+PART + ' OVS Cost Trend',font_size=30,
             yanchor='bottom', x=0.5,y=.95),
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)',
-            font={'family':'Arial','size':12},yaxis_tickformat='$,')
+            font={'family':'Arial','size':12},yaxis_tickformat='.2%')
         OVS.update_xaxes(tickfont_family="Arial Black")
         OVS.update_yaxes(tickfont_family="Arial Black")
-    gs1 , gs2 = [] , []
+        # OVS.add_hline(y=CHANGE,line_dash='dot',
+        # annotation_text='<b>% CHANGE in 2022: '+str(('{:.2f}%').format(CHANGE*100)),
+        # annotation_position='top left',line=dict(color='blue',width=2.5))
+    gs1=[]
+    gs2=[]
     m=1
     if len(DT_PH['PN'].unique())!=1:
         DT_PH=DT_PH.loc[DT_PH['BUY COST']>10]

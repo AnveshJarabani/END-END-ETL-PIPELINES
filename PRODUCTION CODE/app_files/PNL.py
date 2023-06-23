@@ -6,9 +6,9 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import numpy as np
 dash.register_page(__name__,path='/')
-LM_SMRY=pd.read_hdf('TOOLCOSTS.H5',key='LM_SMRY')
-CY_SMRY=pd.read_hdf('TOOLCOSTS.H5',key='CY_SMRY')
-KLA_SMRY=pd.read_hdf('TOOLCOSTS.H5',key='KLA_SMRY')
+LM_SMRY=pd.read_hdf('../H5/TOOLCOSTS.H5',key='LM_SMRY')
+CY_SMRY=pd.read_hdf('../H5/TOOLCOSTS.H5',key='CY_SMRY')
+KLA_SMRY=pd.read_hdf('../H5/TOOLCOSTS.H5',key='KLA_SMRY')
 LM_SMRY['$SOLD']=LM_SMRY['Act Shipped Qty']*LM_SMRY['ASP']
 LM_SMRY['BUILD COST']=LM_SMRY['Act Shipped Qty']*LM_SMRY['ACTUAL COST']
 LM_SMRY['P/L']=LM_SMRY['Act Shipped Qty']*LM_SMRY['DELTA.CAL']

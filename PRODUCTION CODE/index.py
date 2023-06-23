@@ -1,10 +1,10 @@
 import dash
 from dash import html
+from app_files import app
 import dash_bootstrap_components as dbc
 from dash import Output,Input,State,dcc
-from app import app
 import base64
-from apps import TOOLCOSTS,FAB,PARTSEARCH,WO_HRS,DAYS,Version,QLY_TRENDS,WC_LOAD,QLY_RELATIVE_TRENDS,SHEETMETAL_DEMAND,PNL,FPY
+from app_files import TOOLCOSTS,FAB,PARTSEARCH,WO_HRS,DAYS,Version,QLY_TRENDS,WC_LOAD,QLY_RELATIVE_TRENDS,SHEETMETAL_DEMAND,PNL,FPY,FPY_PN
 test_base64 = base64.b64encode(open('UCT.PNG', 'rb').read()).decode('ascii')
 offcanvas = html.Div([
         dbc.Button("Explore",id="Open-offcanvas", n_clicks=0,size='lg',class_name='me-1'),
@@ -45,6 +45,9 @@ offcanvas = html.Div([
                     "QUALITY DATA", href="/apps/FPY"
                 ),
                 dbc.ListGroupItem(
+                    "QUALITY DATA BY PN", href="/apps/FPY_PN"
+                ),
+                dbc.ListGroupItem(
                     "VERSION", href="/apps/version"
                 ),
                 ]
@@ -56,6 +59,7 @@ offcanvas = html.Div([
         ),
     ]
 )
+
 @app.callback(
     Output("offcanvas", "is_open"),
     Input("Open-offcanvas", "n_clicks"),
@@ -116,6 +120,8 @@ def display_page(pathname):
         return WC_LOAD.layout
     if pathname=='/apps/FPY':
         return FPY.layout
+    if pathname=='/apps/FPY_PN':
+        return FPY_PN.layout  
     if pathname=='/apps/SHEETMETAL_DEMAND':
         return SHEETMETAL_DEMAND.layout
     else:

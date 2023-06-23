@@ -3,9 +3,15 @@ from sqlalchemy import inspect
 import pandas as pd
 import h5py
 import os
-import re
+import re,json
 import numpy as np
 import datetime
+keys= json.load(open("../PRIVATE/encrypt.json", "r"))
+
+cn = sqlalchemy.create_engine( keys['con_str'],
+    connect_args={"ssl_ca": keys['ssl_ca']}
+)
+print(cn.table_names())
 
 # ! UCT DATA SCHEMA CONNECTION
 cn = sqlalchemy.create_engine(
