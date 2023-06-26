@@ -7,7 +7,6 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import numpy as np
 dash.register_page(__name__)
-COSTS = None
 BOM=pd.read_hdf('../H5/ST_BM_BR.H5',key='BOM')
 FRAMECOSTS=pd.read_pickle('../PKL/FRAME.COSTS.PKL')
 FRAMECOSTS.iloc[:,1] = FRAMECOSTS.iloc[:,1].astype(str)
