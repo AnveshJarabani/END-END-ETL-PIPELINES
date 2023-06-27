@@ -7,61 +7,30 @@ import re,json
 import numpy as np
 import datetime
 keys= json.load(open("../PRIVATE/encrypt.json", "r"))
-pth=os.path.abspath("../PRIVATE/vscode.pem")
-cn = sqlalchemy.create_engine( keys['con_str'],
-    connect_args={"ssl_ca": "vscode.pem"}
-)
-
-print(cn.table_names())
 
 # ! UCT DATA SCHEMA CONNECTION
-cn = sqlalchemy.create_engine(
-    "mysql+pymysql://anveshjarabani:Zintak1!@mysql12--2.mysql.database.azure.com:3306/uct_data",
-    connect_args={"ssl_ca": "DigiCertGlobalRootCA.crt.pem"},
-)
+UCT_cn = sqlalchemy.create_engine(
+    keys['con_str_uct'],
+    connect_args={"ssl_ca": keys['ssl_ca']},
+) 
+
 # ! LEETCODE DATA SCHEMA CONNECTION
-lt_cn = sqlalchemy.create_engine(
-    "mysql+pymysql://anveshjarabani:Zintak1!@mysql12--2.mysql.database.azure.com:3306/leetcode",
-    connect_args={"ssl_ca": "DigiCertGlobalRootCA.crt.pem"},
+leet_cn = sqlalchemy.create_engine(
+    keys['con_str_leetcode'],
+    connect_args={"ssl_ca": keys['ssl_ca']},
 )
 
 today = datetime.date.today()
 
-
-learn_folder = r"C:\Users\anves\Downloads\Olympics_data"
-csv_files = [
-    f for f in os.listdir(learn_folder) if re.search(r"\.csv$", f, flags=re.IGNORECASE)
-]
-for x in csv_files:
-    df = pd.read_csv(os.path.join(learn_folder, x))
-    df.columns = df.columns.str.replace("\n", "").str.strip()
-    nm = x[: x.index(".")]
-    df.to_sql(name=nm, con=lt_cn, if_exists="replace", index=False)
-    print("uploaded", x)
-
-
-folder = r"C:\Users\ajarabani\Downloads\PYTHON"
-pkl_files = [
-    f
-    for f in os.listdir(r"C:\Users\ajarabani\Downloads\PYTHON")
-    if re.search(r"\.pkl$", f, flags=re.IGNORECASE)
-]
-pkl_files = [
-    i
+pkl_files = [f"../PKL/{f}" for f in os.listdir("../PKL/")]
+pkl_files = [i
     for i in pkl_files
-    if datetime.date.fromtimestamp(os.path.getmtime(os.path.join(folder, i))) == today
-]
-h5_files = [
-    f for f in os.listdir(r"C:\Users\ajarabani\Downloads\PYTHON") if f.endswith("5")
-]
-h5_files = [
-    i
+    if datetime.date.fromtimestamp(os.path.getmtime(i)) == today]
+h5_files = [f"../H5/{f}" for f in os.listdir("../H5/")]
+h5_files = [i
     for i in h5_files
-    if datetime.date.fromtimestamp(os.path.getmtime(os.path.join(folder, i))) == today
-]
-table_list = cn.table_names()
-# for n in table_list:
-#     print(n)
+    if datetime.date.fromtimestamp(os.path.getmtime(i)) == today]
+table_list = UCT_cn.table_names()
 
 for x in pkl_files:
     df = pd.read_pickle(x)
@@ -70,7 +39,7 @@ for x in pkl_files:
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
     df.columns = df.columns.str.replace("\n", "").str.strip()
     nm = x[: x.index(".")]
-    df.to_sql(name=nm.lower(), con=cn, if_exists="replace", index=False)
+    df.to_sql(name=nm.lower(), con=UCT_cn, if_exists="replace", index=False)
     print("Uploaded", nm)
 
 for x in h5_files:
@@ -79,11 +48,23 @@ for x in h5_files:
         df.replace([np.inf, -np.inf], np.nan, inplace=True)
         df.columns = df.columns.str.replace("\n", "").str.strip()
         nm = f'{x.split(".")[0]}_{i}'
-        df.to_sql(name=nm.lower(), con=cn, if_exists="replace", index=False)
+        df.to_sql(name=nm.lower(), con=UCT_cn, if_exists="replace", index=False)
         print("Uploaded", nm)
 
-cn.dispose()
+UCT_cn.dispose()
 
+
+
+# learn_folder = r"C:\Users\anves\Downloads\Olympics_data"
+# csv_files = [
+#     f for f in os.listdir(learn_folder) if re.search(r"\.csv$", f, flags=re.IGNORECASE)
+# ]
+# for x in csv_files:
+#     df = pd.read_csv(os.path.join(learn_folder, x))
+#     df.columns = df.columns.str.replace("\n", "").str.strip()
+#     nm = x[: x.index(".")]
+#     df.to_sql(name=nm, con=lt_cn, if_exists="replace", index=False)
+#     print("uploaded", x)
 
 # inspector=inspect(cn)
 # tables=inspector.get_table_names()
