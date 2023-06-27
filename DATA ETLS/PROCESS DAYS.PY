@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime,timedelta
-RAWLBR=pd.read_pickle('LBR M-18.PKL')
+RAWLBR=pd.read_pickle('../PKL/LBR M-18.PKL')
 RAWLBR=RAWLBR[['Order - Material (Key)','Order', 'Operation', 'Standard Text Key','End Date' ]]
 RAWLBR = RAWLBR[(RAWLBR['Order - Material (Key)'] != '#') &
             (RAWLBR['Order'] != '#') & (RAWLBR['Standard Text Key'] != '#')]
@@ -25,7 +25,7 @@ merge['WAIT']=(x['Oldest'].shift(0)-x['Latest'].shift(1)).dt.days
 merge.loc[merge['WAIT'].isna() | (merge['WAIT']<0),'WAIT']=0
 merge=merge.pivot_table(index=['Order - Material (Key)','Standard Text Key','Operation'],values=['days','WAIT'],aggfunc=np.average)
 merge.reset_index(inplace=True)
-RT=pd.read_hdf('ST_BM_BR.H5',key='ROUT')
+RT=pd.read_hdf('../H5/ST_BM_BR.H5',key='ROUT')
 RT=RT[['Material','Operation Number']]
 merge['Operation']=merge['Operation'].astype('int64')
 RT=RT.merge(merge,left_on=['Material','Operation Number'],right_on=['Order - Material (Key)','Operation'],how='left')
@@ -38,7 +38,7 @@ RT=RT.melt(id_vars=['Material','OP','Operation'],
 RT=RT.sort_values(by='Operation',ignore_index=True)
 RT['DAYS']=RT['DAYS'].astype(int)
 RT.dropna(subset=['OP'],inplace=True)
-RT.to_hdf('LBR.H5',key='PROCESS_DYS',mode='a')
-
+RT.to_hdf('../H5/LBR.H5',key='PROCESS_DYS',mode='a')
+print('PROCESS DAYS COMPLETE')
 
 

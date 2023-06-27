@@ -1,11 +1,11 @@
 import pandas as pd
 import numpy as np
-wl=pd.read_pickle('LBR M-18.PKL')
-rout=pd.read_hdf('ST_BM_BR.H5',key='ROUT')
+wl=pd.read_pickle('../PKL/LBR M-18.PKL')
+rout=pd.read_hdf('../H5/ST_BM_BR.H5',key='ROUT')
 SM=pd.DataFrame()
 SM['SM']=np.array(rout.loc[rout['Work Center'].str.contains(r'BRAKE|LASER|TRT'),"Material"].unique()).tolist()
-SM.to_hdf('ST_BM_BR.H5',key='SM_PARTS',mode='a')
-cst = pd.read_hdf('ST_BM_BR.H5',key='BR')
+SM.to_hdf('../H5/ST_BM_BR.H5',key='SM_PARTS',mode='a')
+cst = pd.read_hdf('../H5/ST_BM_BR.H5',key='BR')
 wl = wl.loc[:,['Fiscal year/period', 'Order - Material (Key)',
        'Order - Material (Text)', 'Order', 'Operation', 'Work Center',        
        'Standard Text Key', 'Operation Text', 'End Date',
@@ -76,5 +76,5 @@ rt = rt.merge(pi3,left_on='Material',right_on='Order - Material (Key)',how='left
 rt['ACT COST/EA'] = rt['ACT COST/EA'].replace("",pd.NA).fillna(rt['PLN COST/EA'])
 rt.loc[(rt['ACT COST/EA'] ==0) | (rt['ACT COST/EA'] < .6*rt['PLN COST/EA'] ),'ACT COST/EA'] = rt['PLN COST/EA']
 rt.drop(columns=['Order - Material (Key)'],axis=1,inplace=True)
-rt.to_hdf('LBR.H5',key='ACT_V_PL_CST',mode='a')
+rt.to_hdf('../H5/LBR.H5',key='ACT_V_PL_CST',mode='a')
 print('LBR.H5 ACT_V_PL_CST COMPLETE')

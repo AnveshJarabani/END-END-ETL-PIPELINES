@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-wl=pd.read_pickle('LBR M-18.PKL')
-cst=pd.read_hdf('ST_BM_BR.H5','BR')
+wl=pd.read_pickle('../PKL/LBR M-18.PKL')
+cst=pd.read_hdf('../H5/ST_BM_BR.H5','BR')
 wl = wl.loc[:,['Fiscal year/period', 'Order - Material (Key)',
        'Order - Material (Text)', 'Order', 'Operation', 'Work Center',        
        'Standard Text Key', 'Operation Text', 'End Date',
@@ -28,5 +28,5 @@ pi.sort_values(by=['YR','MONTH'],ascending=False,inplace=True,)
 pi3.drop(columns=['YR','MONTH','WC','BUR_RATE'],axis=1,inplace=True)
 pi3.dropna(inplace=True)
 pi3[['Hours Worked','MONTHLY AVG. HRS']]=pi3[['Hours Worked','MONTHLY AVG. HRS']].round(2)
-pi3.to_hdf('LBR.H5',key='WC_LOAD',mode='a')
+pi3.to_hdf('../H5/LBR.H5',key='WC_LOAD',mode='a')
 print('LBR.H5 WC_LOAD COMPLETE')
