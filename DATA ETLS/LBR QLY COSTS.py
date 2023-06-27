@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-wl=pd.read_pickle('LBR M-18.PKL')
-cst=pd.read_hdf('ST_BM_BR.H5','BR')
+wl=pd.read_pickle('../PKL/LBR M-18.PKL')
+cst=pd.read_hdf('../H5/ST_BM_BR.H5','BR')
 wl = wl.loc[:,['Fiscal year/period', 'Order - Material (Key)',
        'Order - Material (Text)', 'Order', 'Operation', 'Work Center',        
        'Standard Text Key', 'Operation Text', 'End Date',
@@ -46,5 +46,5 @@ pi3[['ACT LBR COST/EA','DELTA %']]=pi3[['ACT LBR COST/EA','DELTA %']].round(2)
 pi3.replace([np.inf,-np.inf],np.nan,inplace=True)
 pi3['DELTA %'].replace(np.nan,0,inplace=True)
 pi3.dropna(how='all',inplace=True)
-pi3.to_hdf('LBR.H5',key='Q_TRENDS',mode='a')
+pi3.to_hdf('../H5/LBR.H5',key='Q_TRENDS',mode='a')
 print('LBR.H5 Q_TRENDS COMPLETE')

@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
-wl=pd.read_pickle('LBR M-18.PKL')
-rout=pd.read_hdf('ST_BM_BR.H5',key='ROUT') 
-BURCOST=pd.read_hdf('ST_BM_BR.H5',key='BR') 
+wl=pd.read_pickle('../PKL/LBR M-18.PKL')
+rout=pd.read_hdf('../H5/ST_BM_BR.H5',key='ROUT') 
+BURCOST=pd.read_hdf('../H5/ST_BM_BR.H5',key='BR') 
 BURCOST.dropna(inplace=True,how='all')
 wl = wl[(wl['Order - Material (Key)'] != '#') &
     (wl['Order'] != '#') & (wl['Standard Text Key'] != '#')]
@@ -31,7 +31,7 @@ pk=PERIOD.merge(pi,how='left',on=['Order'],validate='1:1')
 pk['HRS/EA']=pk['HRS/EA'].astype(float)
 pk['Order']=pk['Order'].astype(str)
 pk.drop_duplicates(subset=['Order'],keep='last',inplace=True)
-pk.to_hdf('LBR.H5',key='WO_TRENDS',mode='a')
+pk.to_hdf('../H5/LBR.H5',key='WO_TRENDS',mode='a')
 rout.columns=rout.columns.str.strip()
 rt=rout.loc[:,['Material','Standard Text Key','Base Quantity','Setup','Unit_Setup','Labor Run','Unit_Labor Run']]
 rt=rt.loc[rout['Unit_Setup']!='#']
@@ -50,5 +50,5 @@ rt.reset_index(inplace=True)
 rt['PLN HR/EA']=rt['PLN HR/EA'].astype(float)
 rt.select_dtypes(include=[float]).astype(np.float16)
 rt.select_dtypes(include=[int]).astype(np.int8) 
-rt.to_hdf('LBR.H5',key='PLN_HR',mode='a')
+rt.to_hdf('../H5/LBR.H5',key='PLN_HR',mode='a')
 print('LBR.H5 PLN_HR COMPLETE')

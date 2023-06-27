@@ -32,7 +32,6 @@ WebDriverWait(driver, 25).until(
     EC.presence_of_element_located((css, "[id*='promptsList']"))
 )
 
-
 find(css, "[id*='promptsList-4']").click()  # TICKET TYPE PROMPT
 find(css, "[title*='Show the settings page']").click()  # SELECT SETTINGS
 time.sleep(1)
@@ -79,10 +78,9 @@ while wait:
     if crNew == cr1:
         time.sleep(1)
     else:
-        crNew_path = os.path.join(DLOADS_PATH, crNew)
+        crNew_path = crNew
         wait = False
 # SIMPLIFY THE CSV FILE AND SAVE IT AS A PICIKLE FILE.
-# crNew_path='C:\\Users\\ajarabani\\Downloads\\Employee Labor Hours Report_P2M018.zip'
 with zipfile.ZipFile(crNew_path, "r") as zf:
     zf = zipfile.ZipFile(crNew)
     df = pd.read_csv(zf.open("Employee Labor Hours.csv"))
@@ -95,15 +93,10 @@ df.to_pickle("../PKL/LBR M-18.pkl")
 os.remove(crNew)
 print("LBR M-18.PKL COMPLETE")
 # BUILD FOLLOWUP PICKLE FILES
-exec(open("ACT VS PLN LBR CST.py").read())
-exec(open("LBR HR WO TRENDS.py").read())
-exec(open("PROCESS DAYS.py").read())
-exec(open("LBR QLY COSTS.py").read())
-exec(open("WC LOAD HRS.py").read())
 driver.close()
-
-import sqlalchemy, json
-
-keys = json.load(open("../PRIVATE/encrypt.json", "r"))
-pth = os.path.abspath("../PRIVATE/DigiCertGlobalRootCA.crt.pem")
-cn = sqlalchemy.create_engine(keys["con_str"], connect_args={"ssl_ca": pth})
+exec(open("../LABOR ETLS/ACT VS PLN LBR CST.py").read())
+exec(open("../LABOR ETLS/LBR HR WO TRENDS.py").read())
+exec(open("../LABOR ETLS/PROCESS DAYS.py").read())
+exec(open("../LABOR ETLS/LBR QLY COSTS.py").read())
+exec(open("../LABOR ETLS/WC LOAD HRS.py").read())
+exec(open("BI_TO_DB.py").read())

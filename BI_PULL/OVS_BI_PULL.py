@@ -61,26 +61,18 @@ while wait:
     if crNew == cr1:
         time.sleep(1)
     else:
-        crNew_path = os.path.join(DLOADS_PATH, crNew)
+        crNew_path = crNew
         wait = False
 # SIMPLIFY THE CSV FILE AND SAVE IT AS A HD5 FILE.
 time.sleep(3)
-crNew_path = f"../../{os.path.basename(crNew_path)}"
 with zipfile.ZipFile(crNew_path) as zf:
     df = pd.read_csv(zf.open("OVS Purchase Order Report.csv"))
 df.select_dtypes(include=[float]).astype(np.float16)
 df.select_dtypes(include=[int]).astype(np.int16)
-df.to_pickle("../PKL/OVS_RAW.PKL")
-import sqlalchemy
-
-cn = sqlalchemy.create_engine(
-    "mysql+pymysql://anveshjarabani:Zintak1!@mysql12--2.mysql.database.azure.com:3306/uct_data",
-    connect_args={"ssl_ca": "DigiCertGlobalRootCA.crt.pem"},
-)
 df.replace([np.inf, -np.inf], np.nan, inplace=True)
-cn.execute("DROP TABLE IF EXISTS OVS_RAW")
-df.to_sql(name="OVS_RAW", con=cn, if_exists="replace", index=False)
+df.to_pickle("../PKL/OVS_RAW.PKL")
 print("OVS_RAW.PKL COMPLETE")
 os.remove(crNew)
+exec(open("BI_TO_DB.py"))
 # BUILD H5 FILE
-exec(open("OVS CALC.py").read())
+exec(open("../DATA ETLS/OVS CALC.py").read())
