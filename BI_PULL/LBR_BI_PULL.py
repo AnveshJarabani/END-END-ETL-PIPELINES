@@ -104,4 +104,3 @@ exec(open("../DATA ETLS/WC LOAD HRS.py").read())
 from BI_TO_DB import load_to_db
 
 load_to_db("../PKL/LBR M-18.pkl")
-pd.read_pickle('../PKL/LBR M-18.pkl')

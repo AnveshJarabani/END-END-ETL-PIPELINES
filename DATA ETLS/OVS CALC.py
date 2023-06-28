@@ -42,12 +42,6 @@ OVS[['OVS COST','DELTA %']]=OVS[['OVS COST','DELTA %']].round(2)
 OVS['DELTA %'].replace(np.nan,0,inplace=True)
 OVS.dropna(how='all',inplace=True)
 OVS.to_hdf('../H5/OVS.H5',key='TREND',mode='a') # OVS TREND FOR THE DASHBOARD
-import sqlalchemy
-cn=sqlalchemy.create_engine('mysql+pymysql://anveshjarabani:Zintak1!@mysql12--2.mysql.database.azure.com:3306/uct_data',
-                            connect_args={'ssl_ca':'DigiCertGlobalRootCA.crt.pem'})
-OVS.replace([np.inf,-np.inf],np.nan,inplace=True)
-cn.execute('DROP TABLE IF EXISTS OVS_TREND')
-OVS.to_sql(name='OVS_TREND',con=cn,if_exists='replace',index=False)
 for i in OVS.iloc[:,1].unique():
     OVS.loc[OVS.iloc[:,1]==i,'TEMP']=np.roll(OVS.loc[OVS.iloc[:,1]==i,'OVS COST'],1)
 OVS=OVS.loc[OVS.iloc[:,2]<OVS.iloc[:,3]*10]
