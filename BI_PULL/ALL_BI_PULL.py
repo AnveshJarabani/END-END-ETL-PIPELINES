@@ -1,6 +1,5 @@
-exec(open("LBR_BI_PULL.py").read())
-exec(open("PH_BI_PULL.py").read())
-exec(open("SHP_BI_PULL.py").read())
-exec(open("OVS_BI_PULL.py").read())
-exec(open("STD_BI_PULL.py").read())
-exec(open("SM_DEMAND 3 MONTHS.py").read())
+import subprocess,glob
+scripts=glob.glob("*.py")
+BI_PULLS=[i for i in scripts if 'ALL' not in i and "DB" not in i]
+for i in BI_PULLS:
+    subprocess.run(["python",i],stderr=subprocess.DEVNULL)

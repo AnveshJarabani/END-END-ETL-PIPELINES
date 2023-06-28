@@ -8,41 +8,26 @@ import numpy as np
 import datetime
 keys= json.load(open("../PRIVATE/encrypt.json", "r"))
 
-
 # ! UCT DATA SCHEMA CONNECTION
 UCT_cn = sqlalchemy.create_engine(
     keys['con_str_uct'],
     connect_args={"ssl_ca": keys['ssl_ca']},) 
 
-
-today = datetime.date.today()
-
-pkl_files = [f"../PKL/{f}" for f in os.listdir("../PKL/")]
-pkl_files = [i
-    for i in pkl_files
-    if datetime.date.fromtimestamp(os.path.getmtime(i)) == today]
-h5_files = [f"../H5/{f}" for f in os.listdir("../H5/")]
-h5_files = [i
-    for i in h5_files
-    if datetime.date.fromtimestamp(os.path.getmtime(i)) == today]
-
-
-for x in pkl_files:
-    df = pd.read_pickle(x)
-    if isinstance(df, dict):
-        continue
-    df.replace([np.inf, -np.inf], np.nan, inplace=True)
-    df.columns = df.columns.str.replace("\n", "").str.strip()
-    nm = os.path.basename(x).split('.')[0]
-    df.to_sql(name=nm.lower(), con=UCT_cn, if_exists="replace", index=False)
-    print("Uploaded", nm)
-
-for x in h5_files:
-    for i in h5py.File(x).keys():
-        df = pd.read_hdf(x, key=i)
+def load_to_db(x):
+    if '.pkl' in x.lower():
+        df = pd.read_pickle(x)
         df.replace([np.inf, -np.inf], np.nan, inplace=True)
         df.columns = df.columns.str.replace("\n", "").str.strip()
-        nm = f'{os.path.basename(x).split(".")[0]}_{i}'
+        nm = os.path.basename(x).split('.')[0]
         df.to_sql(name=nm.lower(), con=UCT_cn, if_exists="replace", index=False)
         print("Uploaded", nm)
-UCT_cn.dispose()
+    else:
+        for i in h5py.File(x).keys():
+            df = pd.read_hdf(x, key=i)
+            df.replace([np.inf, -np.inf], np.nan, inplace=True)
+            df.columns = df.columns.str.replace("\n", "").str.strip()
+            nm = f'{os.path.basename(x).split(".")[0]}_{i}'
+            df.to_sql(name=nm.lower(), con=UCT_cn, if_exists="replace", index=False)
+            print("Uploaded", nm)
+    UCT_cn.dispose()
+    print('***ALL UPLOADAS COMPLETE***')

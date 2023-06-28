@@ -6,7 +6,7 @@ from datetime import datetime
 import dateutil.relativedelta as delt
 import pandas as pd
 import numpy as np
-import time, glob, os, zipfile
+import time, glob, os, zipfile, json
 
 chromeOptions = webdriver.ChromeOptions()
 today = datetime.today().strftime("%m/%d/%y")
@@ -16,23 +16,30 @@ driver.maximize_window()
 driver.get("http://alinbop.uct.local/BOE/BI")
 find = driver.find_element
 finds = driver.find_elements
+tag = By.TAG_NAME
 css = By.CSS_SELECTOR
 driver.switch_to.frame(find(By.TAG_NAME, "iframe"))
 WebDriverWait(driver, 25).until(EC.presence_of_element_located((By.ID, "__label0-bdi")))
 username = find(By.ID, "__input3-inner")
 password = find(By.ID, "__input4-inner")
-username.send_keys("ajarabani")
-password.send_keys("Xuiqil9`")
+keys = json.load(open("../PRIVATE/encrypt.json", "r"))
+username.send_keys(keys["BI_USER"])
+password.send_keys(keys["BI_PASS"])
 find(By.ID, "__button1-inner").click()
 WebDriverWait(driver, 25).until(
     EC.presence_of_element_located((By.ID, "__tile0-__container1-2"))
 )
-find(By.ID, "__tile0-__container1-2").click()  # CLICK ON OVS REPORT FAV TILE
+
+# CLICK ON OVS REPORT FAV TILE
+lst = find(css, "div[id*='Favourite']").find_elements(tag, "bdi")
+[i for i in lst if "OVS Purchase Order" in i.text][0].click()
 WebDriverWait(driver, 25).until(
     EC.presence_of_element_located((css, "[id*='promptsList']"))
 )
 find(css, "[title*='Reset prompts values to default']").click()  # CLICK RESET
-find(css, "[id*='promptsList-0']").click()  # CLICK PLANT PROMT
+prompts_list = find(css, 'div[class*="PromptsSummaryList"]')
+prompts = prompts_list.find_elements(tag, "span")
+[i for i in prompts if "Plant" in i.text][0].click()  # CLICK PLANT PROMT
 time.sleep(0.5)
 find(css, "[title*='Show the settings page']").click()  # SELECT SETTINGS
 time.sleep(1)
@@ -73,6 +80,8 @@ df.replace([np.inf, -np.inf], np.nan, inplace=True)
 df.to_pickle("../PKL/OVS_RAW.PKL")
 print("OVS_RAW.PKL COMPLETE")
 os.remove(crNew)
-exec(open("BI_TO_DB.py"))
-# BUILD H5 FILE
+from BI_TO_DB import load_to_db
+
+load_to_db("../PKL/OVS_RAW.PKL")
+# BUILD H5 ETL FILE
 exec(open("../DATA ETLS/OVS CALC.py").read())

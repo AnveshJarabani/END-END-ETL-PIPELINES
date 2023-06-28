@@ -6,7 +6,7 @@ from datetime import datetime
 import dateutil.relativedelta as delt
 import pandas as pd
 import numpy as np
-import zipfile, time, glob, os
+import zipfile, time, glob, os, json
 
 chromeOptions = webdriver.ChromeOptions()
 today = datetime.today().strftime("%m/%d/%y")
@@ -21,8 +21,9 @@ driver.switch_to.frame(find(By.TAG_NAME, "iframe"))
 WebDriverWait(driver, 25).until(EC.presence_of_element_located((By.ID, "__label0-bdi")))
 username = find(By.ID, "__input3-inner")
 password = find(By.ID, "__input4-inner")
-username.send_keys("ajarabani")
-password.send_keys("Xuiqil9`")
+keys = json.load(open("../PRIVATE/encrypt.json", "r"))
+username.send_keys(keys["BI_USER"])
+password.send_keys(keys["BI_PASS"])
 find(By.ID, "__button1-inner").click()
 WebDriverWait(driver, 25).until(EC.presence_of_element_located((By.ID, "__vbox5")))
 find(
@@ -82,21 +83,25 @@ while wait:
         wait = False
 # SIMPLIFY THE CSV FILE AND SAVE IT AS A PICIKLE FILE.
 with zipfile.ZipFile(crNew_path, "r") as zf:
-    zf = zipfile.ZipFile(crNew)
-    df = pd.read_csv(zf.open("Employee Labor Hours.csv"))
+    with zf.open("Employee Labor Hours.csv") as csv_file:
+        df = pd.read_csv(csv_file)
 df = df.loc[df.iloc[:, 0].notna()]
 df.replace(",", "", regex=True, inplace=True)
 df["Operation Quantity"] = df["Operation Quantity"].astype(float)
 df.select_dtypes(include=[float]).astype(np.float16)
 df.select_dtypes(include=[int]).astype(np.int8)
 df.to_pickle("../PKL/LBR M-18.pkl")
+
 os.remove(crNew)
 print("LBR M-18.PKL COMPLETE")
 # BUILD FOLLOWUP PICKLE FILES
 driver.close()
-exec(open("../LABOR ETLS/ACT VS PLN LBR CST.py").read())
-exec(open("../LABOR ETLS/LBR HR WO TRENDS.py").read())
-exec(open("../LABOR ETLS/PROCESS DAYS.py").read())
-exec(open("../LABOR ETLS/LBR QLY COSTS.py").read())
-exec(open("../LABOR ETLS/WC LOAD HRS.py").read())
-exec(open("BI_TO_DB.py").read())
+exec(open("../DATA ETLS/ACT VS PLN LBR CST.py").read())
+exec(open("../DATA ETLS/LBR HR WO TRENDS.py").read())
+exec(open("../DATA ETLS/PROCESS DAYS.py").read())
+exec(open("../DATA ETLS/LBR QLY COSTS.py").read())
+exec(open("../DATA ETLS/WC LOAD HRS.py").read())
+from BI_TO_DB import load_to_db
+
+load_to_db("../PKL/LBR M-18.pkl")
+pd.read_pickle('../PKL/LBR M-18.pkl')

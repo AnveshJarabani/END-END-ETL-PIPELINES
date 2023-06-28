@@ -6,7 +6,7 @@ from datetime import datetime
 import dateutil.relativedelta as delt
 import pandas as pd
 import numpy as np
-import time, glob, os, zipfile
+import time, glob, os, zipfile, json
 
 chromeOptions = webdriver.ChromeOptions()
 today = datetime.today().strftime("%m/%d/%y")
@@ -14,19 +14,25 @@ START_DATE = (datetime.today() + delt.relativedelta(months=-18)).strftime("%m/%d
 driver = webdriver.Chrome()
 find = driver.find_element
 finds = driver.find_elements
+tag = By.TAG_NAME
 css = By.CSS_SELECTOR
 driver.maximize_window()
 driver.get("http://alinbop.uct.local/BOE/BI")
-driver.switch_to.frame(find(By.TAG_NAME, "iframe"))
+driver.switch_to.frame(find(tag, "iframe"))
 WebDriverWait(driver, 25).until(EC.presence_of_element_located((By.ID, "__label0-bdi")))
-find(css, "[placeholder='User Name']").send_keys("ajarabani")
-find(css, "[placeholder='Password']").send_keys("Xuiqil9`")
+username = find(css, "[placeholder='User Name']")
+password = find(css, "[placeholder='Password']")
+keys = json.load(open("../PRIVATE/encrypt.json", "r"))
+username.send_keys(keys["BI_USER"])
+password.send_keys(keys["BI_PASS"])
 PLANTS = ["3321", "3322"]
 find(css, "[class*='LoginButton']").click()
 WebDriverWait(driver, 25).until(
     EC.presence_of_element_located((By.ID, "__tile0-__container1-2"))
 )
-find(By.ID, "__tile0-__container1-1").click()  # CLICK ON MMC REPORT FAV TILE
+# CLICK ON MMC REPORT FAV TILE
+lst = find(css, "div[id*='Favourite']").find_elements(tag, "bdi")
+[i for i in lst if "Material Master Char" in i.text][0].click()
 WebDriverWait(driver, 25).until(
     EC.presence_of_element_located((css, "[id*='promptsList']"))
 )
@@ -38,7 +44,10 @@ for i in PLANTS:
             EC.presence_of_element_located((css, "[id*='promptsList']"))
         )
     find(css, "[title*='Reset prompts']").click()  # CLICK RESET
-    find(css, "[id*='promptsList-0']").click()  # CLICK PLANT PROMT
+    # CLICK PLANT PROMT
+    prompts_list = find(css, 'div[class*="PromptsSummaryList"]')
+    prompts = prompts_list.find_elements(tag, "span")
+    [i for i in prompts if "Plant" in i.text][0].click()
     time.sleep(0.5)
     find(css, "[id*='search-I']").send_keys(i)
     find(css, "[title='Add']").click()  # CLICK PLUS
@@ -56,7 +65,7 @@ for i in PLANTS:
     find(css, "[id*='ConfirmExportButton']").click()
     # WAIT TILL THE FILE IS DOWNLOADED
     wait = True
-    DLOADS_PATH = "../*zip"
+    DLOADS_PATH = "../../*zip"
     files = glob.iglob(DLOADS_PATH)
     cr1 = max(files, key=os.path.getmtime)
     while wait:
@@ -66,14 +75,12 @@ for i in PLANTS:
             time.sleep(1)
         else:
             if i == "3321":
-                cr_INT = os.path.join(DLOADS_PATH, crNew)
+                cr_INT = crNew
             else:
-                cr_FAB = os.path.join(DLOADS_PATH, crNew)
+                cr_FAB = crNew
             wait = False
 # SIMPLIFY THE CSV FILE AND SAVE IT AS A HD5 FILE.
 time.sleep(3)
-cr_INT = f"../../{os.path.basename(cr_INT)}"
-cr_FAB = f"../../{os.path.basename(cr_FAB)}"
 with zipfile.ZipFile(cr_INT) as zf_INT:
     INT_STD = pd.read_csv(zf_INT.open("Material Master Characteristics.csv"))
 INT_STD = INT_STD[["Material - Key", "Per Unit Price"]]
@@ -99,10 +106,14 @@ STD = pd.concat([FAB_STD, INT_STD], ignore_index=True)
 STD = STD[STD["Material - Key"].str.endswith("-UCT") == False]
 STD.columns = ["MATERIAL", "STD COST"]
 STD.drop_duplicates(subset=["MATERIAL"], inplace=True, ignore_index=True)
-STD["STD COST"] = STD["STD COST"].str.replace("\$|\,|", "").astype(float)
+
+STD["STD COST"] = STD["STD COST"].str.replace("\$|\,|", "", regex=True).astype(float)
 STD["STD COST"] /= 1.106
 STD.reset_index(inplace=True)
 STD["STD COST"] = STD["STD COST"].round(2)
 with pd.HDFStore("../H5/ST_BM_BR.H5", mode="r+") as store:
     store.put("STD", STD)
 print("ST_BM_BR.H5 STD COMPLETE")
+from BI_TO_DB import load_to_db
+
+load_to_db("../H5/ST_BM_BR.H5")

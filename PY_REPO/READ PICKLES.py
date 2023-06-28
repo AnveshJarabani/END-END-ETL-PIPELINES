@@ -6,6 +6,10 @@ import glob
 import glob , PyPDF2, tabula
 from rich import print
 
+df=pd.read_pickle("../PKL/LBR M-18.pkl")
+df1=df.loc[(df['Order - Material (Key)']=='CY-210257') | (df['Order - Material (Key)']== "CY-216092")]
+book=xl.Book()
+book.sheets[0].range('A1').options(index=False).value=df1
 
 lst=glob.glob("../*pdf")
 for pdf in lst:
