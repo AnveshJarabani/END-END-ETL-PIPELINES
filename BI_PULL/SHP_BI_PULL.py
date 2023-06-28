@@ -6,7 +6,7 @@ from datetime import datetime
 import dateutil.relativedelta as delt
 import pandas as pd
 import numpy as np
-import time, glob, os, zipfile
+import time, glob, os, zipfile, json
 
 chromeOptions = webdriver.ChromeOptions()
 dict = {
@@ -33,20 +33,27 @@ driver.get("http://alinbop.uct.local/BOE/BI")
 find = driver.find_element
 finds = driver.find_elements
 css = By.CSS_SELECTOR
-driver.switch_to.frame(find(By.TAG_NAME, "iframe"))
+tag = By.TAG_NAME
+driver.switch_to.frame(find(tag, "iframe"))
 WebDriverWait(driver, 25).until(EC.presence_of_element_located((By.ID, "__label0-bdi")))
 username = find(By.ID, "__input3-inner")
 password = find(By.ID, "__input4-inner")
-username.send_keys("ajarabani")
-password.send_keys("Xuiqil9`")
+keys = json.load(open("../PRIVATE/encrypt.json", "r"))
+username.send_keys(keys["BI_USER"])
+password.send_keys(keys["BI_PASS"])
 find(By.ID, "__button1-inner").click()
 WebDriverWait(driver, 25).until(EC.presence_of_element_located((By.ID, "__vbox5")))
-find(By.ID, "__tile0-__container1-4").click()  # CLICK ON SHIPMENT REPORT FAV TILE
+# CLICK ON SHIPMENT REPORT FAV TILE
+lst = find(css, "div[id*='Favourite']").find_elements(tag, "bdi")
+[i for i in lst if "Shipment Order Report" in i.text][0].click()
 WebDriverWait(driver, 25).until(
     EC.presence_of_element_located((css, "[id*='promptsList']"))
 )
 find(css, "[title*='Reset prompts values to default']").click()  # CLICK RESET
-find(css, "[id*='promptsList-0']").click()  # CLICK PLANT PROMT
+prompts_list = find(css, 'div[class*="PromptsSummaryList"]')
+prompts = prompts_list.find_elements(tag, "span")
+# CLICK PLANT PROMT
+[i for i in prompts if "Plant" in i.text][0].click()
 time.sleep(0.5)
 # -----------SELECT PLANT
 find(css, "[title*='Show the settings page']").click()  # SELECT SETTINGS
@@ -58,7 +65,7 @@ find(css, "[id*='search-I']").send_keys("3322")
 find(css, "[title*='Add']").click()  # CLICK PLUS
 find(css, "[id*='search-I']").send_keys("3321")
 find(css, "[title='Add']").click()  # CLICK PLUS
-find(css, "[id*='promptsList-3']").click()  # FISCAL QUARTER PROMPT
+[i for i in prompts if "Fiscal Quarter" in i.text][0].click()  # FISCAL QUARTER PROMPT
 find(css, "[title*='Reset prompt values']").click()  # CLICK RESET
 for i in QS:
     find(css, "[id*='search-I']").send_keys(i)
@@ -75,7 +82,7 @@ find(css, "[aria-label='Select all rows']").click()
 find(css, "[id*='ConfirmExportButton']").click()
 # WAIT TILL THE FILE IS DOWNLOADED
 wait = True
-DLOADS_PATH = "../*zip"
+DLOADS_PATH = "../../*zip"
 files = glob.iglob(DLOADS_PATH)
 cr1 = max(files, key=os.path.getmtime)
 while wait:
@@ -84,19 +91,23 @@ while wait:
     if crNew == cr1:
         time.sleep(1)
     else:
-        crNew_path = os.path.join(DLOADS_PATH, crNew)
+        crNew_path = crNew
         wait = False
 # SIMPLIFY THE CSV FILE AND SAVE IT AS A HD5 FILE.
 time.sleep(3)
-crNew_path = f"../../{os.path.basename(crNew_path)}"
 with zipfile.ZipFile(crNew_path) as zf:
     df = pd.read_csv(zf.open("Shipment Report.csv"))
 df.select_dtypes(include=[float]).astype(np.float16)
 df.select_dtypes(include=[int]).astype(np.int16)
 df["Actual Good Issue Date"] = pd.to_datetime(df["Actual Good Issue Date"])
-df["Act Shipped Qty"] = df["Act Shipped Qty"].str.replace("\$|\,", "").astype(float)
-df["ASP"] = df["ASP"].str.replace("\$|\,", "").astype(float)
+df["Act Shipped Qty"] = (
+    df["Act Shipped Qty"].str.replace("\$|\,", "", regex=True).astype(float)
+)
+df["ASP"] = df["ASP"].str.replace("\$|\,", "", regex=True).astype(float)
 df.dropna()
 df.to_pickle("../PKL/SHP.pkl")
 print("SHP.pkl COMPLETE")
 os.remove(crNew)
+from BI_TO_DB import load_to_db
+
+load_to_db("../PKL/SHP.pkl")

@@ -6,7 +6,7 @@ from datetime import datetime
 import dateutil.relativedelta as delt
 import pandas as pd
 import numpy as np
-import zipfile, time, glob, os
+import zipfile, time, glob, os, json
 
 dict = {
     1: "01",
@@ -35,15 +35,19 @@ driver.get("http://alinbop.uct.local/BOE/BI")
 find = driver.find_element
 finds = driver.find_elements
 css = By.CSS_SELECTOR
+tag = By.TAG_NAME
 driver.switch_to.frame(find(By.TAG_NAME, "iframe"))
 WebDriverWait(driver, 25).until(EC.presence_of_element_located((By.ID, "__label0-bdi")))
-find(css, "[placeholder='User Name']").send_keys("ajarabani")
-find(css, "[placeholder='Password']").send_keys("Xuiqil9`")
+keys = json.load(open("../PRIVATE/encrypt.json", "r"))
+find(css, "[placeholder='User Name']").send_keys(keys["BI_USER"])
+find(css, "[placeholder='Password']").send_keys(keys["BI_PASS"])
 find(css, "[class*='LoginButton']").click()
 WebDriverWait(driver, 25).until(
     EC.presence_of_element_located((By.ID, "__tile0-__container1-2"))
 )
-find(By.ID, "__tile0-__container1-3").click()  # CLICK ON PURCHASE HIST REPORT FAV TILE
+# CLICK ON PURCHASE HIST REPORT FAV TILE
+lst = find(css, "div[id*='Favourite']").find_elements(tag, "bdi")
+[i for i in lst if "Purchase History Report" in i.text][0].click()
 WebDriverWait(driver, 25).until(
     EC.presence_of_element_located((css, "[id*='promptsList']"))
 )
@@ -56,7 +60,10 @@ for i in QS:
     # FOR PLANT SELECTION - CHANDLER FAB & INTEGRATION , SELECTING KEYS
     if i == QS[0]:
         find(css, "[title*='Reset prompts']").click()  # CLICK RESET
-        # find(css,"[id*='promptsList-5']").click() # CLICK PLANT PROMT
+        prompts_list = find(css, 'div[class*="PromptsSummaryList"]')
+        prompts = prompts_list.find_elements(tag, "span")
+        # CLICK PLANT PROMT
+        [i for i in prompts if "Plant" in i.text][0].click()
         find(css, "[title*='Show the settings page']").click()  # SELECT SETTINGS
         time.sleep(1)
         find(css, "[class*='SettingsSearchByKeys']").click()  # TURN ON KEY SEARCH
@@ -65,7 +72,8 @@ for i in QS:
         find(css, "[title*='Add']").click()  # CLICK PLUS
         find(css, "[id*='search-I']").send_keys("3321")
         find(css, "[title='Add']").click()  # CLICK PLUS
-    find(css, "[id*='promptsList-3']").click()  # FISCAL QUARTER PROMPT
+    # CLICK FISCAL QUARTER PROMT
+    [i for i in prompts if "Fiscal Quarter" in i.text][0].click()
     find(css, "[title*='Reset prompt values']").click()  # CLICK RESET
     find(css, "[id*='search-I']").send_keys(i)
     time.sleep(0.5)
@@ -87,7 +95,7 @@ for i in QS:
     find(css, "[id*='ConfirmExportButton']").click()
     # WAIT TILL THE FILE IS DOWNLOADED
     wait = True
-    DLOADS_PATH = "../*zip"
+    DLOADS_PATH = "../../*zip"
 files = glob.iglob(DLOADS_PATH)
 cr1 = max(files, key=os.path.getmtime)
 while wait:
@@ -96,27 +104,19 @@ while wait:
     if crNew == cr1:
         time.sleep(1)
     else:
-        crNew_path = os.path.join(DLOADS_PATH, crNew)
+        crNew_path = crNew
         wait = False
 # SIMPLIFY THE CSV FILE AND SAVE IT AS A HD5 FILE.
 time.sleep(3)
-crNew_path = f"../../{os.path.basename(crNew_path)}"
 with zipfile.ZipFile(crNew_path) as zf:
     df = pd.read_csv(zf.open("Purchase History Report Summary.csv"))
 df.select_dtypes(include=[float]).astype(np.float16)
 df.select_dtypes(include=[int]).astype(np.int16)
-df.to_hdf("../H5/PH_RAW.H5", key=QS[0], mode="a")
-import sqlalchemy
-
-cn = sqlalchemy.create_engine(
-    "mysql+pymysql://anveshjarabani:Zintak1!@mysql12--2.mysql.database.azure.com:3306/uct_data",
-    connect_args={"ssl_ca": "DigiCertGlobalRootCA.crt.pem"},
-)
 df.replace([np.inf, -np.inf], np.nan, inplace=True)
-cn.execute("DROP TABLE IF EXISTS PH_RAW_{QS[0]}")
-df.to_sql(name="PH_RAW_{QS[0]}", con=cn, if_exists="replace", index=False)
+df.to_hdf("../H5/PH_RAW.H5", key=QS[0], mode="a")
 print("PH.H5 Q COMPLETE")
-ven = pd.read_csv(zf.open("Purchase History Report Detaile.csv"))
+with zipfile.ZipFile(crNew_path) as zf:
+    ven = pd.read_csv(zf.open("Purchase History Report Detaile.csv"))
 ven = ven[["Material - Key", "Vendor - Text"]]
 ven.select_dtypes(include=[float]).astype(np.float16)
 ven.select_dtypes(include=[int]).astype(np.int16)
@@ -125,4 +125,9 @@ print("PH_RAW Q_VEN COMPLETE")
 zf.close()
 os.remove(crNew)
 # BUILD FOLLOWUP PICKLE FILES
-exec(open("PH CALC.py").read())
+import subprocess
+
+subprocess.run(["python", "../DATA ETLS/PH CALC.py"])
+from BI_TO_DB import load_to_db
+
+load_to_db("../H5/PH_RAW.H5")

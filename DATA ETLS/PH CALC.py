@@ -11,7 +11,7 @@ def remove_outliers(group):
     iqr = q3 - q1
     return group[(group['ACT MAT COST'] >= q1 - 1.5*iqr) & (group['ACT MAT COST'] <= q3 + 1.5*iqr)]
 if __name__=='__main__':
-    QS=[i for i in h5py.File('PH_RAW.H5').keys() if i.isnumeric()]
+    QS=[i for i in h5py.File('../H5/PH_RAW.H5').keys() if i.isnumeric()]
     QS = sorted(QS, key=lambda x: (int(re.search(r'(\d{4}$)', x).group()), int(re.search(r'(^\d{2})', x).group())))
     QS_VEN=[i+'_VEN' for i in QS][::-1]
     PH_DICT={i:pd.read_hdf('../H5/PH_RAW.H5',key=i) for i in QS}

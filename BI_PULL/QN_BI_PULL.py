@@ -9,7 +9,7 @@ import numpy as np
 import zipfile
 import time
 import glob
-import os
+import os, json
 
 chromeOptions = webdriver.ChromeOptions()
 today = datetime.today().strftime("%m/%d/%y")
@@ -19,6 +19,7 @@ driver.maximize_window()
 find = driver.find_element
 finds = driver.find_elements
 css = By.CSS_SELECTOR
+tag = By.TAG_NAME
 located = EC.presence_of_element_located
 clickable = EC.element_to_be_clickable
 driver.get("http://alinbop.uct.local/BOE/BI")
@@ -26,20 +27,20 @@ driver.switch_to.frame(find(By.TAG_NAME, "iframe"))
 WebDriverWait(driver, 25).until(located((By.ID, "__label0-bdi")))
 username = find(By.ID, "__input3-inner")
 password = find(By.ID, "__input4-inner")
-username.send_keys("ajarabani")
-password.send_keys("Xuiqil9`")
+keys = json.load(open("../PRIVATE/encrypt.json", "r"))
+username.send_keys(keys["BI_USER"])
+password.send_keys(keys["BI_PASS"])
 find(By.ID, "__button1-inner").click()
 WebDriverWait(driver, 25).until(located((By.ID, "__vbox5")))
 # CLICK ON NOTIFICATION ANALYSIS FAV TILE
-find(By.ID, "__tile0-__container1-3").click()
+lst = find(css, "div[id*='Favourite']").find_elements(tag, "bdi")
+[i for i in lst if "Notification Analysis" in i.text][0].click()
 WebDriverWait(driver, 25).until(located((css, "[id*='promptsList']")))
-elm = find(css, "ul[id*='promptsList']")
-promts_lst = elm.find_elements(By.TAG_NAME, "li")
+prompts_list = find(css, 'div[class*="PromptsSummaryList"]')
+prompts = prompts_list.find_elements(tag, "span")
+# CLICK PLANT PROMT
+[i for i in prompts if "Plant" in i.text][0].click()
 #  ------------------------- ADD PLANTS TO PROMPT LIST -------------------------
-for i in promts_lst:
-    if "Plant" in i.text:
-        i.click()
-        break
 find(css, "[title*='Reset prompts']").click()  # CLICK RESET
 find(css, "[id*='search-I']").send_keys("3322")
 find(css, "[title*='Add']").click()  # CLICK PLUS
@@ -47,10 +48,7 @@ find(css, "[id*='search-I']").send_keys("3321")
 find(css, "[title='Add']").click()  # CLICK PLUS
 time.sleep(1)
 # FOR DATES ENTRY ----- DAY INTERVAL PROMPT
-for i in promts_lst:
-    if "Day Interval" in i.text:
-        i.click()
-        break
+[i for i in prompts if "Day Interval" in i.text][0].click()
 WebDriverWait(driver, 25).until(located((css, "[id*='rangeInputLow-inner']")))
 find(css, "[id*='rangeInputLow-inner']").send_keys(START_DATE)  # START DATE
 find(css, "[id*='rangeInputHigh-inner']").send_keys(today)  # CURRENT DATE
@@ -73,10 +71,9 @@ while wait:
     if crNew == cr1:
         time.sleep(1)
     else:
-        crNew_path = os.path.join(DLOADS_PATH, crNew)
+        crNew_path = crNew
         wait = False
 # SIMPLIFY THE CSV FILE AND SAVE IT AS A PICIKLE FILE.
-crNew_path = f"../../{os.path.basename(crNew_path)}"
 with zipfile.ZipFile(crNew_path, "r") as zf:
     df = pd.read_csv(zf.open("Notification (Defect) Analysis .csv"))
 df = df.loc[df.iloc[:, 0].notna()]
@@ -110,3 +107,6 @@ df["Required Start Date"] = pd.to_datetime(df["Required Start Date"])
 df.to_pickle("../PKL/QN M-18.pkl")
 os.remove(crNew)
 print("QN M-18.PKL COMPLETE")
+from BI_TO_DB import load_to_db
+
+load_to_db("../PKL/QN M-18.pkl")
