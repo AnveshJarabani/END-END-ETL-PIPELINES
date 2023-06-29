@@ -56,6 +56,7 @@ def pie_table(PN):
     PART_NM=PN
     if PN is None:
         PN='UC-66-112093-00'
+    PN=PN.strip().upper()
     PH = pd.read_hdf('../H5/PH.H5',key='PH')
     PH.rename(columns={'Material - Key':'PH'},inplace=True)
     # ___________BOMEXTRACT_________________________________________________
