@@ -6,6 +6,7 @@ import plotly.figure_factory as ff
 import dash_bootstrap_components as dbc
 import pandas as pd
 import numpy as np
+from app_files.tree_to_df import tree_to_df
 dash.register_page(__name__)
 BOM=pd.read_hdf('../H5/ST_BM_BR.H5',key='BOM')
 FRAMECOSTS=pd.read_pickle('../PKL/FRAME.COSTS.PKL')
@@ -51,48 +52,17 @@ layout = dbc.Container([
     Input('PART','value'))
 def pie_table(PN):
     global COSTS
+    global PART_NM
+    PART_NM=PN
     if PN is None:
         PN='UC-66-112093-00'
-    BOM = pd.read_hdf('../H5/ST_BM_BR.H5',key='BOM')
     PH = pd.read_hdf('../H5/PH.H5',key='PH')
     PH.rename(columns={'Material - Key':'PH'},inplace=True)
-    LVLBOMS = pd.DataFrame(columns=['TOPLEVEL','MATERIAL','COMP', 'QTY','TOP LVL QTY'])
-    # BOM EXTRACT ----------------------------------------
-    if (PH['PH']==PN).any():
-        LVLBOMS.loc[len(LVLBOMS.index)] = [PN,PN,PN,1,1]
-    else:
-        BM = BOM[BOM['MATERIAL']==PN].reset_index(drop=True)
-        x = 0
-        while x <= (len(BM.index)-1) :
-            if BM.iloc[x,1] in PH['PH'].values:
-                x +=1
-                continue
-            nx = BOM[BOM['MATERIAL']==BM.iloc[x, 1]].reset_index(drop=True)
-            BM = pd.concat([BM,nx],axis = 0)
-            x +=1
-        BM.reset_index(drop=True, inplace=True)
-        BM.loc[-1] = [PN,PN,1]
-        BM.index = BM.index + 1
-        BM = BM.sort_index()
-        BM.columns = ['MATERIAL', 'COMP', 'QTY']
-        # TOOL QTY ----------------------------------------
-        BM['TOP LVL QTY'] = BM[BM['MATERIAL']==PN]['QTY']
-        BM['TEMP']=BM.iloc[:,0] + " " + BM.iloc[:,1]
-        x = BM.where(BM['MATERIAL']==PN).last_valid_index() + 1
-        BM.iloc[:x-1,3] = BM.iloc[:x-1,2]
-        for k in range(x,len(BM.index)):
-            y = sum(BM.iloc[:k+1,4]==BM.iloc[k,4])
-            t = 0    
-            for l in range(0,k):
-                if BM.iloc[l,1] == BM.iloc[k,0]:
-                    t +=1    
-                    if t ==y:
-                        BM.iloc[k,3] = BM.iloc[l,3]*BM.iloc[k,2]
-        BM.insert(0,'TOPLEVEL',PN)
-        BM = BM.iloc[:,:5]
-        LVLBOMS = pd.concat([LVLBOMS,BM],ignore_index=True)
-    LVLBOMS=LVLBOMS[LVLBOMS['TOPLEVEL'].notnull()]
-    LVLBOMS=LVLBOMS.loc[~LVLBOMS['COMP'].str.endswith('-UCT',na=False)]
+    # ___________BOMEXTRACT_________________________________________________
+    LVLBOMS=tree_to_df(PN)
+    LVLBOMS['TOPLEVEL']=PN
+    LVLBOMS=LVLBOMS[['TOPLEVEL','PARENT','PN','QTY','TQ']]
+    LVLBOMS.columns=['TOPLEVEL', 'MATERIAL', 'COMP', 'QTY', 'TOP LVL QTY']
     # ---------------------------------- ADD COSTS TO LEVEL BOMS --------------------------------------
     STD=pd.read_hdf('../H5/ST_BM_BR.H5',key="STD")
     LBR = pd.read_hdf('../H5/LBR.H5',key="ACT_V_PL_CST")
@@ -146,8 +116,7 @@ def pie_table(PN):
 @callback(
     Output('download-prcomp','data'),
     Input('BTN_PN','n_clicks'),
-    Input('PART','value'),
     prevent_initial_call=True
 )
-def func(n_clicks,PN):
-    return dcc.send_data_frame(COSTS.to_excel,str(PN)+' ACTUAL COST.xlsx',index=False,engine='xlsxwriter')
+def func(n_clicks):
+    return dcc.send_data_frame(COSTS.to_excel,f'{PART_NM} ACTUAL COST.xlsx',index=False,engine='xlsxwriter')
