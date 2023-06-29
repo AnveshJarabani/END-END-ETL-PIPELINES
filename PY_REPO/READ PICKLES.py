@@ -6,6 +6,7 @@ import glob
 import glob , PyPDF2, tabula
 from rich import print
 
+
 df=pd.read_pickle("../PKL/LBR M-18.pkl")
 df1=df.loc[(df['Order - Material (Key)']=='CY-210257') | (df['Order - Material (Key)']== "CY-216092")]
 book=xl.Book()
@@ -25,8 +26,6 @@ for pdf in lst:
     #         print('\n')
     # except:
     #     continue
-
-
 import h5py, pickle, sqlalchemy
 from bigtree import print_tree, tree_to_dot, tree_to_dataframe
 import networkx as nx
