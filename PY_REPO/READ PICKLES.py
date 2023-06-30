@@ -2,11 +2,12 @@ import numpy as np
 import xlwings as xl
 import pandas as pd
 import glob
-
+import h5py
 import glob , PyPDF2, tabula
 from rich import print
 
 
+pd.read_hdf('ST_BM_BR.H5')
 df=pd.read_pickle("../PKL/LBR M-18.pkl")
 df1=df.loc[(df['Order - Material (Key)']=='CY-210257') | (df['Order - Material (Key)']== "CY-216092")]
 book=xl.Book()
