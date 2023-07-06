@@ -2,13 +2,13 @@ import numpy as np
 import xlwings as xl
 import pandas as pd
 import glob
-import h5py
+import h5py,time
 import glob , PyPDF2, tabula
 from rich import print
 
-
-pd.read_hdf('ST_BM_BR.H5')
+st=time.perf_counter()
 df=pd.read_pickle("../PKL/LBR M-18.pkl")
+print(f"elapsed time:{time.perf_counter() - st} seconds")
 df1=df.loc[(df['Order - Material (Key)']=='CY-210257') | (df['Order - Material (Key)']== "CY-216092")]
 book=xl.Book()
 book.sheets[0].range('A1').options(index=False).value=df1
