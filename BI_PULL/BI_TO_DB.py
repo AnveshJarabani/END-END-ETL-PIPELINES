@@ -10,8 +10,7 @@ keys= json.load(open("../PRIVATE/encrypt.json", "r"))
 
 # ! UCT DATA SCHEMA CONNECTION
 UCT_cn = sqlalchemy.create_engine(
-    keys['con_str_uct'],
-    connect_args={"ssl_ca": keys['ssl_ca']},) 
+    keys['con_str_uct_sg']) 
 
 def load_to_db(x):
     if '.pkl' in x.lower():
@@ -30,4 +29,4 @@ def load_to_db(x):
             df.to_sql(name=nm.lower(), con=UCT_cn, if_exists="replace", index=False)
             print("Uploaded", nm)
     UCT_cn.dispose()
-    print('***ALL UPLOADAS COMPLETE***')
+    print('***ALL UPLOADS COMPLETE***')
