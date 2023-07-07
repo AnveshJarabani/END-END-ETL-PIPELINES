@@ -10,7 +10,7 @@ keys= json.load(open("../PRIVATE/encrypt.json", "r"))
 
 # ! UCT DATA SCHEMA CONNECTION
 UCT_cn = sqlalchemy.create_engine(
-    keys['con_str_uct_sg']) 
+    keys['con_str_uct_pg']) 
 
 def load_to_db(x):
     if '.pkl' in x.lower():
