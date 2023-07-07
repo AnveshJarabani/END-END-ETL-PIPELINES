@@ -6,9 +6,10 @@ import h5py,time
 import glob , PyPDF2, tabula
 from rich import print
 
-st=time.perf_counter()
-df=pd.read_pickle("../PKL/LBR M-18.pkl")
-print(f"elapsed time:{time.perf_counter() - st} seconds")
+
+
+LBR=pd.read_pickle("../PKL/LBR M-18.pkl")
+
 df1=df.loc[(df['Order - Material (Key)']=='CY-210257') | (df['Order - Material (Key)']== "CY-216092")]
 book=xl.Book()
 book.sheets[0].range('A1').options(index=False).value=df1
