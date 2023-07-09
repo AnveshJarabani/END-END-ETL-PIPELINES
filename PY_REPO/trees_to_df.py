@@ -6,7 +6,7 @@ warnings.simplefilter(action='ignore', category=(FutureWarning,UserWarning))
 os.environ['PYDEVD_DISABLE_FILE_VALIDATION'] = '1'
 string=sys.stdin.buffer.read().decode('utf-8')
 List=list(map(str,string.split(' ')))
-with open('FOREST.PKL','rb') as f:
+with open('../PKL/FOREST.PKL','rb') as f:
         FOREST=pickle.load(f)
 reminder=[i for i in List if i not in FOREST]
 reminder_rows = [{'PN': i, 'PARENT': None, 'QTY': 1, 'TQ': 1, 'TOPLEVEL': i} for i in reminder]

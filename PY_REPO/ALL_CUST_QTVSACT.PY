@@ -13,7 +13,8 @@ if os.path.exists('TOOLCOSTS.H5'):
 import tempfile
 from time import time
 # ------------------------LEVEL BOMS -----------------------------------------
-CUR_QTR='QTR 1' ## ATTENTION THIS NEEDS TO BE UPDATED BY THE QUARTER VALUES!!!!
+#! ATTENTION THIS NEEDS TO BE UPDATED BY THE QUARTER VALUES!!!!
+CUR_QTR='QTR 1'
 # wb=xl.Book()
 # ws=wb.sheets
 # ws.add(name='LAM_SUMMARY')

@@ -6,6 +6,7 @@ import plotly.express as px
 import dash_bootstrap_components as dbc
 import pandas as pd
 import numpy as np
+from app_files.tree_to_df import tree_to_df
 def costby_bom(DF,PART):
     LVLBOM=BOM_EXTRACT(PART)
     COST_CLM=DF.columns[2]
@@ -37,43 +38,11 @@ def sort_QS(DF):
     return pi
  #BOM EXTRACT-----------
 def BOM_EXTRACT(PN):
-    LVLBOMS = pd.DataFrame(columns=['TOPLEVEL','MATERIAL','COMP', 'QTY','TOP LVL QTY'])
-    # BOM EXTRACT ----------------------------------------
-    if (PH['PH']==PN).any():
-        LVLBOMS.loc[len(LVLBOMS.index)] = [PN,PN,PN,1,1]
-    else:
-        BM = BOM[BOM['MATERIAL']==PN].reset_index(drop=True)
-        x = 0
-        while x <= (len(BM.index)-1) :
-            if BM.iloc[x,1] in PH['PH'].values:
-                x +=1
-                continue
-            nx = BOM[BOM['MATERIAL']==BM.iloc[x, 1]].reset_index(drop=True)
-            BM = pd.concat([BM,nx],axis = 0)
-            x +=1
-        BM.reset_index(drop=True, inplace=True)
-        BM.loc[-1] = [PN,PN,1]
-        BM.index = BM.index + 1
-        BM = BM.sort_index()
-        BM.columns = ['MATERIAL', 'COMP', 'QTY']
-        # TOOL QTY ----------------------------------------
-        BM['TOP LVL QTY'] = BM[BM['MATERIAL']==PN]['QTY']
-        BM['TEMP']=BM.iloc[:,0] + " " + BM.iloc[:,1]
-        x = BM.where(BM['MATERIAL']==PN).last_valid_index() + 1
-        BM.iloc[:x-1,3] = BM.iloc[:x-1,2]
-        for k in range(x,len(BM.index)):
-            y = sum(BM.iloc[:k+1,4]==BM.iloc[k,4])
-            t = 0    
-            for l in range(0,k):
-                if BM.iloc[l,1] == BM.iloc[k,0]:
-                    t +=1    
-                    if t ==y:
-                        BM.iloc[k,3] = BM.iloc[l,3]*BM.iloc[k,2]
-        BM.insert(0,'TOPLEVEL',PN)
-        BM = BM.iloc[:,:5]
-        LVLBOMS = pd.concat([LVLBOMS,BM],ignore_index=True)
-    LVLBOMS=LVLBOMS[LVLBOMS['TOPLEVEL'].notnull()]
-    LVLBOMS=LVLBOMS.loc[~LVLBOMS['COMP'].str.endswith('-UCT',na=False)]
+    #___________BOMEXTRACT_________________________________________________
+    LVLBOMS=tree_to_df(PN)
+    LVLBOMS['TOPLEVEL']=PN
+    LVLBOMS=LVLBOMS[['TOPLEVEL','PARENT','PN','QTY','TQ']]
+    LVLBOMS.columns=['TOPLEVEL', 'MATERIAL', 'COMP', 'QTY', 'TOP LVL QTY']
     LVLBOMS=LVLBOMS.pivot_table(index=['TOPLEVEL','COMP'],values=['TOP LVL QTY'],aggfunc=np.sum)
     LVLBOMS.reset_index(inplace=True)
     return LVLBOMS
@@ -146,6 +115,7 @@ layout = dbc.Container([
     Input('PART-COSTS','value'),
  )
 def update_graph(PART):
+    PART=PART.strip().upper()
     DT_LBR=costby_bom(LBR_COSTS,PART)
     DT_OVS=costby_bom(OVS_COSTS,PART)
     DT_PH=costby_buy_bom(PH_COSTS,PART)

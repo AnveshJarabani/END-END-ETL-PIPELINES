@@ -10,7 +10,9 @@ import zipfile, time, glob, os, json
 
 chromeOptions = webdriver.ChromeOptions()
 today = datetime.today().strftime("%m/%d/%y")
-START_DATE = (datetime.today() + delt.relativedelta(months=-18)).strftime("%m/%d/%y")
+# START_DATE = (datetime.today() + delt.relativedelta(months=-18)).strftime("%m/%d/%y")
+mtime=os.path.getmtime("../PKL/LBR M-18.pkl")
+START_DATE=datetime.fromtimestamp(mtime).strftime("%m/%d/%y")
 driver = webdriver.Chrome()
 driver.maximize_window()
 driver.get("http://alinbop.uct.local/BOE/BI")
@@ -90,8 +92,10 @@ df.replace(",", "", regex=True, inplace=True)
 df["Operation Quantity"] = df["Operation Quantity"].astype(float)
 df.select_dtypes(include=[float]).astype(np.float16)
 df.select_dtypes(include=[int]).astype(np.int8)
-df.to_pickle("../PKL/LBR M-18.pkl")
-
+old_df=pd.read_pickle("../PKL/LBR M-18.pkl")
+old_df=old_df.loc[old_df['End Date']!=START_DATE]
+new_df=pd.concat([old_df,df],ignore_index=True)
+new_df.to_pickle("../PKL/LBR M-18.pkl")
 os.remove(crNew)
 print("LBR M-18.PKL COMPLETE")
 # BUILD FOLLOWUP PICKLE FILES
