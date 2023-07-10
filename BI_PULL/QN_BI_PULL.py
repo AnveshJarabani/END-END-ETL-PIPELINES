@@ -107,6 +107,3 @@ df["Required Start Date"] = pd.to_datetime(df["Required Start Date"])
 df.to_pickle("../PKL/QN M-18.pkl")
 os.remove(crNew)
 print("QN M-18.PKL COMPLETE")
-from BI_TO_DB import load_to_db
-
-load_to_db("../PKL/QN M-18.pkl")

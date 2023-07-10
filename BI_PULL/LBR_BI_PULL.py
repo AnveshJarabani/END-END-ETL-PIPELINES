@@ -105,6 +105,4 @@ exec(open("../DATA ETLS/LBR HR WO TRENDS.py").read())
 exec(open("../DATA ETLS/PROCESS DAYS.py").read())
 exec(open("../DATA ETLS/LBR QLY COSTS.py").read())
 exec(open("../DATA ETLS/WC LOAD HRS.py").read())
-from BI_TO_DB import load_to_db
 
-load_to_db("../PKL/LBR M-18.pkl")

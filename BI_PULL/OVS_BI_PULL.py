@@ -80,7 +80,5 @@ df.replace([np.inf, -np.inf], np.nan, inplace=True)
 df.to_pickle("../PKL/OVS_RAW.PKL")
 print("OVS_RAW.PKL COMPLETE")
 os.remove(crNew)
-from BI_TO_DB import load_to_db
-load_to_db("../PKL/OVS_RAW.PKL")
 # BUILD H5 ETL FILE
 exec(open("../DATA ETLS/OVS CALC.py").read())
