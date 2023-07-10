@@ -128,6 +128,4 @@ os.remove(crNew)
 import subprocess
 
 subprocess.run(["python", "../DATA ETLS/PH CALC.py"])
-from BI_TO_DB import load_to_db
 
-load_to_db("../H5/PH_RAW.H5")

@@ -114,6 +114,4 @@ STD["STD COST"] = STD["STD COST"].round(2)
 with pd.HDFStore("../H5/ST_BM_BR.H5", mode="r+") as store:
     store.put("STD", STD)
 print("ST_BM_BR.H5 STD COMPLETE")
-from BI_TO_DB import load_to_db
 
-load_to_db("../H5/ST_BM_BR.H5")
