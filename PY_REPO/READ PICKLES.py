@@ -2,19 +2,15 @@ import numpy as np
 import xlwings as xl
 import pandas as pd
 import glob
-import h5py,time
-import glob , PyPDF2, tabula
+import h5py, time
+import glob, PyPDF2, tabula
 from rich import print
 
 
+LBR = pd.read_pickle("../PKL/LBR M-18.pkl")
 
-LBR=pd.read_pickle("../PKL/LBR M-18.pkl")
 
-df1=df.loc[(df['Order - Material (Key)']=='CY-210257') | (df['Order - Material (Key)']== "CY-216092")]
-book=xl.Book()
-book.sheets[0].range('A1').options(index=False).value=df1
-
-lst=glob.glob("../*pdf")
+lst = glob.glob("../*pdf")
 for pdf in lst:
     reader = PyPDF2.PdfReader(open(pdf, "rb"))
     num_pages = len(reader.pages)
