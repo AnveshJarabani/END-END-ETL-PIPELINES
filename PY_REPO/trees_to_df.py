@@ -13,8 +13,15 @@ reminder_rows = [{'PN': i, 'PARENT': None, 'QTY': 1, 'TQ': 1, 'TOPLEVEL': i} for
 df_remainder=pd.DataFrame(reminder_rows)
 List=[i for i in List if i in FOREST]
 def tree_to_df(ASSY):
-        return tree_to_dataframe(FOREST[ASSY],name_col='PN',
+        if FOREST.get(ASSY,False):
+                return tree_to_dataframe(FOREST[ASSY],name_col='PN',
                                  parent_col='PARENT',all_attrs=True)
+        else:
+                return pd.DataFrame({'path':ASSY,
+                                     'PN':ASSY,
+                                     'PARENT':'None',
+                                     'QTY':1,
+                                     "TQ":1},index=[0])
 if __name__=='__main__':
         pool=mp.Pool(processes=mp.cpu_count())
         output=pool.imap(tree_to_df,List)
