@@ -161,7 +161,7 @@ def table(clk_data):
                 dt=i.loc[i['TOP LEVEL']==str(y)]
                 continue
         dt.drop(columns=['TOP LEVEL','DESC'],axis=1,inplace=True)
-        dt.iloc[:,3:] = dt.iloc[:,3:].apply(lambda series: series.apply(lambda x: "${:,.2f}".format(float(x))))
+        dt.iloc[:,4:] = dt.iloc[:,4:].apply(lambda series: series.apply(lambda x: "${:,.2f}".format(float(x))))
         dt.sort_values(by='DELTA',ascending=True,inplace=True)
         colorscale = [[0, '#4d004c'],[.5, '#f2e5ff'],[1, '#ffffff']]
         QTVSACT = ff.create_table(dt,colorscale=colorscale)

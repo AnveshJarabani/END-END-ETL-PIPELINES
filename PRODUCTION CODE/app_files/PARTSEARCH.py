@@ -108,7 +108,6 @@ def pie_table(PN):
     COSTS=COSTS.pivot_table(index=['TOPLEVEL','MATERIAL','COMP'],values=['TOP LVL QTY','BUR ACT MAT','ACT LBR COST','OVS COST'],aggfunc=np.sum)
     COSTS.reset_index(inplace=True)
     COSTS=COSTS[['TOPLEVEL','MATERIAL','COMP','TOP LVL QTY','BUR ACT MAT','ACT LBR COST','OVS COST']]
-    COSTS.iloc[:,3:4] = COSTS.iloc[:,3:4].apply(lambda series: series.apply(lambda x: "{:,.2f}".format(float(x))))
     COSTS.iloc[:,4:] = COSTS.iloc[:,4:].apply(lambda series: series.apply(lambda x: "${:,.2f}".format(float(x))))
     colorscale = [[0, '#4d004c'],[.5, '#f2e5ff'],[1, '#ffffff']]
     TABLE = ff.create_table(COSTS,colorscale=colorscale)

@@ -5,7 +5,25 @@ import glob
 import h5py, time
 import glob, PyPDF2, tabula
 from rich import print
-import sqlalchemy,json
+import sqlalchemy,json,pickle
+from true_cost_finder import PN_TRUE_COST
+from trees_to_df import tree_to_df
+
+std=pd.read_hdf("../H5/ST_BM_BR.H5",key='STD')
+ph=pd.read_hdf("../H5/PH.H5",key='PH')
+with open('../PKL/FOREST.PKL','rb') as f:
+        FOREST=pickle.load(f)
+
+ACT_TABLE=xl.books.active.sheets.active.range('J1').expand().options(index=False).options(pd.DataFrame,index=False).value
+ACT_TABLE['ACT COST']=ACT_TABLE['PN'].apply(lambda x:PN_TRUE_COST(x))
+
+ACT_TABLE['ACT COST']
+
+MERGED=ACT_TABLE.merge(std,left_on='PN',right_on='MATERIAL',how='left')
+MERGED=MERGED.merge(ph,left_on='PN',right_on='PH',how='left')
+MERGED.loc[MERGED['ACT LBR COST']!=0,'STD COST']=0
+MERGED['STD-ACT MATERIAL']=MERGED['STD COST']-MERGED['ACT MAT COST'].astype(float)
+xl.books.active.sheets.active.range('k1').options(index=False).value=MERGED
 start_time=time.time()
 LBR = pd.read_pickle("../PKL/LBR M-18.pkl")
 print(time.time()-start_time)
