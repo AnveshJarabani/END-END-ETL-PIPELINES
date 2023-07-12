@@ -10,7 +10,7 @@ import datetime
 keys = json.load(open("../PRIVATE/encrypt.json", "r"))
 
 
-con_str_uct = "mysql+pymysql://anveshj:Zintak1!@ANVESHJ.mysql.pythonanywhere-services.com:3306/ANVESHJ$uct_data"
+
 cn = sqlalchemy.create_engine(con_str_uct)
 cn.connect()
 
