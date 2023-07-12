@@ -24,8 +24,6 @@ for i in [KLA_ACTQTDT,CYMER_ACTQTDT,LAM_ACTQTDT]:
 KLA_ACTQTDT.rename(columns={'DELTA T3':'DELTA'},inplace=True)
 PIE_COST=pd.concat([LAM_PIE,CYMER_PIE,KLA_PIE])
 
-import os
-print(os.getcwd())
 
 PERIODS=pd.read_pickle('../PKL/FISCAL CAL.PKL')
 PERIODS.drop_duplicates(inplace=True,ignore_index=True)

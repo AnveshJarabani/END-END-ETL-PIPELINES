@@ -12,7 +12,8 @@
       "cwd": "${fileDirname}",
       "console": "internalConsole",
       "justMyCode": true,
-      "internalConsoleOptions": "openOnSessionStart"
+      "internalConsoleOptions": "openOnSessionStart",
+      "purpose": ["debug-in-terminal"]
     }
   ]
 }

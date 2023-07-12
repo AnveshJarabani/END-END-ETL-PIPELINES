@@ -5,10 +5,16 @@ import glob
 import h5py, time
 import glob, PyPDF2, tabula
 from rich import print
-
-
+import sqlalchemy,json
+start_time=time.time()
 LBR = pd.read_pickle("../PKL/LBR M-18.pkl")
-
+print(time.time()-start_time)
+keys= json.load(open("../PRIVATE/encrypt.json", "r"))
+LOCAL_PG_CN = sqlalchemy.create_engine(
+    keys['con_str_uct_pg']) 
+start_time=time.time()
+lbr1=pd.read_sql_table('lbr m-18',LOCAL_PG_CN)
+print(time.time()-start_time)
 
 lst = glob.glob("../*pdf")
 for pdf in lst:
