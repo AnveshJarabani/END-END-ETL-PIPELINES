@@ -106,6 +106,7 @@ df["Act Shipped Qty"] = (
 df["ASP"] = df["ASP"].str.replace("\$|\,", "", regex=True).astype(float)
 df.dropna()
 df.to_pickle("../PKL/SHP.pkl")
+driver.close()
 print("SHP.pkl COMPLETE")
 os.remove(crNew)
 from BI_TO_DB import load_to_db

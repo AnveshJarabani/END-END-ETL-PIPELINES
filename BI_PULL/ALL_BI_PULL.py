@@ -1,10 +1,14 @@
 import subprocess,glob
 scripts=glob.glob("*.py")
-BI_PULLS=[i for i in scripts if 'ALL' not in i and "DB" not in i]
-BI_TO_DB=[i for i in scripts if 'DB' in i]
+BI_PULLS=[i for i in scripts if 'BI_PULL'in i and "ALL" not in i]
+BI_TO_DB=[i for i in scripts if 'LOAD' in i]
+processes=[]
 for i in BI_PULLS:
-    subprocess.run(["python",i],stderr=subprocess.DEVNULL)
+    p=subprocess.Popen(["python",i],stderr=subprocess.DEVNULL)
+    processes.append(p)
+for p in processes:
+    p.wait()
 for i in BI_TO_DB:
-    subprocess.run(["python",i],stderr=subprocess.DEVNULL)
+    subprocess.Popen(["python",i],stderr=subprocess.DEVNULL)
     
 
