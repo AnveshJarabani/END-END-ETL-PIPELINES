@@ -8,7 +8,6 @@ import numpy as np
 import datetime
 keys= json.load(open("../PRIVATE/encrypt.json", "r"))
 
-
 # ! UCT DATA SCHEMA CONNECTION
 UCT_cn = sqlalchemy.create_engine(
     keys['con_str_uct_pg']) 
