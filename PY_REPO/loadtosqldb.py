@@ -6,25 +6,32 @@ import os
 import json
 import numpy as np
 import datetime
-keys= json.load(open("../PRIVATE/encrypt.json", "r"))
+
+keys = json.load(open("../PRIVATE/encrypt.json", "r"))
+
+
+con_str_uct = "mysql+pymysql://anveshj:Zintak1!@ANVESHJ.mysql.pythonanywhere-services.com:3306/ANVESHJ$uct_data"
+cn = sqlalchemy.create_engine(con_str_uct)
+cn.connect()
 
 
 # ! UCT DATA SCHEMA CONNECTION
 UCT_cn = sqlalchemy.create_engine(
-    keys['con_str_uct'],
-    connect_args={"ssl_ca": keys['ssl_ca']},) 
+    keys["con_str_uct"],
+    connect_args={"ssl_ca": keys["ssl_ca"]},
+)
 
 
 today = datetime.date.today()
 
 pkl_files = [f"../PKL/{f}" for f in os.listdir("../PKL/")]
-pkl_files = [i
-    for i in pkl_files
-    if datetime.date.fromtimestamp(os.path.getmtime(i)) == today]
+pkl_files = [
+    i for i in pkl_files if datetime.date.fromtimestamp(os.path.getmtime(i)) == today
+]
 h5_files = [f"../H5/{f}" for f in os.listdir("../H5/")]
-h5_files = [i
-    for i in h5_files
-    if datetime.date.fromtimestamp(os.path.getmtime(i)) == today]
+h5_files = [
+    i for i in h5_files if datetime.date.fromtimestamp(os.path.getmtime(i)) == today
+]
 
 
 for x in pkl_files:
@@ -33,7 +40,7 @@ for x in pkl_files:
         continue
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
     df.columns = df.columns.str.replace("\n", "").str.strip()
-    nm = os.path.basename(x).split('.')[0]
+    nm = os.path.basename(x).split(".")[0]
     df.to_sql(name=nm.lower(), con=UCT_cn, if_exists="replace", index=False)
     print("Uploaded", nm)
 
@@ -46,10 +53,6 @@ for x in h5_files:
         df.to_sql(name=nm.lower(), con=UCT_cn, if_exists="replace", index=False)
         print("Uploaded", nm)
 UCT_cn.dispose()
-
-
-
-
 
 
 # ! LEETCODE DATA SCHEMA CONNECTION
