@@ -13,11 +13,15 @@ std=pd.read_hdf("../H5/ST_BM_BR.H5",key='STD')
 ph=pd.read_hdf("../H5/PH.H5",key='PH')
 with open('../PKL/FOREST.PKL','rb') as f:
         FOREST=pickle.load(f)
+keys= json.load(open("../PRIVATE/encrypt.json", "r"))
+LOCAL_LEET_CN=sqlalchemy.create_engine(keys['con_str_leetcode_pg'])
+LOCAL_PG_CN = sqlalchemy.create_engine(
+    keys['con_str_uct_pg']) 
 
-ACT_TABLE=xl.books.active.sheets.active.range('J1').expand().options(index=False).options(pd.DataFrame,index=False).value
+ACT_TABLE=xl.books.active.sheets.active.range('A1').expand().options(index=False).options(pd.DataFrame,index=False).value
 ACT_TABLE['ACT COST']=ACT_TABLE['PN'].apply(lambda x:PN_TRUE_COST(x))
 
-ACT_TABLE['ACT COST']
+ACT_TABLE.to_sql(name='friend',con=LOCAL_LEET_CN,if_exists='replace',index=False)
 
 MERGED=ACT_TABLE.merge(std,left_on='PN',right_on='MATERIAL',how='left')
 MERGED=MERGED.merge(ph,left_on='PN',right_on='PH',how='left')
@@ -27,9 +31,7 @@ xl.books.active.sheets.active.range('k1').options(index=False).value=MERGED
 start_time=time.time()
 LBR = pd.read_pickle("../PKL/LBR M-18.pkl")
 print(time.time()-start_time)
-keys= json.load(open("../PRIVATE/encrypt.json", "r"))
-LOCAL_PG_CN = sqlalchemy.create_engine(
-    keys['con_str_uct_pg']) 
+
 start_time=time.time()
 lbr1=pd.read_sql_table('lbr m-18',LOCAL_PG_CN)
 print(time.time()-start_time)
