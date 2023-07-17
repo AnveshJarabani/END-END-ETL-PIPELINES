@@ -133,7 +133,7 @@ if __name__=='__main__':
     SM=pd.concat([bm,SM],axis=0,ignore_index=True)
     SM[['TOP LEVEL','LAM PART#']] = SM[['TOP LEVEL','LAM PART#']].apply(lambda x: x.str.strip())
     SM=SM.loc[(SM['UNITCOST']!=0)|(SM['UNITCOST'].notna())]
-    SM_OLD=pd.read_hdf('QUOTES.H5',key='LAM')
+    SM_OLD=pd.read_hdf('../H5/QUOTES.H5',key='LAM')
     # REMOVE COMMON TOOLS IN OLD TOOLS.
     CM_LST=list(set(SM_OLD['TOP LEVEL'].unique()).intersection(SM['TOP LEVEL'].unique()))
     SM_OLD=SM_OLD.loc[~SM_OLD['TOP LEVEL'].isin(CM_LST)]
@@ -141,4 +141,6 @@ if __name__=='__main__':
     SM.loc[SM['LAM PART#'].isna(),'LAM PART#']='LABOR COST'
     SM.select_dtypes(include=[float]).astype(np.float16)
     SM.select_dtypes(include=[int]).astype(np.int8)
-    SM.to_hdf('QUOTES.H5',key='LAM')
+    SM.to_hdf('../H5/QUOTES.H5',key='LAM')
+    
+    
