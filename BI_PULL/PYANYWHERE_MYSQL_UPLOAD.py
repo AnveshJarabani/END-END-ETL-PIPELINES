@@ -76,7 +76,7 @@ for x in h5_files:
         nm = f'{os.path.basename(x).split(".")[0]}_{i}'
         df.to_sql(name=nm.lower(), con=pyanywhere_cn, if_exists="replace", index=False)
         print("Uploaded", nm)
-print('________ALL files uploaded________')
+print('________ALL FILES UPLOADED TO PYTHONANYWHERE SQL DB________')
 pyanywhere_cn.dispose()
 server.stop()
 ssh_client.close()

@@ -2,8 +2,8 @@ import pandas as pd
 import numpy as np
 
 # UPDATE THE BOM & ROUTING PATHS BEFORE EXECUTING THE CODE.
-int_path = "../../3321_BOM_DUMP_03_28_2023.csv"
-fab_path = "../../3322_BOM_DUMP_03_28_2023.csv"
+int_path = "../../3321 BOM DUMP 07172023_v1.csv"
+fab_path = "../../3322_BOM_DUMP_07172023_v1.csv"
 int_bom = pd.read_csv(int_path)
 int_bom = int_bom.loc[:, ["/BIC/ZMATERIAL", "/BIC/ZBCOMNT", "/BIC/ZBOMQTY"]]
 int_bom.columns = ["MATERIAL", "COMPONENT", "QTY"]
@@ -63,6 +63,6 @@ BOM = BOM.loc[~BOM["MATERIAL"].str.endswith("-UCT", na=True)]
 BOM["QTY"] = BOM["QTY"].round(5)
 PH = pd.read_hdf("../H5/PH.H5", key="PH")
 BOM = BOM[~BOM["MATERIAL"].isin(PH["PH"])]
-AGILE_BOM = pd.read_hdf("../H5/ST_BM_BR.H5", key="AGILE_BOM")
-BOM = BOM[BOM["MATERIAL"].isin(AGILE_BOM["PART_NUMBER"])]
+# AGILE_BOM = pd.read_hdf("../H5/ST_BM_BR.Hk5", key="AGILE_BOM")
+# BOM = BOM[BOM["MATERIAL"].isin(AGILE_BOM["PART_NUMBER"])]
 BOM.to_hdf("../H5/ST_BM_BR.H5", key="BOM")
