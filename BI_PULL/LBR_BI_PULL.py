@@ -94,6 +94,7 @@ df.select_dtypes(include=[float]).astype(np.float16)
 df.select_dtypes(include=[int]).astype(np.int8)
 old_df=pd.read_pickle("../PKL/LBR M-18.pkl")
 old_df=old_df.loc[old_df['End Date']!=START_DATE]
+df=df[old_df.columns]
 new_df=pd.concat([old_df,df],ignore_index=True)
 new_df.to_pickle("../PKL/LBR M-18.pkl")
 os.remove(crNew)
