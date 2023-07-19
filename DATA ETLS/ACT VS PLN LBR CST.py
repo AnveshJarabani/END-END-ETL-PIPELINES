@@ -1,30 +1,25 @@
 import pandas as pd
 import numpy as np
-wl=pd.read_pickle('../PKL/LBR M-18.PKL')
+wl=pd.read_pickle('../PKL/RAW_LBR.PKL')
 rout=pd.read_hdf('../H5/ST_BM_BR.H5',key='ROUT')
 SM=pd.DataFrame()
-SM['SM']=np.array(rout.loc[rout['Work Center'].str.contains(r'BRAKE|LASER|TRT'),"Material"].unique()).tolist()
+SM['SM']=np.array(rout.loc[rout['WORK_CENTER'].str.contains(r'BRAKE|LASER|TRT'),"Material"].unique()).tolist()
 SM.to_hdf('../H5/ST_BM_BR.H5',key='SM_PARTS',mode='a')
 cst = pd.read_hdf('../H5/ST_BM_BR.H5',key='BR')
-wl = wl.loc[:,['Fiscal year/period', 'Order - Material (Key)',
-       'Order - Material (Text)', 'Order', 'Operation', 'Work Center',        
-       'Standard Text Key', 'Operation Text', 'End Date',
-       'Operation Quantity', 'Hours Worked', 'Labor Rate', 'Labor Cost',
-       'Overhead Rate', 'Overhead Cost']]
-wl = wl[(wl['Order - Material (Key)'] != '#') & (wl['Order'] != '#') & (wl['Standard Text Key'] != '#')]
+wl = wl[(wl['PART_NUMBER'] != '#') & (wl['WORK_ORDER'] != '#') & (wl['STD_KEY'] != '#')]
 cst['BUR_RATE'] *=1.15
-wl = wl.merge(cst,left_on='Standard Text Key',right_on='ST KEY',how='left')
+wl = wl.merge(cst,left_on='STD_KEY',right_on='ST KEY',how='left')
 wl.drop(columns=['ST KEY'],axis=1,inplace=True)
-wl = wl.assign(COST=lambda x: (x['BUR_RATE']*x['Hours Worked']))
-pi = wl.pivot_table(index=["Order - Material (Key)","Order",'Standard Text Key',\
-     'Operation Quantity'],values=["Hours Worked","COST"],aggfunc= np.sum)
+wl = wl.assign(COST=lambda x: (x['BUR_RATE']*x['HRS_WORKED']))
+pi = wl.pivot_table(index=["PART_NUMBER","WORK_ORDER",'STD_KEY',\
+     'OP_QTY'],values=["HRS_WORKED","COST"],aggfunc= np.sum)
 pi.reset_index(inplace=True)
-pi['ACT COST/EA'] = pi['COST']/pi['Operation Quantity']
-pi['HRS/EA'] = pi['Hours Worked']/pi['Operation Quantity']
+pi['ACT COST/EA'] = pi['COST']/pi['OP_QTY']
+pi['HRS/EA'] = pi['HRS_WORKED']/pi['OP_QTY']
 pi.replace([np.inf, -np.inf], np.nan, inplace=True)
 pi.dropna(how='any',inplace=True)
 pi=pi.loc[pi['COST']!=0]
-pi=pi[['Order - Material (Key)', 'Order', 'Standard Text Key', 'ACT COST/EA', 'HRS/EA']]
+pi=pi[['PART_NUMBER', 'WORK_ORDER', 'STD_KEY', 'ACT COST/EA', 'HRS/EA']]
 def remove_outliers(group):
     mean = group.mean()  
     median = group.median()
@@ -39,42 +34,42 @@ def remove_outliers(group):
     lower_bound = Q1 - 0.5*IQR
     return group[(group > lower_bound) & \
                   (group < upper_bound)]
-pi[['ACT COST/EA_t', 'HRS/EA_t']] = pi.groupby(['Order - Material (Key)', 'Standard Text Key'])[['ACT COST/EA', 'HRS/EA']].transform(remove_outliers)
-pi_temp = pi.pivot_table(index=["Order - Material (Key)",'Standard Text Key'],values = ['ACT COST/EA'],aggfunc= np.mean)
+pi[['ACT COST/EA_t', 'HRS/EA_t']] = pi.groupby(['PART_NUMBER', 'STD_KEY'])[['ACT COST/EA', 'HRS/EA']].transform(remove_outliers)
+pi_temp = pi.pivot_table(index=["PART_NUMBER",'STD_KEY'],values = ['ACT COST/EA'],aggfunc= np.mean)
 pi_temp.reset_index(inplace=True)
 pi_temp.columns=['MAT_TEMP','STKEY_TEMP','COST/EA_AVG']
-pi=pi.merge(pi_temp,left_on=['Order - Material (Key)','Standard Text Key'],right_on=['MAT_TEMP','STKEY_TEMP'],how='left')
+pi=pi.merge(pi_temp,left_on=['PART_NUMBER','STD_KEY'],right_on=['MAT_TEMP','STKEY_TEMP'],how='left')
 pi=pi.loc[(pi['COST/EA_AVG']/5 < pi['ACT COST/EA']) & (pi['COST/EA_AVG']*5 > pi['ACT COST/EA'])]
-pi=pi.pivot_table(index=["Order - Material (Key)",'Standard Text Key'],values = ['HRS/EA','ACT COST/EA'],aggfunc= np.mean)
+pi=pi.pivot_table(index=["PART_NUMBER",'STD_KEY'],values = ['HRS/EA','ACT COST/EA'],aggfunc= np.mean)
 pi.reset_index(inplace=True)
 rout.columns=rout.columns.str.strip()
-rt=rout.loc[:,['Material','Standard Text Key','Base Quantity','Work Center','Setup','Unit_Setup','Labor Run','Unit_Labor Run']]
+rt=rout.loc[:,['Material','STD_KEY','Base Quantity','WORK_CENTER','Setup','Unit_Setup','Labor Run','Unit_Labor Run']]
 rt=rt.loc[rout['Unit_Setup']!='#']
-QTY=wl[['Order - Material (Key)','Order','Operation Quantity']]
+QTY=wl[['PART_NUMBER','WORK_ORDER','OP_QTY']]
 QTY=QTY.drop_duplicates()
-QTY = QTY.pivot_table(index=['Order - Material (Key)'],values=['Operation Quantity'],aggfunc=np.mean)
+QTY = QTY.pivot_table(index=['PART_NUMBER'],values=['OP_QTY'],aggfunc=np.mean)
 QTY.reset_index(inplace=True) 
-rt = rt.merge(QTY,left_on='Material',right_on='Order - Material (Key)',how='left')
-rt.drop(columns=['Order - Material (Key)'],axis=1,inplace=True)
-rt.loc[(rt['Operation Quantity'].isnull())&(rt['Work Center'].str.contains(r'BRAKE|LASER|TRT|SAW')),'Base Quantity'] = 10
-rt.loc[(rt['Operation Quantity']!=1),'Base Quantity']=10
+rt = rt.merge(QTY,left_on='Material',right_on='PART_NUMBER',how='left')
+rt.drop(columns=['PART_NUMBER'],axis=1,inplace=True)
+rt.loc[(rt['OP_QTY'].isnull())&(rt['WORK_CENTER'].str.contains(r'BRAKE|LASER|TRT|SAW')),'Base Quantity'] = 10
+rt.loc[(rt['OP_QTY']!=1),'Base Quantity']=10
 for i in rt.loc[rt['Base Quantity']==10,'Material'].unique():
      rt.loc[rt['Material']==i,'Base Quantity']=10
-rt.loc[rt['Operation Quantity'].isnull(),'Operation Quantity'] = rt['Base Quantity']
+rt.loc[rt['OP_QTY'].isnull(),'OP_QTY'] = rt['Base Quantity']
 rt['PLN HR/EA'] = ((rt['Setup'] + rt['Labor Run'])/rt['Base Quantity']).where(rt['Unit_Labor Run'] == 'H',\
                  (rt['Setup'] + (rt['Labor Run']/60))/rt['Base Quantity'])
-rt = rt.pivot_table(index=['Material','Standard Text Key'],values=['PLN HR/EA'],aggfunc=np.sum)
+rt = rt.pivot_table(index=['Material','STD_KEY'],values=['PLN HR/EA'],aggfunc=np.sum)
 rt.reset_index(inplace=True)
-pi3 = pi.pivot_table(index=["Order - Material (Key)"],values=['ACT COST/EA','HRS/EA'],aggfunc= np.sum)
+pi3 = pi.pivot_table(index=["PART_NUMBER"],values=['ACT COST/EA','HRS/EA'],aggfunc= np.sum)
 pi3.reset_index(inplace=True)
-rt = rt.merge(cst,left_on='Standard Text Key',right_on='ST KEY',how='left')
+rt = rt.merge(cst,left_on='STD_KEY',right_on='ST KEY',how='left')
 rt.drop(columns=['ST KEY'],axis=1,inplace=True)
 rt['PLN COST/EA'] = rt['PLN HR/EA']*rt['BUR_RATE']
 rt = rt.pivot_table(index=['Material'],values=['PLN COST/EA'],aggfunc=np.sum)
 rt.reset_index(inplace=True)
-rt = rt.merge(pi3,left_on='Material',right_on='Order - Material (Key)',how='left')
+rt = rt.merge(pi3,left_on='Material',right_on='PART_NUMBER',how='left')
 rt['ACT COST/EA'] = rt['ACT COST/EA'].replace("",pd.NA).fillna(rt['PLN COST/EA'])
 rt.loc[(rt['ACT COST/EA'] ==0) | (rt['ACT COST/EA'] < .6*rt['PLN COST/EA'] ),'ACT COST/EA'] = rt['PLN COST/EA']
-rt.drop(columns=['Order - Material (Key)'],axis=1,inplace=True)
+rt.drop(columns=['PART_NUMBER'],axis=1,inplace=True)
 rt.to_hdf('../H5/LBR.H5',key='ACT_V_PL_CST',mode='a')
 print('LBR.H5 ACT_V_PL_CST COMPLETE')

@@ -92,13 +92,13 @@ df.replace(",", "", regex=True, inplace=True)
 df["Operation Quantity"] = df["Operation Quantity"].astype(float)
 df.select_dtypes(include=[float]).astype(np.float16)
 df.select_dtypes(include=[int]).astype(np.int8)
-old_df=pd.read_pickle("../PKL/LBR M-18.pkl")
+old_df=pd.read_pickle("../PKL/RAW_LBR.PKL")
 old_df=old_df.loc[old_df['End Date']!=START_DATE]
 df=df[old_df.columns]
 new_df=pd.concat([old_df,df],ignore_index=True)
-new_df.to_pickle("../PKL/LBR M-18.pkl")
+new_df.to_pickle("../PKL/RAW_LBR.PKL")
 os.remove(crNew)
-print("LBR M-18.PKL COMPLETE")
+print("RAW_LBR.PKL COMPLETE")
 # BUILD FOLLOWUP PICKLE FILES
 driver.close()
 exec(open("../DATA ETLS/ACT VS PLN LBR CST.py").read())
