@@ -26,16 +26,11 @@ keys = json.load(open("../PRIVATE/encrypt.json", "r"))
 username.send_keys(keys["BI_USER"])
 password.send_keys(keys["BI_PASS"])
 find(By.ID, "__button1-inner").click()
-WebDriverWait(driver, 25).until(
-    EC.presence_of_element_located((By.ID, "__tile0-__container1-2"))
-)
-
+WebDriverWait(driver, 25).until(EC.presence_of_element_located((By.ID, "__tile0-__container1-2")))
 # CLICK ON OVS REPORT FAV TILE
 lst = find(css, "div[id*='Favourite']").find_elements(tag, "bdi")
 [i for i in lst if "OVS Purchase Order" in i.text][0].click()
-WebDriverWait(driver, 25).until(
-    EC.presence_of_element_located((css, "[id*='promptsList']"))
-)
+WebDriverWait(driver, 25).until(EC.presence_of_element_located((css, "[id*='promptsList']")))
 find(css, "[title*='Reset prompts values to default']").click()  # CLICK RESET
 prompts_list = find(css, 'div[class*="PromptsSummaryList"]')
 prompts = prompts_list.find_elements(tag, "span")
@@ -47,9 +42,7 @@ find(css, "[class*='SettingsSearchByKeys']").click()  # TURN ON KEY SEARCH
 find(css, "[class*='SettingsShowKeys']").click()  # TURN ON KEY SEARCH
 find(css, "[id*='search-I']").send_keys("3322")
 find(css, "[title*='Add']").click()  # CLICK PLUS
-find(
-    css, "[title*='Refresh the document using the prompts values']"
-).click()  # CLICK Run
+find(css, "[title*='Refresh the document using the prompts values']").click()  # CLICK Run
 WebDriverWait(driver, 10000).until(EC.element_to_be_clickable((css, "[title*='Zoom']")))
 # ----RUN THE REPORT WITH CSV
 find(css, "[title*='Export']").click()  # CLICK EXPORT
