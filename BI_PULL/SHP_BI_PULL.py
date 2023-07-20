@@ -45,26 +45,12 @@ find(By.ID, "__button1-inner").click()
 WebDriverWait(driver, 25).until(EC.presence_of_element_located((By.ID, "__vbox5")))
 # CLICK ON SHIPMENT REPORT FAV TILE
 lst = find(css, "div[id*='Favourite']").find_elements(tag, "bdi")
-[i for i in lst if "Shipment Order Report" in i.text][0].click()
+[i for i in lst if "SHP_BI_PULL" in i.text][0].click()
 WebDriverWait(driver, 25).until(
     EC.presence_of_element_located((css, "[id*='promptsList']"))
 )
-find(css, "[title*='Reset prompts values to default']").click()  # CLICK RESET
 prompts_list = find(css, 'div[class*="PromptsSummaryList"]')
 prompts = prompts_list.find_elements(tag, "span")
-# CLICK PLANT PROMT
-[i for i in prompts if "Plant" in i.text][0].click()
-time.sleep(0.5)
-# -----------SELECT PLANT
-find(css, "[title*='Show the settings page']").click()  # SELECT SETTINGS
-time.sleep(1)
-find(css, "[class*='SettingsSearchByKeys']").click()  # TURN ON KEY SEARCH
-find(css, "[class*='SettingsShowKeys']").click()  # TURN ON KEY SEARCH
-find(css, "[title*='Reset prompt values']").click()  # CLICK RESET
-find(css, "[id*='search-I']").send_keys("3322")
-find(css, "[title*='Add']").click()  # CLICK PLUS
-find(css, "[id*='search-I']").send_keys("3321")
-find(css, "[title='Add']").click()  # CLICK PLUS
 [i for i in prompts if "Fiscal Quarter" in i.text][0].click()  # FISCAL QUARTER PROMPT
 find(css, "[title*='Reset prompt values']").click()  # CLICK RESET
 for i in QS:
@@ -78,7 +64,6 @@ find(css, "[title='Export']").click()
 time.sleep(2)
 # DOWNLOAD CSV BY DATA ONLY.
 find(css, "[data-customclass*='CSVExportEntry']").click()
-find(css, "[aria-label='Select all rows']").click()
 find(css, "[id*='ConfirmExportButton']").click()
 # WAIT TILL THE FILE IS DOWNLOADED
 wait = True
@@ -99,11 +84,11 @@ with zipfile.ZipFile(crNew_path) as zf:
     df = pd.read_csv(zf.open("Shipment Report.csv"))
 df.select_dtypes(include=[float]).astype(np.float16)
 df.select_dtypes(include=[int]).astype(np.int16)
-df["Actual Good Issue Date"] = pd.to_datetime(df["Actual Good Issue Date"])
-df["Act Shipped Qty"] = (
-    df["Act Shipped Qty"].str.replace("\$|\,", "", regex=True).astype(float)
+df["SHIPPED_DATE"] = pd.to_datetime(df["SHIPPED_DATE"])
+df["SHIPPED_QTY"] = (
+    df["SHIPPED_QTY"].str.replace("\$|\,", "", regex=True).astype(float)
 )
-df["ASP"] = df["ASP"].str.replace("\$|\,", "", regex=True).astype(float)
+# df["ASP"] = df["ASP"].str.replace("\$|\,", "", regex=True).astype(float)
 df.dropna()
 df.to_pickle("../PKL/SHP.pkl")
 driver.close()

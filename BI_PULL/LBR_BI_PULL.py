@@ -18,6 +18,7 @@ driver.maximize_window()
 driver.get("http://alinbop.uct.local/BOE/BI")
 find = driver.find_element
 finds = driver.find_elements
+tag=By.TAG_NAME
 css = By.CSS_SELECTOR
 driver.switch_to.frame(find(By.TAG_NAME, "iframe"))
 WebDriverWait(driver, 25).until(EC.presence_of_element_located((By.ID, "__label0-bdi")))
@@ -28,28 +29,12 @@ username.send_keys(keys["BI_USER"])
 password.send_keys(keys["BI_PASS"])
 find(By.ID, "__button1-inner").click()
 WebDriverWait(driver, 25).until(EC.presence_of_element_located((By.ID, "__vbox5")))
-find( By.ID, "__tile0-__container1-0").click()  # CLICK ON EMPLOYEE LABOR HRS REPORT FAV TILE
+ # CLICK ON EMPLOYEE LABOR HRS REPORT FAV TILE
+lst = find(css, "div[id*='Favourite']").find_elements(tag, "bdi")
+[i for i in lst if "SHP BI PULL" in i.text][0].click()
 WebDriverWait(driver, 25).until(
     EC.presence_of_element_located((css, "[id*='promptsList']"))
 )
-
-# find(css, "[id*='promptsList-4']").click()  # TICKET TYPE PROMPT
-# find(css, "[title*='Show the settings page']").click()  # SELECT SETTINGS
-# time.sleep(1)
-# find(css, "[title*='Show the settings page']").click()
-# find(css, "[class*='SettingsSearchByKeys']").click()  # TURN ON KEY SEARCH
-# find(css, "[class*='SettingsShowKeys']").click()  # TURN ON KEY SEARCH
-# find(css, "[title*='Refresh']").click()  # REFRESH
-# find(css, "[id*='search-I']").send_keys("L")
-# find(css, "[title*='Add']").click()  # CLICK PLUS
-# find(css, "[id*='search-I']").send_keys("S")
-# find(css, "[title='Add']").click()  # CLICK PLUS
-# find(css, "[id*='promptsList-0']").click()  # CLICK PLANT PROMT
-# find(css, "[title*='Reset prompts']").click()  # CLICK RESET
-# find(css, "[id*='search-I']").send_keys("3322")
-# find(css, "[title*='Add']").click()  # CLICK PLUS
-# find(css, "[id*='search-I']").send_keys("3321")
-# find(css, "[title='Add']").click()  # CLICK PLUS
 time.sleep(1)
 # FOR DATES ENTRY -----
 find(css, "[id*='promptsList-5']").click()  # DAY INTERVAL PROMPT
