@@ -1,7 +1,6 @@
 import numpy as np
 import xlwings as xl
 import pandas as pd
-
 import glob
 import h5py, time
 import glob, PyPDF2, tabula
@@ -32,7 +31,6 @@ xl.books.active.sheets.active.range('k1').options(index=False).value=MERGED
 start_time=time.time()
 LBR = pd.read_pickle("../PKL/LBR M-18.pkl")
 print(time.time()-start_time)
-
 start_time=time.time()
 lbr1=pd.read_sql_table('lbr m-18',LOCAL_PG_CN)
 print(time.time()-start_time)
