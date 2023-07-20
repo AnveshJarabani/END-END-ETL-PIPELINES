@@ -10,9 +10,9 @@ import zipfile, time, glob, os, json
 
 chromeOptions = webdriver.ChromeOptions()
 today = datetime.today().strftime("%m/%d/%y")
-# START_DATE = (datetime.today() + delt.relativedelta(months=-18)).strftime("%m/%d/%y")
-mtime=os.path.getmtime("../PKL/LBR M-18.pkl")
-START_DATE=datetime.fromtimestamp(mtime).strftime("%m/%d/%y")
+START_DATE = (datetime.today() + delt.relativedelta(months=-18)).strftime("%m/%d/%y")
+# mtime=os.path.getmtime("../PKL/RAW_LBR.pkl")
+# START_DATE=datetime.fromtimestamp(mtime).strftime("%m/%d/%y")
 driver = webdriver.Chrome()
 driver.maximize_window()
 driver.get("http://alinbop.uct.local/BOE/BI")
@@ -28,30 +28,28 @@ username.send_keys(keys["BI_USER"])
 password.send_keys(keys["BI_PASS"])
 find(By.ID, "__button1-inner").click()
 WebDriverWait(driver, 25).until(EC.presence_of_element_located((By.ID, "__vbox5")))
-find(
-    By.ID, "__tile0-__container1-0"
-).click()  # CLICK ON EMPLOYEE LABOR HRS REPORT FAV TILE
+find( By.ID, "__tile0-__container1-0").click()  # CLICK ON EMPLOYEE LABOR HRS REPORT FAV TILE
 WebDriverWait(driver, 25).until(
     EC.presence_of_element_located((css, "[id*='promptsList']"))
 )
 
-find(css, "[id*='promptsList-4']").click()  # TICKET TYPE PROMPT
-find(css, "[title*='Show the settings page']").click()  # SELECT SETTINGS
-time.sleep(1)
-find(css, "[title*='Show the settings page']").click()
-find(css, "[class*='SettingsSearchByKeys']").click()  # TURN ON KEY SEARCH
-find(css, "[class*='SettingsShowKeys']").click()  # TURN ON KEY SEARCH
-find(css, "[title*='Refresh']").click()  # REFRESH
-find(css, "[id*='search-I']").send_keys("L")
-find(css, "[title*='Add']").click()  # CLICK PLUS
-find(css, "[id*='search-I']").send_keys("S")
-find(css, "[title='Add']").click()  # CLICK PLUS
-find(css, "[id*='promptsList-0']").click()  # CLICK PLANT PROMT
-find(css, "[title*='Reset prompts']").click()  # CLICK RESET
-find(css, "[id*='search-I']").send_keys("3322")
-find(css, "[title*='Add']").click()  # CLICK PLUS
-find(css, "[id*='search-I']").send_keys("3321")
-find(css, "[title='Add']").click()  # CLICK PLUS
+# find(css, "[id*='promptsList-4']").click()  # TICKET TYPE PROMPT
+# find(css, "[title*='Show the settings page']").click()  # SELECT SETTINGS
+# time.sleep(1)
+# find(css, "[title*='Show the settings page']").click()
+# find(css, "[class*='SettingsSearchByKeys']").click()  # TURN ON KEY SEARCH
+# find(css, "[class*='SettingsShowKeys']").click()  # TURN ON KEY SEARCH
+# find(css, "[title*='Refresh']").click()  # REFRESH
+# find(css, "[id*='search-I']").send_keys("L")
+# find(css, "[title*='Add']").click()  # CLICK PLUS
+# find(css, "[id*='search-I']").send_keys("S")
+# find(css, "[title='Add']").click()  # CLICK PLUS
+# find(css, "[id*='promptsList-0']").click()  # CLICK PLANT PROMT
+# find(css, "[title*='Reset prompts']").click()  # CLICK RESET
+# find(css, "[id*='search-I']").send_keys("3322")
+# find(css, "[title*='Add']").click()  # CLICK PLUS
+# find(css, "[id*='search-I']").send_keys("3321")
+# find(css, "[title='Add']").click()  # CLICK PLUS
 time.sleep(1)
 # FOR DATES ENTRY -----
 find(css, "[id*='promptsList-5']").click()  # DAY INTERVAL PROMPT
@@ -68,6 +66,7 @@ time.sleep(3)
 # DOWNLOAD CSV BY DATA ONLY.
 find(css, "[data-customclass*='CSVExportEntry']").click()
 find(css, "[placeholder='Search']").send_keys("Labor Hours")
+time.sleep(1)
 find(css, "[class='sapMTableTH sapMListTblSelCol']").click()  # CLICK ALL
 find(css, "[id*='ConfirmExportButton']").click()
 # WAIT TILL THE FILE IS DOWNLOADED
@@ -89,13 +88,14 @@ with zipfile.ZipFile(crNew_path, "r") as zf:
         df = pd.read_csv(csv_file)
 df = df.loc[df.iloc[:, 0].notna()]
 df.replace(",", "", regex=True, inplace=True)
-df["Operation Quantity"] = df["Operation Quantity"].astype(float)
+df["OP_QTY"] = df["OP_QTY"].astype(float)
 df.select_dtypes(include=[float]).astype(np.float16)
 df.select_dtypes(include=[int]).astype(np.int8)
 old_df=pd.read_pickle("../PKL/RAW_LBR.PKL")
 old_df=old_df.loc[old_df['End Date']!=START_DATE]
 df=df[old_df.columns]
 new_df=pd.concat([old_df,df],ignore_index=True)
+new_df['END_DATE']=pd.to_datetime(new_df['END_DATE'])
 new_df.to_pickle("../PKL/RAW_LBR.PKL")
 os.remove(crNew)
 print("RAW_LBR.PKL COMPLETE")
