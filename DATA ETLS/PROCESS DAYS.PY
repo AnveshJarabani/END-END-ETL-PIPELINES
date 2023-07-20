@@ -2,17 +2,16 @@ import pandas as pd
 import numpy as np
 from datetime import datetime,timedelta
 RAWLBR=pd.read_pickle('../PKL/RAW_LBR.PKL')
-RAWLBR=RAWLBR[['PART_NUMBER','WORK_ORDER', 'OPERATION', 'Standard Text Key','END_DATE' ]]
 RAWLBR = RAWLBR[(RAWLBR['PART_NUMBER'] != '#') &
-            (RAWLBR['WORK_ORDER'] != '#') & (RAWLBR['Standard Text Key'] != '#')]
+            (RAWLBR['WORK_ORDER'] != '#') & (RAWLBR['STD_KEY'] != '#')]
 RAWLBR=RAWLBR.loc[RAWLBR['END_DATE'].notna()]
 RAWLBR['END_DATE']=RAWLBR['END_DATE'].astype('datetime64[ns]')
 filt_date=RAWLBR['END_DATE'].max()-timedelta(days=7*30)
 RAWLBR=RAWLBR.loc[RAWLBR['END_DATE']>filt_date]
-mins=RAWLBR.pivot_table(index=['PART_NUMBER','WORK_ORDER','Standard Text Key', 'OPERATION'],values='END_DATE',aggfunc=np.min)
+mins=RAWLBR.pivot_table(index=['PART_NUMBER','WORK_ORDER','STD_KEY', 'OPERATION'],values='END_DATE',aggfunc=np.min)
 mins.reset_index(inplace=True)
 mins.rename(columns={'END_DATE': 'Oldest'},inplace=True)
-maxs=RAWLBR.pivot_table(index=['PART_NUMBER','WORK_ORDER','Standard Text Key', 'OPERATION'],values='END_DATE',aggfunc=np.max)
+maxs=RAWLBR.pivot_table(index=['PART_NUMBER','WORK_ORDER','STD_KEY', 'OPERATION'],values='END_DATE',aggfunc=np.max)
 maxs.reset_index(inplace=True)
 maxs.rename(columns={'END_DATE': 'Latest'},inplace=True)
 merge=mins.merge(maxs,how='left')
@@ -20,16 +19,16 @@ merge['days']=(merge['Latest']-merge["Oldest"]).dt.days
 merge.loc[merge['days']==0,'days']=1
 merge[['OPERATION','WORK_ORDER']]=merge[['OPERATION','WORK_ORDER']].astype(int)
 merge.sort_values(by=['WORK_ORDER','OPERATION'],inplace=True,ignore_index=True)
-x=merge.groupby('Order')
+x=merge.groupby('WORK_ORDER')
 merge['WAIT']=(x['Oldest'].shift(0)-x['Latest'].shift(1)).dt.days
 merge.loc[merge['WAIT'].isna() | (merge['WAIT']<0),'WAIT']=0
-merge=merge.pivot_table(index=['PART_NUMBER','Standard Text Key','OPERATION'],values=['days','WAIT'],aggfunc=np.average)
+merge=merge.pivot_table(index=['PART_NUMBER','STD_KEY','OPERATION'],values=['days','WAIT'],aggfunc=np.average)
 merge.reset_index(inplace=True)
 RT=pd.read_hdf('../H5/ST_BM_BR.H5',key='ROUT')
 RT=RT[['Material','Operation Number']]
 merge['OPERATION']=merge['OPERATION'].astype('int64')
 RT=RT.merge(merge,left_on=['Material','Operation Number'],right_on=['PART_NUMBER','OPERATION'],how='left')
-RT['OP']=RT['Standard Text Key']+"("+RT['OPERATION'].astype(str)+")"
+RT['OP']=RT['STD_KEY']+"("+RT['OPERATION'].astype(str)+")"
 RT=RT[['Material','OP','OPERATION','days','WAIT']]
 RT.columns=['Material','OP','OPERATION','PROCESS DAYS','WAIT DAYS']
 RT.dropna(how='any',inplace=True)
