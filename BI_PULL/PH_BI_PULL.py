@@ -42,9 +42,7 @@ keys = json.load(open("../PRIVATE/encrypt.json", "r"))
 find(css, "[placeholder='User Name']").send_keys(keys["BI_USER"])
 find(css, "[placeholder='Password']").send_keys(keys["BI_PASS"])
 find(css, "[class*='LoginButton']").click()
-WebDriverWait(driver, 25).until(
-    EC.presence_of_element_located((By.ID, "__tile0-__container1-2"))
-)
+WebDriverWait(driver, 25).until(EC.presence_of_element_located((By.ID, "__tile0-__container1-2")))
 # CLICK ON PURCHASE HIST REPORT FAV TILE
 lst = find(css, "div[id*='Favourite']").find_elements(tag, "bdi")
 [i for i in lst if "PH_BI_PULL" in i.text][0].click()
@@ -53,9 +51,7 @@ WebDriverWait(driver, 25).until(
 for i in QS:
     if i != QS[0]:
         find(css, "[title='Refresh']").click()  # CLICK REFRESH
-        WebDriverWait(driver, 25).until(
-            EC.presence_of_element_located((css, "[id*='promptsList']"))
-        )
+        WebDriverWait(driver, 25).until(EC.presence_of_element_located((css, "[id*='promptsList']")))
     # FOR PLANT SELECTION - CHANDLER FAB & INTEGRATION , SELECTING KEYS
     prompts_list = find(css, 'div[class*="PromptsSummaryList"]')
     prompts = prompts_list.find_elements(tag, "span")
@@ -66,9 +62,7 @@ for i in QS:
     find(css, "[title='Add']").click()  # CLICK PLUS
     time.sleep(0.5)
     find(css, "[title*='Refresh the document']").click()  # CLICK RUN
-    WebDriverWait(driver, 10000).until(
-        EC.element_to_be_clickable((css, "[title*='Zoom']"))
-    )
+    WebDriverWait(driver, 10000).until(EC.element_to_be_clickable((css, "[title*='Zoom']")))
     # GO TO EXPORT TAB
     find(css, "[title*='Export']").click()  # CLICK EXPORT
     time.sleep(3)
@@ -78,23 +72,8 @@ for i in QS:
     find(css, "[id*='ConfirmExportButton']").click()
     # WAIT TILL THE FILE IS DOWNLOADED
     wait = True
-    # DLOADS_PATH = "../../*zip"
-# files = glob.iglob(DLOADS_PATH)
-# cr1 = max(files, key=os.path.getmtime)
-# while wait:
-#     files = glob.iglob(DLOADS_PATH)
-#     crNew = max(files, key=os.path.getmtime)
-#     if crNew == cr1:
-#         time.sleep(1)
-#     else:
-#         crNew_path = crNew
-#         wait = False
-# # SIMPLIFY THE CSV FILE AND SAVE IT AS A HD5 FILE.
-# time.sleep(3)
-# with zipfile.ZipFile(crNew_path) as zf:
-time.sleep(3)
+while not os.path.exists("../../PH_BI_PULL.txt"): time.sleep(1)
 df=pd.read_csv("../../PH_BI_PULL.txt",delimiter="\t")
-# df = pd.read_csv(zf.open("Purchase History Report Summary.csv"))
 df.select_dtypes(include=[float]).astype(np.float16)
 df.select_dtypes(include=[int]).astype(np.int16)
 df.replace([np.inf, -np.inf], np.nan, inplace=True)

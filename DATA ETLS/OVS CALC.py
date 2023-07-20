@@ -8,10 +8,10 @@ def sort_QS(DF):
     pi.drop_duplicates(inplace=True,ignore_index=True)
     return pi
 OVS_RAW = pd.read_pickle('../PKL/OVS_RAW.PKL')
-OVS = OVS_RAW.loc[~OVS_RAW['PO Amount'].isna()]
-OVS=OVS.loc[~OVS['Operation Description'].str.contains('QN',na=False)]
-OVS['YR']=OVS['Fiscal year / period'].str.extract(r'(\d{2})$')
-OVS['MONTH']=OVS['Fiscal year / period'].str.extract(r'\b(\d{2})\b')
+OVS = OVS_RAW.loc[~OVS_RAW['PO_AMOUNT'].isna()]
+OVS=OVS.loc[~OVS['OPERATION_DESC'].str.contains('QN',na=False)]
+OVS['YR']=OVS['YR+QTR'].str.extract(r'(\d{2})$')
+OVS['MONTH']=OVS['YR+QTR'].str.extract(r'\b(\d{2})\b')
 OVS=OVS.loc[OVS['MONTH'].notna()].reset_index()
 OVS['MONTH']=OVS['MONTH'].astype('int')
 OVS.loc[(OVS['MONTH']==1)|(OVS['MONTH']==2)|(OVS['MONTH']==3),'QTR']='Q1'
@@ -20,19 +20,17 @@ OVS.loc[(OVS['MONTH']==7)|(OVS['MONTH']==8)|(OVS['MONTH']==9),'QTR']='Q3'
 OVS.loc[(OVS['MONTH']==10)|(OVS['MONTH']==11)|(OVS['MONTH']==12),'QTR']='Q4'
 OVS.sort_values(by=['YR','MONTH'],ascending=False,inplace=True)
 OVS['Q+YR']= OVS['QTR'].astype(str)+" "+OVS['YR'].astype(str)
-OVS = OVS.pivot_table(index=['Q+YR','OVS Material - Key', 'OVS Operation'],values=['PO Price'], aggfunc=np.mean)
+OVS = OVS.pivot_table(index=['Q+YR','PART_NUMBER', 'OVS_OPERATION'],values=['PO_PRICE'], aggfunc=np.mean)
 OVS.reset_index(inplace=True)
-OVS=OVS.loc[~OVS['OVS Operation'].str.contains('Not',na=False)]
-OVS['OVS Operation']=OVS['OVS Operation'].astype(float)
-OVS['OVS Operation']=OVS['OVS Operation'].astype(int)
+OVS['OVS_OPERATION']=OVS['OVS_OPERATION'].astype(float)
+OVS['OVS_OPERATION']=OVS['OVS_OPERATION'].astype(int)
 ROUT=pd.read_hdf('../H5/ST_BM_BR.H5',key='ROUT')
-ROUT=ROUT.loc[ROUT['Standard Text Key'].str.contains('^21-',regex=True,na=False)]
-OVS=pd.merge(ROUT,OVS,how='left',left_on=['Material','Operation Number'],right_on=['OVS Material - Key','OVS Operation'])
-OVS=OVS.loc[OVS['OVS Operation'].notna()]
-OVS = OVS.pivot_table(index=['Q+YR','OVS Material - Key'], values=['PO Price'], aggfunc=np.sum)
+ROUT=ROUT.loc[ROUT['STD_KEY'].str.contains('^21-',regex=True,na=False)]
+OVS=pd.merge(ROUT,OVS,how='left',left_on=['Material','Operation Number'],right_on=['PART_NUMBER','OVS_OPERATION'])
+OVS=OVS.loc[OVS['OVS_OPERATION'].notna()]
+OVS = OVS.pivot_table(index=['Q+YR','PART_NUMBER'], values=['PO_PRICE'], aggfunc=np.sum)
 OVS.reset_index(inplace=True)
-OVS = OVS.loc[OVS['OVS Material - Key'] != '#']
-OVS.rename(columns={'OVS Material - Key': 'MATERIAL', 'PO Price' : 'OVS COST'},inplace=True)
+OVS.rename(columns={'PART_NUMBER': 'MATERIAL', 'PO_PRICE' : 'OVS COST'},inplace=True)
 OVS['OVS COST']=OVS['OVS COST'].round(2)
 OVS=sort_QS(OVS)
 for i in OVS['MATERIAL'].unique():
