@@ -49,8 +49,7 @@ WebDriverWait(driver, 25).until(
 lst = find(css, "div[id*='Favourite']").find_elements(tag, "bdi")
 [i for i in lst if "PH_BI_PULL" in i.text][0].click()
 WebDriverWait(driver, 25).until(
-    EC.presence_of_element_located((css, "[id*='promptsList']"))
-)
+    EC.presence_of_element_located((css, "[id*='promptsList']")))
 for i in QS:
     if i != QS[0]:
         find(css, "[title='Refresh']").click()  # CLICK REFRESH
