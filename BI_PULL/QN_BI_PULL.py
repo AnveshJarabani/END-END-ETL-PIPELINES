@@ -61,49 +61,13 @@ time.sleep(3)
 find(css, "[data-customclass*='CSVExportEntry']").click()
 find(css, "[id*='ConfirmExportButton']").click()
 # WAIT TILL THE FILE IS DOWNLOADED
-wait = True
-DLOADS_PATH = "../../*zip"
-files = glob.iglob(DLOADS_PATH)
-cr1 = max(files, key=os.path.getmtime)
-while wait:
-    files = glob.iglob(DLOADS_PATH)
-    crNew = max(files, key=os.path.getmtime)
-    if crNew == cr1:
-        time.sleep(1)
-    else:
-        crNew_path = crNew
-        wait = False
-# SIMPLIFY THE CSV FILE AND SAVE IT AS A PICIKLE FILE.
-with zipfile.ZipFile(crNew_path, "r") as zf:
-    df = pd.read_csv(zf.open("Notification (Defect) Analysis .csv"))
+while not os.path.exists("../../QN_BI_PULL.txt"): time.sleep(1)
+df=pd.read_csv("../../QN_BI_PULL.txt",delimiter='\t')
 df = df.loc[df.iloc[:, 0].notna()]
 df.replace(",", "", regex=True, inplace=True)
-df.rename(columns={"Total QN  Quantity": "Total QN Quantity"}, inplace=True)
-df["Total QN Quantity"] = df["Total QN Quantity"].astype(float)
 df.select_dtypes(include=[float]).astype(np.float16)
 df.select_dtypes(include=[int]).astype(np.int8)
-df = df[
-    [
-        "Plant",
-        "Calendar Year/Week",
-        "Required Start Date",
-        "Notification PS Text - Long Text",
-        "CAUSEDBY",
-        "Defect Type",
-        "Defect Group",
-        "Vendor-Key",
-        "Vendor Desc",
-        "Material group",
-        "Material - Key",
-        "Material - Medium Text",
-        "Standard Price",
-        "Rejected Amount",
-        "Total QN Quantity",
-    ]
-]
-for col in ["Rejected Amount", "Standard Price"]:
-    df[col] = pd.to_numeric(df[col].str.replace("$", ""))
 df["Required Start Date"] = pd.to_datetime(df["Required Start Date"])
 df.to_pickle("../PKL/QN M-18.pkl")
-os.remove(crNew)
+os.remove("../../QN_BI_PULL.txt")
 print("QN M-18.PKL COMPLETE")

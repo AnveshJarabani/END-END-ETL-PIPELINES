@@ -46,9 +46,7 @@ WebDriverWait(driver, 25).until(EC.presence_of_element_located((By.ID, "__vbox5"
 # CLICK ON SHIPMENT REPORT FAV TILE
 lst = find(css, "div[id*='Favourite']").find_elements(tag, "bdi")
 [i for i in lst if "SHP_BI_PULL" in i.text][0].click()
-WebDriverWait(driver, 25).until(
-    EC.presence_of_element_located((css, "[id*='promptsList']"))
-)
+WebDriverWait(driver, 25).until(EC.presence_of_element_located((css, "[id*='promptsList']")))
 prompts_list = find(css, 'div[class*="PromptsSummaryList"]')
 prompts = prompts_list.find_elements(tag, "span")
 [i for i in prompts if "Fiscal Quarter" in i.text][0].click()  # FISCAL QUARTER PROMPT
@@ -62,38 +60,19 @@ WebDriverWait(driver, 10000).until(EC.element_to_be_clickable((css, "[title*='Zo
 # GO TO EXPORT TAB
 find(css, "[title='Export']").click()
 time.sleep(2)
-# DOWNLOAD CSV BY DATA ONLY.
-find(css, "[data-customclass*='CSVExportEntry']").click()
+# DOWNLOAD TXT BY DATA ONLY.
+find(css, "[data-customclass*='TXTExportEntry']").click()
 find(css, "[id*='ConfirmExportButton']").click()
 # WAIT TILL THE FILE IS DOWNLOADED
 wait = True
-DLOADS_PATH = "../../*zip"
-files = glob.iglob(DLOADS_PATH)
-cr1 = max(files, key=os.path.getmtime)
-while wait:
-    files = glob.iglob(DLOADS_PATH)
-    crNew = max(files, key=os.path.getmtime)
-    if crNew == cr1:
-        time.sleep(1)
-    else:
-        crNew_path = crNew
-        wait = False
-# SIMPLIFY THE CSV FILE AND SAVE IT AS A HD5 FILE.
-time.sleep(3)
-with zipfile.ZipFile(crNew_path) as zf:
-    df = pd.read_csv(zf.open("Shipment Report.csv"))
+while not os.path.exists("../../SHP_BI_PULL.txt"): time.sleep(1)
+df=pd.read_csv("../../SHP_BI_PULL.txt",delimiter="\t")
 df.select_dtypes(include=[float]).astype(np.float16)
 df.select_dtypes(include=[int]).astype(np.int16)
 df["SHIPPED_DATE"] = pd.to_datetime(df["SHIPPED_DATE"])
-df["SHIPPED_QTY"] = (
-    df["SHIPPED_QTY"].str.replace("\$|\,", "", regex=True).astype(float)
-)
-# df["ASP"] = df["ASP"].str.replace("\$|\,", "", regex=True).astype(float)
 df.dropna()
 df.to_pickle("../PKL/SHP.pkl")
 driver.close()
+os.remove("../../SHP_BI_PULL.txt")
 print("SHP.pkl COMPLETE")
-os.remove(crNew)
-from BI_TO_DB import load_to_db
 
-load_to_db("../PKL/SHP.pkl")

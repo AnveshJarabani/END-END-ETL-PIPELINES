@@ -63,7 +63,7 @@ rt = rt.pivot_table(index=['Material','STD_KEY'],values=['PLN HR/EA'],aggfunc=np
 rt.reset_index(inplace=True) 
 pi3 = pi.pivot_table(index=["PART_NUMBER"],values=['ACT COST/EA','HRS/EA'],aggfunc= np.sum)
 pi3.reset_index(inplace=True)
-rt = rt.merge(cst,left_on='Standard Text Key',right_on='ST KEY',how='left')
+rt = rt.merge(cst,left_on='STD_KEY',right_on='ST KEY',how='left')
 rt.drop(columns=['ST KEY'],axis=1,inplace=True)
 rt['PLN COST/EA'] = rt['PLN HR/EA']*rt['BUR_RATE']
 rt = rt.pivot_table(index=['Material'],values=['PLN COST/EA'],aggfunc=np.sum)
