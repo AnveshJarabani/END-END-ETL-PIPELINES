@@ -3,6 +3,7 @@ import numpy as np
 wl=pd.read_pickle('../PKL/RAW_LBR.PKL')
 cst=pd.read_hdf('../H5/ST_BM_BR.H5','BR')
 wl = wl.loc[(wl['PART_NUMBER'] != '#')&(wl['WORK_ORDER'] != '#')&(wl['STD_KEY'] != '#')]
+wl['END_DATE']=pd.to_datetime(wl['END_DATE'])
 wl['MONTH']=wl['END_DATE'].dt.month
 wl['YR']=wl['END_DATE'].dt.year
 wl['X']=wl['MONTH'].astype(str)+" "+wl['YR'].astype(str)
