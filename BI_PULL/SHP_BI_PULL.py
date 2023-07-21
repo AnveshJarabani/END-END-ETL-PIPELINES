@@ -6,23 +6,12 @@ from datetime import datetime
 import dateutil.relativedelta as delt
 import pandas as pd
 import numpy as np
-import time, glob, os, zipfile, json
+import time,os, json
 
 chromeOptions = webdriver.ChromeOptions()
-dict = {
-    1: "01",
-    2: "01",
-    3: "01",
-    4: "02",
-    5: "02",
-    6: "02",
-    7: "03",
-    8: "03",
-    9: "03",
-    10: "04",
-    11: "04",
-    12: "04",
-}
+dict = {1: "01",2: "01",3: "01",4: "02",
+        5: "02",6: "02",7: "03",8: "03",
+        9: "03",10: "04",11: "04",12: "04",}
 QS = []
 for i in range(0, 6):
     dt = datetime.now() + delt.relativedelta(months=-3 * i)
