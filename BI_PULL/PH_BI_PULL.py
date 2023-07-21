@@ -6,23 +6,14 @@ from datetime import datetime
 import dateutil.relativedelta as delt
 import pandas as pd
 import numpy as np
-import zipfile, time, glob, os, json
-
-dict = {
-    1: "01",
-    2: "01",
-    3: "01",
-    4: "02",
-    5: "02",
-    6: "02",
-    7: "03",
-    8: "03",
-    9: "03",
-    10: "04",
-    11: "04",
-    12: "04",
-}
+import  time, os, json
+dict = {1: "01",2: "01",3: "01",4: "02",
+        5: "02",6: "02",7: "03",8: "03",
+        9: "03",10: "04",11: "04",12: "04",}
 QS = []
+for i in range(0, 6):
+    dt = datetime.now() + delt.relativedelta(months=-3 * i)
+    QS.append(dict[dt.month] + str(dt.year))
 dt = datetime.now()
 QS.append(dict[dt.month] + str(dt.year))
 start_time = time.time()
@@ -48,45 +39,34 @@ lst = find(css, "div[id*='Favourite']").find_elements(tag, "bdi")
 [i for i in lst if "PH_BI_PULL" in i.text][0].click()
 WebDriverWait(driver, 25).until(
     EC.presence_of_element_located((css, "[id*='promptsList']")))
+prompts_list = find(css, 'div[class*="PromptsSummaryList"]')
+prompts = prompts_list.find_elements(tag, "span")
+[i for i in prompts if "Fiscal Quarter" in i.text][0].click()  # FISCAL QUARTER PROMPT
+find(css, "[title*='Reset prompt values']").click()  # CLICK RESET
 for i in QS:
-    if i != QS[0]:
-        find(css, "[title='Refresh']").click()  # CLICK REFRESH
-        WebDriverWait(driver, 25).until(EC.presence_of_element_located((css, "[id*='promptsList']")))
-    # FOR PLANT SELECTION - CHANDLER FAB & INTEGRATION , SELECTING KEYS
-    prompts_list = find(css, 'div[class*="PromptsSummaryList"]')
-    prompts = prompts_list.find_elements(tag, "span")
-    [i for i in prompts if "Fiscal Quarter" in i.text][0].click()
-    find(css, "[title*='Reset prompt values']").click()  # CLICK RESET
     find(css, "[id*='search-I']").send_keys(i)
     time.sleep(0.5)
-    find(css, "[title='Add']").click()  # CLICK PLUS
-    time.sleep(0.5)
-    find(css, "[title*='Refresh the document']").click()  # CLICK RUN
-    WebDriverWait(driver, 10000).until(EC.element_to_be_clickable((css, "[title*='Zoom']")))
-    # GO TO EXPORT TAB
-    find(css, "[title*='Export']").click()  # CLICK EXPORT
-    time.sleep(3)
-    # SELECT SUMMARY AND DETAILS AND CLICK EXPORT
-    find(css, "[data-customclass*='TXTExportEntry']").click()
-    # DOWNLOAD CSV
-    find(css, "[id*='ConfirmExportButton']").click()
-    # WAIT TILL THE FILE IS DOWNLOADED
-    wait = True
+    find(css, "[title*='Add']").click()  # CLICK PLUS
+find(css, "[title*='Refresh the document']").click()  # CLICK RUN
+WebDriverWait(driver, 10000).until(EC.element_to_be_clickable((css, "[title*='Zoom']")))
+# GO TO EXPORT TAB
+find(css, "[title*='Export']").click()  # CLICK EXPORT
+time.sleep(3)
+# SELECT SUMMARY AND DETAILS AND CLICK EXPORT
+find(css, "[data-customclass*='TXTExportEntry']").click()
+# DOWNLOAD CSV
+find(css, "[id*='ConfirmExportButton']").click()
+# WAIT TILL THE FILE IS DOWNLOADED
+wait = True
 while not os.path.exists("../../PH_BI_PULL.txt"): time.sleep(1)
 df=pd.read_csv("../../PH_BI_PULL.txt",delimiter="\t")
 df.select_dtypes(include=[float]).astype(np.float16)
 df.select_dtypes(include=[int]).astype(np.int16)
 df.replace([np.inf, -np.inf], np.nan, inplace=True)
-df.to_hdf("../H5/PH_RAW.H5", key=QS[0], mode="a")
+df.to_pickle("../PKL/PH.PKL")
 print("PH.H5 Q COMPLETE")
-ven = df[["PART_NUMBER", "LAST_VENDOR"]].drop_duplicates(ignore_index=True)
-ven.select_dtypes(include=[float]).astype(np.float16)
-ven.select_dtypes(include=[int]).astype(np.int16)
-ven.to_hdf("../H5/PH_RAW.H5", key=QS[0] + "_VEN", mode="a")
-print("PH_RAW Q_VEN COMPLETE")
 os.remove('../../PH_BI_PULL.txt')
 # BUILD FOLLOWUP PICKLE FILES
 import subprocess
-
 subprocess.run(["python", "../DATA ETLS/PH CALC.py"])
 

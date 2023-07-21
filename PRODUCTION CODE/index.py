@@ -10,45 +10,19 @@ offcanvas = html.Div([
         dbc.Offcanvas(
                  dbc.ListGroup(
             [
-                # dbc.ListGroupItem(
-                #     "PROFIT-LOSS", href="/apps/"
-                # ),
-                dbc.ListGroupItem(
-                    "TOOL COSTS", href="/apps/TOOLCOSTS"
-                ),
-                dbc.ListGroupItem(
-                    "QLY. COST TRENDS", href="/apps/QLY_TRENDS"
-                ),
-                dbc.ListGroupItem(
-                    "DEMAND FORECAST", href="/apps/SHEETMETAL_DEMAND"
-                ),
-                dbc.ListGroupItem(
-                    "QLY. RELATIVE TRENDS", href="/apps/QLY_RELATIVE_TRENDS"
-                ),
-                dbc.ListGroupItem(
-                    "FRAME COSTS", href="/apps/FAB"
-                ),
-                dbc.ListGroupItem(
-                    "PART COST FINDER", href="/apps/PARTSEARCH"
-                ),
-                dbc.ListGroupItem(
-                    "BUILD HOUR TRENDS", href="/apps/WO_HRS"
-                ),
-                dbc.ListGroupItem(
-                    "PROCESS & WAIT DAYS", href="/apps/DAYS"
-                ),
-                dbc.ListGroupItem(
-                    "WORK CENTER LOAD", href="/apps/WC_LOAD"
-                ),
-                dbc.ListGroupItem(
-                    "QUALITY DATA", href="/apps/FPY"
-                ),
-                dbc.ListGroupItem(
-                    "QUALITY DATA BY PN", href="/apps/FPY_PN"
-                ),
-                dbc.ListGroupItem(
-                    "VERSION", href="/apps/version"
-                ),
+                # dbc.ListGroupItem("PROFIT-LOSS", href="/apps/"),
+                dbc.ListGroupItem("TOOL COSTS", href="/apps/TOOLCOSTS"),
+                dbc.ListGroupItem("QLY. COST TRENDS", href="/apps/QLY_TRENDS"),
+                dbc.ListGroupItem("DEMAND FORECAST", href="/apps/SHEETMETAL_DEMAND"),
+                dbc.ListGroupItem("QLY. RELATIVE TRENDS", href="/apps/QLY_RELATIVE_TRENDS"),
+                dbc.ListGroupItem("FRAME COSTS", href="/apps/FAB"),
+                dbc.ListGroupItem("PART COST FINDER", href="/apps/PARTSEARCH"),
+                dbc.ListGroupItem("BUILD HOUR TRENDS", href="/apps/WO_HRS"),
+                dbc.ListGroupItem("PROCESS & WAIT DAYS", href="/apps/DAYS"),
+                dbc.ListGroupItem("WORK CENTER LOAD", href="/apps/WC_LOAD"),
+                dbc.ListGroupItem("QUALITY DATA", href="/apps/FPY"),
+                dbc.ListGroupItem("QUALITY DATA BY PN", href="/apps/FPY_PN"),
+                dbc.ListGroupItem("VERSION", href="/apps/version"),
                 ]
         ),
             placement='end',
@@ -93,40 +67,24 @@ navbar= dbc.Navbar(
     color="#AAC9F5",
     dark=True,
     fixed='top')
-@app.callback(
-    Output('page-content','children'),
-    Input('url','pathname'))
+@app.callback(Output('page-content','children'),Input('url','pathname'))
 def display_page(pathname):
     # if pathname=='/apps/':
     #     return PNL.layout
-    if pathname=='/apps/TOOLCOSTS':
-        return TOOLCOSTS.layout
-    if pathname=='/apps/FAB':
-        return FAB.layout
-    if pathname=='/apps/PARTSEARCH':
-        return PARTSEARCH.layout
-    if pathname=='/apps/version':
-        return Version.modal
-    if pathname=='/apps/WO_HRS':
-        return WO_HRS.layout
-    if pathname=='/apps/DAYS':
-        return DAYS.layout
-    if pathname=='/apps/QLY_TRENDS':
-        return QLY_TRENDS.layout
-    if pathname=='/apps/QLY_RELATIVE_TRENDS':
-        return QLY_RELATIVE_TRENDS.layout
-    if pathname=='/apps/WC_LOAD':
-        return WC_LOAD.layout
-    if pathname=='/apps/FPY':
-        return FPY.layout
-    if pathname=='/apps/FPY_PN':
-        return FPY_PN.layout  
-    if pathname=='/apps/SHEETMETAL_DEMAND':
-        return SHEETMETAL_DEMAND.layout
-    else:
-        return 'TRY LATER'
+    if pathname=='/apps/TOOLCOSTS': return TOOLCOSTS.layout
+    if pathname=='/apps/FAB': return FAB.layout
+    if pathname=='/apps/PARTSEARCH': return PARTSEARCH.layout
+    if pathname=='/apps/version': return Version.modal
+    if pathname=='/apps/WO_HRS': return WO_HRS.layout
+    if pathname=='/apps/DAYS': return DAYS.layout
+    if pathname=='/apps/QLY_TRENDS': return QLY_TRENDS.layout
+    if pathname=='/apps/QLY_RELATIVE_TRENDS': return QLY_RELATIVE_TRENDS.layout
+    if pathname=='/apps/WC_LOAD': return WC_LOAD.layout
+    if pathname=='/apps/FPY': return FPY.layout
+    if pathname=='/apps/FPY_PN': return FPY_PN.layout  
+    if pathname=='/apps/SHEETMETAL_DEMAND': return SHEETMETAL_DEMAND.layout
+    else: return 'TRY LATER'
 app.layout = dbc.Container(
     [navbar,dcc.Location(id='url',refresh=False,pathname='/apps/'),html.Div(id='page-content',children=[])],
     style={'height':'200vh'},fluid=True)
-if __name__== '__main__':
-    app.run_server(debug=True,port=5055)
+if __name__== '__main__': app.run_server(debug=True,port=5055)
