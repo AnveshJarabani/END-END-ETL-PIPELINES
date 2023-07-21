@@ -1,5 +1,4 @@
 import sqlalchemy
-from sqlalchemy import inspect
 import pandas as pd
 import h5py
 import os
@@ -12,6 +11,10 @@ keys= json.load(open("../PRIVATE/encrypt.json", "r"))
 LOCAL_PG_CN = sqlalchemy.create_engine(
     keys['con_str_uct_pg']) 
 
+
+# tables=LOCAL_PG_CN.table_names()
+# for table in tables:
+#     LOCAL_PG_CN.execute(f'DROP TABLE "{table}"')
 
 today = datetime.date.today()
 
