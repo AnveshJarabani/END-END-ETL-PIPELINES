@@ -10,5 +10,3 @@ for p in processes:
     p.wait()
 for i in BI_TO_DB:
     subprocess.Popen(["python",i],stderr=subprocess.DEVNULL)
-    
-

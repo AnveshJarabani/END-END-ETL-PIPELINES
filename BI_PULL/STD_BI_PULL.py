@@ -73,11 +73,9 @@ for i in PLANTS:
 STD = STD[STD["PART_NUMBER"].str.endswith("-UCT") == False]
 STD.columns = ["MATERIAL", "STD COST"]
 STD.drop_duplicates(subset=["MATERIAL"], inplace=True, ignore_index=True)
-STD["STD COST"] = STD["STD COST"].str.replace("\$|\,|", "", regex=True).astype(float)
 STD["STD COST"] /= 1.106
 STD.reset_index(inplace=True)
 STD["STD COST"] = STD["STD COST"].round(2)
 with pd.HDFStore("../H5/ST_BM_BR.H5", mode="r+") as store:
     store.put("STD", STD)
 print("ST_BM_BR.H5 STD COMPLETE")
-

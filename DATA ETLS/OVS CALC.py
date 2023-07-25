@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import math
 QS=pd.read_pickle('../PKL/QLY_INTS.PKL')
 def sort_QS(DF):
     pi=DF.merge(QS,left_on='Q+YR',right_on='Q+YR',how='left')
@@ -9,15 +10,11 @@ def sort_QS(DF):
     return pi
 OVS_RAW = pd.read_pickle('../PKL/OVS_RAW.PKL')
 OVS = OVS_RAW.loc[~OVS_RAW['PO_AMOUNT'].isna()]
-OVS=OVS.loc[~OVS['OPERATION_DESC'].str.contains('QN',na=False)]
 OVS['YR']=OVS['YR+QTR'].str.extract(r'(\d{2})$')
 OVS['MONTH']=OVS['YR+QTR'].str.extract(r'\b(\d{2})\b')
 OVS=OVS.loc[OVS['MONTH'].notna()].reset_index()
 OVS['MONTH']=OVS['MONTH'].astype('int')
-OVS.loc[(OVS['MONTH']==1)|(OVS['MONTH']==2)|(OVS['MONTH']==3),'QTR']='Q1'
-OVS.loc[(OVS['MONTH']==4)|(OVS['MONTH']==5)|(OVS['MONTH']==6),'QTR']='Q2'
-OVS.loc[(OVS['MONTH']==7)|(OVS['MONTH']==8)|(OVS['MONTH']==9),'QTR']='Q3'
-OVS.loc[(OVS['MONTH']==10)|(OVS['MONTH']==11)|(OVS['MONTH']==12),'QTR']='Q4'
+OVS['QTR']=OVS['MONTH'].apply(lambda x: f"Q{math.ceil(x/3)}")
 OVS.sort_values(by=['YR','MONTH'],ascending=False,inplace=True)
 OVS['Q+YR']= OVS['QTR'].astype(str)+" "+OVS['YR'].astype(str)
 OVS = OVS.pivot_table(index=['Q+YR','PART_NUMBER', 'OVS_OPERATION'],values=['PO_PRICE'], aggfunc=np.mean)

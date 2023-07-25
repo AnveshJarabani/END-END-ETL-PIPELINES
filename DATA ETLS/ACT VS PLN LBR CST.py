@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 wl=pd.read_pickle('../PKL/RAW_LBR.PKL')
 rout=pd.read_hdf('../H5/ST_BM_BR.H5',key='ROUT')
+rout.columns
 SM=pd.DataFrame()
 SM['SM']=np.array(rout.loc[rout['Work Center'].str.contains(r'BRAKE|LASER|TRT'),"Material"].unique()).tolist()
 SM.to_hdf('../H5/ST_BM_BR.H5',key='SM_PARTS',mode='a')
@@ -42,10 +43,9 @@ pi=pi.merge(pi_temp,left_on=['PART_NUMBER','STD_KEY'],right_on=['MAT_TEMP','STKE
 pi=pi.loc[(pi['COST/EA_AVG']/5 < pi['ACT COST/EA']) & (pi['COST/EA_AVG']*5 > pi['ACT COST/EA'])]
 pi=pi.pivot_table(index=["PART_NUMBER",'STD_KEY'],values = ['HRS/EA','ACT COST/EA'],aggfunc= np.mean)
 pi.reset_index(inplace=True)
-rout.columns=rout.columns.str.strip()
-rout.columns
-rt=rout.loc[:,['Material','STD_KEY','Base Quantity','Work Center','Setup','Unit_Setup','Labor Run','Unit_Labor Run']]
-rt=rt.loc[rout['Unit_Setup']!='#']
+# rout.columns=rout.columns.str.strip()
+# rt=rout.loc[:,['Material','STD_KEY','Base Quantity','Work Center','Setup','Unit_Setup','Labor Run','Unit_Labor Run']]
+# rt=rt.loc[rout['Unit_Setup']!='#']
 QTY=wl[['PART_NUMBER','WORK_ORDER','OP_QTY']]
 QTY=QTY.drop_duplicates()
 QTY = QTY.pivot_table(index=['PART_NUMBER'],values=['OP_QTY'],aggfunc=np.mean)
