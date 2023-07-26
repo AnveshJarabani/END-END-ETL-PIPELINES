@@ -8,7 +8,14 @@ from rich import print
 import sqlalchemy,json,pickle
 from true_cost_finder import PN_TRUE_COST
 from trees_to_df import tree_to_df
-shp=pd.read_pickle("../PKL/RAW_LBR.pkl")
+
+lbr=pd.read_pickle('../pkl/RAW_LBR.PKL')
+lbr=lbr.loc[lbr['END_DATE'].str[-2:]=='23']
+lbr=lbr[['PART_NUMBER','WORK_ORDER']]
+lbr.drop_duplicates(inplace=True,ignore_index=True)
+lbr=lbr.pivot_table(index='PART_NUMBER',values='WORK_ORDER',aggfunc='count')
+lbr.reset_index(inplace=True)
+xl.books.active.sheets.active.range('A1').options(index=False).value=lbr
 std=pd.read_hdf("../H5/ST_BM_BR.H5",key='STD')
 ph=pd.read_hdf("../H5/PH.H5",key='PH')
 with open('../PKL/FOREST.PKL','rb') as f:

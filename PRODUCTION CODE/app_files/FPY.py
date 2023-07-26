@@ -7,13 +7,13 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import numpy as np
 dash.register_page(__name__)
-QN = pd.read_pickle('../PKL/QN M-18.pkl')
-fiscal_cal = pd.read_pickle('../PKL/FISCAL CAL.PKL')
-QN = QN.merge(fiscal_cal, left_on='Required Start Date',
+QN = pd.read_pickle('../PKL/QN_DATA.pkl')
+fiscal_cal = pd.read_pickle('../PKL/FISCAL_CAL.PKL')
+QN = QN.merge(fiscal_cal, left_on='DATE',
               right_on='DATE', how='left')
 QN.reset_index(inplace=True)
 QN = QN.loc[QN['QTR+YR'].notna()]
-QN.drop(columns=['Required Start Date','FISCAL PERIOD','QTR'], inplace=True)
+QN.drop(columns=['DATE','FISCAL PERIOD','QTR'], inplace=True)
 fiscal_cal['DATE'] = fiscal_cal['DATE'].dt.strftime('%Y-%m-%d').apply(lambda x: str(x))
 drop_down = list(QN['QTR+YR'].unique()) 
 layout = dbc.Container([
