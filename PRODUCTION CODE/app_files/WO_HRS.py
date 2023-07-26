@@ -38,16 +38,16 @@ layout = dbc.Container([
     Input('PART','value')
  )
 def update_graph(PART):
-    LBR=ACT_HRS.loc[ACT_HRS['Order - Material (Key)']==PART]
+    LBR=ACT_HRS.loc[ACT_HRS['PART_NUMBER']==PART]
     PLN=PLN_HRS.loc[PLN_HRS['Material']==PART]
     PLN.reset_index(inplace=True,drop=True)
     PLN_SUM=PLN.iloc[0,1] 
     avg=LBR['HRS/EA'].mean()
     LINECHART = px.line(
-        LBR,x='Order',y='HRS/EA',
-        hover_data={'Order - Material (Key)':False,'HRS/EA':':.2f','Operation Quantity':True,'Fiscal year/period':True},
+        LBR,x='WORK_ORDER',y='HRS/EA',
+        hover_data={'PART_NUMBER':False,'HRS/EA':':.2f','OP_QTY':True,'END_DATE':True},
         template='seaborn',
-        labels={'HRS/EA':'<b>HOURS WORKED PER EA<b>','Order': '<b>WORK ORDER #<b>'}
+        labels={'HRS/EA':'<b>HOURS WORKED PER EA<b>','WORK_ORDER': '<b>WORK ORDER #<b>'}
         )
     LINECHART.add_hline(y=PLN_SUM,line_dash='dot',
     annotation_text='<b>PLAN HRS PER EA: '+str(('{:.2f}').format(PLN_SUM))+'Hrs',

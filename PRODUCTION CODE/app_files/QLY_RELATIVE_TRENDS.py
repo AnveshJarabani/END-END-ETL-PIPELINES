@@ -104,9 +104,9 @@ dash.register_page(__name__)
 LBR_COSTS_REL=pd.read_hdf('../H5/LBR.H5',key='Q_TRENDS')
 OVS_COSTS_REL=pd.read_hdf('../H5/OVS.H5',key='TREND')
 PH_COSTS_REL=pd.read_hdf('../H5/PH.H5',key='TREND')
-PH=pd.read_hdf('../H5/PH.H5',key='PH')
+PH=pd.read_pickle('../PKL/PH.PKL')
 BOM=pd.read_hdf('../H5/ST_BM_BR.H5',key='BOM')
-QS=pd.read_pickle('../PKL/QLY INTS.PKL')
+QS=pd.read_pickle('../PKL/QLY_INTS.PKL')
 layout = dbc.Container([
   dbc.Row([
         dbc.Col([
