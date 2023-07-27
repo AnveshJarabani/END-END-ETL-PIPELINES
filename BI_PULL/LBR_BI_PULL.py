@@ -7,7 +7,6 @@ import dateutil.relativedelta as delt
 import pandas as pd
 import numpy as np
 import time, os, json
-
 chromeOptions = webdriver.ChromeOptions()
 today = datetime.today().strftime("%m/%d/%y")
 START_DATE = (datetime.today() + delt.relativedelta(months=-18)).strftime("%m/%d/%y")
@@ -70,4 +69,3 @@ exec(open("../DATA ETLS/LBR HR WO TRENDS.py").read())
 # exec(open("../DATA ETLS/PROCESS DAYS.py").read())
 exec(open("../DATA ETLS/LBR QLY COSTS.py").read())
 exec(open("../DATA ETLS/WC LOAD HRS.py").read())
-
