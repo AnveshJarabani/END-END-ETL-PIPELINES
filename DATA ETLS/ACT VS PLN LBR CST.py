@@ -54,7 +54,7 @@ for i in rt.loc[rt['Base Quantity']==10,'Material'].unique():
      rt.loc[rt['Material']==i,'Base Quantity']=10
 rt.loc[rt['OP_QTY'].isnull(),'OP_QTY'] = rt['Base Quantity']
 rt['PLN HR/EA'] = ((rt['Setup'] + rt['Labor Run'])/rt['Base Quantity']).where(rt['Unit_Labor Run'] == 'H',\
-                 (rt['Setup'] + (rt['Labor Run']/60))/rt['Base Quantity'])
+               (rt['Setup'] + (rt['Labor Run']/60))/rt['Base Quantity'])
 rt = rt.pivot_table(index=['Material','STD_KEY'],values=['PLN HR/EA'],aggfunc=np.sum)
 rt.reset_index(inplace=True) 
 pi3 = pi.pivot_table(index=["PART_NUMBER"],values=['ACT COST/EA','HRS/EA'],aggfunc= np.sum)
