@@ -1,4 +1,3 @@
-test=str(input())
 import numpy as np
 import xlwings as xl
 import pandas as pd
@@ -9,6 +8,12 @@ from rich import print
 import sqlalchemy,json,pickle
 from true_cost_finder import PN_TRUE_COST
 from trees_to_df import tree_to_df
+
+collect=pd.read_csv('../../collective_test.txt',delimiter='\t')
+collect=collect.iloc[:,1:]
+TMP=collect.loc[collect['Material']=='CY-216092']
+
+
 
 lbr=pd.read_pickle('../pkl/RAW_LBR.PKL')
 lbr=lbr.loc[lbr['END_DATE'].str[-2:]=='23']

@@ -12,16 +12,16 @@ LOCAL_PG_CN = sqlalchemy.create_engine(
     keys['con_str_uct_pg']) 
 
 
-tables=LOCAL_PG_CN.table_names()
-for table in tables:
-    LOCAL_PG_CN.execute(f'DROP TABLE "{table}"')
+# tables=LOCAL_PG_CN.table_names()
+# for table in tables:
+#     LOCAL_PG_CN.execute(f'DROP TABLE "{table}"')
 
 today = datetime.date.today()
 
 pkl_files = [f"../PKL/{f}" for f in os.listdir("../PKL/")]
 h5_files = [f"../H5/{f}" for f in os.listdir("../H5/")]
-# pkl_files = [i  for i in pkl_files  if datetime.date.fromtimestamp(os.path.getmtime(i)) == today]
-# h5_files = [i for i in h5_files if datetime.date.fromtimestamp(os.path.getmtime(i)) == today]
+pkl_files = [i  for i in pkl_files  if datetime.date.fromtimestamp(os.path.getmtime(i)) == today]
+h5_files = [i for i in h5_files if datetime.date.fromtimestamp(os.path.getmtime(i)) == today]
 
 for x in pkl_files:
     df = pd.read_pickle(x)
