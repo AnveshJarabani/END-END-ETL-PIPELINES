@@ -13,9 +13,9 @@ collect=pd.read_csv('../../collective_test.txt',delimiter='\t')
 collect=collect.iloc[:,1:]
 TMP=collect.loc[collect['Material']=='CY-216092']
 
-
-
+lbr[lbr.select_dtypes(include=['object']).columns]=lbr[lbr.select_dtypes(include=['object']).columns].astype(str)
 lbr=pd.read_pickle('../pkl/RAW_LBR.PKL')
+lbr.to_parquet('RAW_LBR.parquet',index=False)
 lbr=lbr.loc[lbr['END_DATE'].str[-2:]=='23']
 lbr=lbr[['PART_NUMBER','WORK_ORDER']]
 lbr.drop_duplicates(inplace=True,ignore_index=True)
