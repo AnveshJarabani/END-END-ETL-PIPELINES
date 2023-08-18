@@ -7,11 +7,12 @@ import numpy as np
 import datetime
 keys= json.load(open("../PRIVATE/encrypt.json", "r"))
 
+
 # ! UCT DATA SCHEMA CONNECTION
 LOCAL_PG_CN = sqlalchemy.create_engine(
     keys['con_str_uct_pg']) 
 
-
+['x','y','z'].sort()
 # tables=LOCAL_PG_CN.table_names()
 # for table in tables:
 #     LOCAL_PG_CN.execute(f'DROP TABLE "{table}"')

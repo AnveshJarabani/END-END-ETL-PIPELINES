@@ -8,7 +8,7 @@ from rich import print
 import sqlalchemy,json,pickle
 from true_cost_finder import PN_TRUE_COST
 from trees_to_df import tree_to_df
-
+xl.books.active.sheets.active.range('a1').expand
 collect=pd.read_csv('../../collective_test.txt',delimiter='\t')
 collect=collect.iloc[:,1:]
 TMP=collect.loc[collect['Material']=='CY-216092']
