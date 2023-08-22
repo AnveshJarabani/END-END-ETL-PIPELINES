@@ -8,12 +8,49 @@ from rich import print
 import sqlalchemy,json,pickle
 from true_cost_finder import PN_TRUE_COST
 from trees_to_df import tree_to_df
-xl.books.active.sheets.active.range('a1').expand
-collect=pd.read_csv('../../collective_test.txt',delimiter='\t')
-collect=collect.iloc[:,1:]
-TMP=collect.loc[collect['Material']=='CY-216092']
+rout=pd.read_hdf('../H5/ST_BM_BR.H5',key='ROUT')
+rout.columns
+plants=pd.read_csv('../../LBR_BI_PULL.txt',delimiter='\t')
+pns=xl.books.active.sheets.active.range('b1:b104').options(index=False).options(pd.DataFrame,index=False).value
+tree_to_df('CY-210257').iloc[:,1:]
+clb=pd.DataFrame(columns=['TOPLEVEL','PN','TQ'])
+for i in pns['Material']:
+    df=tree_to_df(i).iloc[:,1:]
+    df['TOPLEVEL']=i
+    df=df[['TOPLEVEL','PN','TQ',]]
+    clb=pd.concat([clb,df])
+bom=pd.read_hdf('../H5/ST_BM_BR.H5',key='BOM')
+bom=bom[['MATERIAL','PLANT']]
+bom.drop_duplicates(ignore_index=True,inplace=True)
 
-lbr[lbr.select_dtypes(include=['object']).columns]=lbr[lbr.select_dtypes(include=['object']).columns].astype(str)
+clb.reset_index(inplace=True)
+clb=clb.iloc[:,1:]
+rout=pd.read_hdf('../H5/ST_BM_BR.H5',key='ROUT')
+br=pd.read_hdf('../H5/ST_BM_BR.H5',key='BR')
+rout.loc[rout['Unit_Labor Run']=='MIN','Labor Run']=rout['Labor Run']/60
+rout['HRS']=(rout['Setup']+rout['Labor Run'])/rout['Base Quantity']
+br['WC']=br['WC'].apply(lambda x: int(x) if isinstance(x,float) else x)
+hr_df=rout.loc[rout['STD_KEY'].isin(br['ST KEY'])]
+
+
+hr_df=hr_df.groupby(['Material'])['HRS'].sum().reset_index()
+hr_df['HRS']=hr_df['HRS'].round(2)
+hr_df=hr_df.merge(bom,left_on='Material',right_on='MATERIAL')
+clb_hrs=clb.merge(hr_df,left_on='PN',right_on='MATERIAL',how='left')
+
+clb_hrs['TL_HRS']=clb_hrs['HRS']*clb_hrs['TQ']
+clb_hrs[clb_hrs['TOPLEVEL']=='CY-210257']
+total_hrs=clb_hrs.groupby(['TOPLEVEL','PN','PLANT'])['TL_HRS'].sum().reset_index()
+total_hrs.loc[total_hrs['TOPLEVEL']=='CY-210257']
+p_total_hrs=total_hrs.pivot_table(index=['TOPLEVEL'],columns=['Plant'],values=['TL_HRS'],aggfunc=np.sum).reset_index()
+xl.books.active.sheets.active.range('a1').options(index=False).value=total_hrs
+
+
+
+y=pns['Material'].apply(lambda x:tree_to_df(x))
+print(bom)
+PN_LIST=bom['MATERIAL'].unique()
+
 lbr=pd.read_pickle('../pkl/RAW_LBR.PKL')
 lbr.to_parquet('RAW_LBR.parquet',index=False)
 lbr=lbr.loc[lbr['END_DATE'].str[-2:]=='23']
@@ -155,37 +192,3 @@ multi = (
 
 print(multi)
 
-# OVS=pd.read_hdf('OVS.H5',key='TREND')
-# # for i in PH['PN'].unique():
-# #     PH.loc[PH['PN']==i,'LAST Q COST']=PH.loc[PH['PN']==i,'BUY COST'].shift(-1)
-# # PH['DELTA %']=(PH['BUY COST']-PH['LAST Q COST'])/PH['LAST Q COST']
-# # PH[['BUY COST','DELTA %']]=PH[['BUY COST','DELTA %']].round(2)
-# # PH['DELTA %'].replace(np.nan,0,inplace=True)
-# # PH.dropna(how='all',inplace=True)
-# # PH.to_hdf('PH.H5',key='TREND',mode='a')
-
-# for i in LBR['PN'].unique():
-#     LBR.loc[LBR['PN']==i,'LAST Q COST']=LBR.loc[LBR['PN']==i,'ACT LBR COST/EA'].shift(1)
-# LBR['DELTA %']=(LBR['ACT LBR COST/EA']-LBR['LAST Q COST'])/LBR['LAST Q COST']
-# LBR[['ACT LBR COST/EA','DELTA %']]=LBR[['ACT LBR COST/EA','DELTA %']].round(2)
-# LBR.replace([np.inf,-np.inf],np.nan,inplace=True)
-# LBR['DELTA %'].replace(np.nan,0,inplace=True)
-# LBR.dropna(how='all',inplace=True)
-# LBR.to_hdf('LBR.H5',key='Q_TRENDS',mode='a')
-
-# with h5py.File('TOOLCOSTS.H5',  "a") as f:
-#     del f['CY_QT_VS_ACT']
-#     del f['KLA_QT_VS_ACT']
-#     del f['LM_QT_VS_ACT']
-# for i in ['CY_PIE','CY_SMRY','KLA_PIE','KLA_SMRY','LM_PIE','LM_SMRY']:
-#     x=pd.read_hdf('TOOLCOSTS.H5',key=i)
-#     x.to_hdf('TOOLTEMP.H5',key=i)
-# for i in  h5py.File('ST_BM_BR.H5').keys():
-#     print(i)
-# CS=xl.books.active.sheets.active.range('N12:O35').options(index=False).options(pd.DataFrame,index=False).value
-# CS.to_pickle('OLD-NEW TYPES.PKL')
-# CS = pd.read_pickle('KLA QUOTES.PKL')
-# CS.loc[CS['PART#']=='257-666879-001','QTY']=.002
-# dt=pd.read_excel("LABOR HOURS 2020 - 9.22.22.xlsx",sheet_name='Employee Labor Hours',skiprows=[0],usecols="A:AR")
-# dt.to_pickle('LABOR HOURS 2020 - 9.22.22.PKL')
-# xl.books.active.sheets.active.range('A1').options(index=False).value=ma
