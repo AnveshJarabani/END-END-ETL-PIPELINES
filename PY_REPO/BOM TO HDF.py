@@ -29,7 +29,7 @@ int_bom = int_bom.pivot_table(
 )
 int_bom.reset_index(inplace=True)
 int_bom["PLANT"] = "INTEGRATION"
-wl = pd.read_pickle("../PKL/LBR M-18.pkl")
+wl = pd.read_pickle("../PKL/RAW_LBR.PKL")
 wl = wl.loc[:, ["Order - Material (Key)", "Operation Quantity"]]
 wl = wl[wl["Order - Material (Key)"] != "#"]
 QTY = wl.pivot_table(
@@ -61,8 +61,8 @@ BOM.drop_duplicates(subset=["MATERIAL", "COMPONENT"], inplace=True, ignore_index
 BOM = BOM.loc[~BOM["COMPONENT"].str.endswith("-UCT", na=True)]
 BOM = BOM.loc[~BOM["MATERIAL"].str.endswith("-UCT", na=True)]
 BOM["QTY"] = BOM["QTY"].round(5)
-PH = pd.read_hdf("../H5/PH.H5", key="PH")
-BOM = BOM[~BOM["MATERIAL"].isin(PH["PH"])]
+# PH = pd.read_hdf("../H5/PH.H5", key="PH")
+# BOM = BOM[~BOM["MATERIAL"].isin(PH["PH"])]
 # AGILE_BOM = pd.read_hdf("../H5/ST_BM_BR.Hk5", key="AGILE_BOM")
 # BOM = BOM[BOM["MATERIAL"].isin(AGILE_BOM["PART_NUMBER"])]
 BOM.to_hdf("../H5/ST_BM_BR.H5", key="BOM")

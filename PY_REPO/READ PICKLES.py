@@ -10,8 +10,8 @@ from true_cost_finder import PN_TRUE_COST
 from trees_to_df import tree_to_df
 rout=pd.read_hdf('../H5/ST_BM_BR.H5',key='ROUT')
 rout.columns
-plants=pd.read_csv('../../LBR_BI_PULL.txt',delimiter='\t')
-pns=xl.books.active.sheets.active.range('b1:b104').options(index=False).options(pd.DataFrame,index=False).value
+plants=pd.read_pickle('../PKL/RAW_LBR.PKL')
+pns=xl.books.active.sheets.active.range('a1:a1188').options(index=False).options(pd.DataFrame,index=False).value
 tree_to_df('CY-210257').iloc[:,1:]
 clb=pd.DataFrame(columns=['TOPLEVEL','PN','TQ'])
 for i in pns['Material']:
@@ -20,8 +20,28 @@ for i in pns['Material']:
     df=df[['TOPLEVEL','PN','TQ',]]
     clb=pd.concat([clb,df])
 bom=pd.read_hdf('../H5/ST_BM_BR.H5',key='BOM')
+desc=xl.books.active.sheets.active.range('a1:b191515').options(index=False).options(pd.DataFrame,index=False).value
+pns_with_bom=pns.merge(bom,left_on='Material',right_on='MATERIAL',how='left')
+pns_with_bom=pns_with_bom[['MATERIAL','COMPONENT','QTY']]
+pns_with_bom=pns_with_bom.merge(desc,left_on='COMPONENT',right_on='PART_NUMBER')
+pns_with_bom=pns_with_bom[['MATERIAL','COMPONENT','PART_DESCRIPTION','QTY']]
+no_40s=pns_with_bom.loc[pns_with_bom['MATERIAL'].isin(no_mat_lst)]
+pns_with_bom=pns_with_bom.loc[pns_with_bom['COMPONENT'].str.startswith('40-',na=False) | pns_with_bom['COMPONENT'].str.startswith('42-',na=False)]
+desc=desc.drop_duplicates(ignore_index=True)
+clb_with_dsc=clb.merge(desc,left_on='PN',right_on='PART_NUMBER',how='left')
+clb_with_dsc=clb_with_dsc[['TOPLEVEL','PN','PART_DESCRIPTION','TQ']]
+clb_with_dsc=clb_with_dsc.loc[clb_with_dsc['TOPLEVEL']!=clb_with_dsc['PN']]
+clb_with_dsc=clb_with_dsc.loc[clb_with_dsc['PN'].str.startswith('40-',na=False)]
+xl.books.active.sheets.active.range('A1').options(index=False).value=clb_with_dsc
+no_mat_lst=[i for i in pns['Material'].unique() if i not in pns_with_bom['MATERIAL'].unique()]
+
+xl.books.active.sheets.active.range('k1').options(index=False,transpose=True).value=no_mat_lst
+
 bom=bom[['MATERIAL','PLANT']]
 bom.drop_duplicates(ignore_index=True,inplace=True)
+
+
+new_rout=xl.books.active.sheets.active.range('a1:b104').options(index=False).options(pd.DataFrame,index=False).value
 
 clb.reset_index(inplace=True)
 clb=clb.iloc[:,1:]
@@ -35,7 +55,7 @@ hr_df=rout.loc[rout['STD_KEY'].isin(br['ST KEY'])]
 
 hr_df=hr_df.groupby(['Material'])['HRS'].sum().reset_index()
 hr_df['HRS']=hr_df['HRS'].round(2)
-hr_df=hr_df.merge(bom,left_on='Material',right_on='MATERIAL')
+hr_df=hr_df.merge(bom,left_on='Material',right_on='MATERIAL',how='left')
 clb_hrs=clb.merge(hr_df,left_on='PN',right_on='MATERIAL',how='left')
 
 clb_hrs['TL_HRS']=clb_hrs['HRS']*clb_hrs['TQ']
@@ -43,10 +63,10 @@ clb_hrs[clb_hrs['TOPLEVEL']=='CY-210257']
 total_hrs=clb_hrs.groupby(['TOPLEVEL','PN','PLANT'])['TL_HRS'].sum().reset_index()
 total_hrs.loc[total_hrs['TOPLEVEL']=='CY-210257']
 p_total_hrs=total_hrs.pivot_table(index=['TOPLEVEL'],columns=['Plant'],values=['TL_HRS'],aggfunc=np.sum).reset_index()
-xl.books.active.sheets.active.range('a1').options(index=False).value=total_hrs
+xl.books.active.sheets.active.range('G1').options(index=False).value=total_hrs
 
-
-
+rt.columns
+rt=xl.books.active.sheets.active.range('A1:AY124784').options(index=False).options(pd.DataFrame,index=False).value
 y=pns['Material'].apply(lambda x:tree_to_df(x))
 print(bom)
 PN_LIST=bom['MATERIAL'].unique()
