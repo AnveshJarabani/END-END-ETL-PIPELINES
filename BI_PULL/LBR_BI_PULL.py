@@ -54,11 +54,6 @@ df=pd.read_csv("../../LBR_BI_PULL.txt",delimiter='\t')
 df = df.loc[df.iloc[:, 0].notna()]
 df.select_dtypes(include=[float]).astype(np.float16)
 df.select_dtypes(include=[int]).astype(np.int8)
-# old_df=pd.read_pickle("../PKL/RAW_LBR.PKL")
-# old_df=old_df.loc[old_df['END_DATE']!=START_DATE]
-# df=df[old_df.columns]
-# new_df=pd.concat([old_df,df],ignore_index=True)
-# new_df['END_DATE']=pd.to_datetime(new_df['END_DATE'])
 df.to_pickle("../PKL/RAW_LBR.PKL")
 os.remove("../../LBR_BI_PULL.txt")
 print("RAW_LBR.PKL COMPLETE")
