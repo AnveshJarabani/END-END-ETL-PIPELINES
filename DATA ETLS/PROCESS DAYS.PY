@@ -25,14 +25,14 @@ merge.loc[merge['WAIT'].isna() | (merge['WAIT']<0),'WAIT']=0
 merge=merge.pivot_table(index=['PART_NUMBER','STD_KEY','OPERATION'],values=['days','WAIT'],aggfunc=np.average)
 merge.reset_index(inplace=True)
 RT=pd.read_hdf('../H5/ST_BM_BR.H5',key='ROUT')
-RT=RT[['Material','Operation Number']]
+RT=RT[['MATERIAL','OP_NUMBER']]
 merge['OPERATION']=merge['OPERATION'].astype('int64')
-RT=RT.merge(merge,left_on=['Material','Operation Number'],right_on=['PART_NUMBER','OPERATION'],how='left')
+RT=RT.merge(merge,left_on=['MATERIAL','OP_NUMBER'],right_on=['PART_NUMBER','OPERATION'],how='left')
 RT['OP']=RT['STD_KEY']+"("+RT['OPERATION'].astype(str)+")"
-RT=RT[['Material','OP','OPERATION','days','WAIT']]
-RT.columns=['Material','OP','OPERATION','PROCESS DAYS','WAIT DAYS']
+RT=RT[['MATERIAL','OP','OPERATION','days','WAIT']]
+RT.columns=['MATERIAL','OP','OPERATION','PROCESS DAYS','WAIT DAYS']
 RT.dropna(how='any',inplace=True)
-RT=RT.melt(id_vars=['Material','OP','OPERATION'],
+RT=RT.melt(id_vars=['MATERIAL','OP','OPERATION'],
         var_name='PROCESS/WAIT',value_name='DAYS')
 RT=RT.sort_values(by='OPERATION',ignore_index=True)
 RT['DAYS']=RT['DAYS'].astype(int)

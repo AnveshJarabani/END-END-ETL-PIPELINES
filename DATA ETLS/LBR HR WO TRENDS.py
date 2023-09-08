@@ -27,20 +27,20 @@ pk['HRS/EA']=pk['HRS/EA'].astype(float)
 pk['WORK_ORDER']=pk['WORK_ORDER'].astype(str)
 pk.drop_duplicates(subset=['WORK_ORDER'],keep='last',inplace=True)
 pk.to_hdf('../H5/LBR.H5',key='WO_TRENDS',mode='a')
-rout.columns=rout.columns.str.strip()
-rt=rout.loc[:,['Material','STD_KEY','Base Quantity','Setup','Unit_Setup','Labor Run','Unit_Labor Run']]
-rt=rt.loc[rout['Unit_Setup']!='#']
+# rout.columns=['PLANT','MATERIAL','OP_NUMBER','STD_KEY','BASE_QUANTITY','UNIT','SETUP','SETUP_UNIT','RUN','RUN_UNIT']
+rt=rout.loc[rout['SETUP_UNIT']!='#']
+wl.columns
 QTY = wl.pivot_table(index=['PART_NUMBER'],values=['OP_QTY'],aggfunc=np.mean)
 QTY.reset_index(inplace=True) 
-rt = rt.merge(QTY,left_on='Material',right_on='PART_NUMBER',how='left')
+rt = rt.merge(QTY,left_on='MATERIAL',right_on='PART_NUMBER',how='left')
 rt.drop(columns=['PART_NUMBER'],axis=1,inplace=True)
-rt.loc[rt['OP_QTY'].isnull(),'OP_QTY'] = rt['Base Quantity']
-rt['PLN HR/EA'] = ((rt['Setup'] + rt['Labor Run'])/rt['OP_QTY']).where(rt['Unit_Labor Run'] == 'H',\
-                 (rt['Setup'] + (rt['Labor Run']/60))/rt['OP_QTY'])
+rt.loc[rt['OP_QTY'].isnull(),'OP_QTY'] = rt['BASE_QUANTITY']
+rt['PLN HR/EA'] = ((rt['SETUP'] + rt['RUN'])/rt['BASE_QUANTITY']).where(rt['RUN_UNIT'] == 'H',\
+                 (rt['SETUP'] + (rt['RUN']/60))/rt['BASE_QUANTITY'])
 rt = rt.merge(BURCOST,left_on='STD_KEY',right_on='ST KEY',how='left')
 rt.drop(columns=['ST KEY'],axis=1,inplace=True)
 rt=rt.loc[rt['BUR_RATE']!=0]
-rt = rt.pivot_table(index=['Material'],values=['PLN HR/EA'],aggfunc=np.sum)
+rt = rt.pivot_table(index=['MATERIAL'],values=['PLN HR/EA'],aggfunc=np.sum)
 rt.reset_index(inplace=True)
 rt['PLN HR/EA']=rt['PLN HR/EA'].astype(float)
 rt.select_dtypes(include=[float]).astype(np.float16)

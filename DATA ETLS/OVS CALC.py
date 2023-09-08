@@ -23,7 +23,7 @@ OVS['OVS_OPERATION']=OVS['OVS_OPERATION'].astype(float)
 OVS['OVS_OPERATION']=OVS['OVS_OPERATION'].astype(int)
 ROUT=pd.read_hdf('../H5/ST_BM_BR.H5',key='ROUT')
 ROUT=ROUT.loc[ROUT['STD_KEY'].str.contains('^21-',regex=True,na=False)]
-OVS=pd.merge(ROUT,OVS,how='left',left_on=['Material','Operation Number'],right_on=['PART_NUMBER','OVS_OPERATION'])
+OVS=pd.merge(ROUT,OVS,how='left',left_on=['MATERIAL','OP_NUMBER'],right_on=['PART_NUMBER','OVS_OPERATION'])
 OVS=OVS.loc[OVS['OVS_OPERATION'].notna()]
 OVS = OVS.pivot_table(index=['Q+YR','PART_NUMBER'], values=['PO_PRICE'], aggfunc=np.sum)
 OVS.reset_index(inplace=True)

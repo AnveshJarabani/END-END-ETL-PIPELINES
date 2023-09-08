@@ -9,9 +9,9 @@ from bigtree import tree_to_dataframe,print_tree
 import multiprocessing as mp
 warnings.simplefilter(action='ignore', category=(FutureWarning,UserWarning))
 os.environ['PYDEVD_DISABLE_FILE_VALIDATION'] = '1'
-PH = pd.read_hdf('PH.H5',key='PH')
+PH = pd.read_pickle('../PKL/PH.PKL')
 PH.rename(columns={'Material - Key':'PH'},inplace=True)
-OOR=pd.read_pickle('OOR.PKL')
+OOR=pd.read_pickle('../PKL/OOR.PKL')
 today=datetime.today().strftime('%m/%d/%Y')
 END_DATE=(datetime.today()+delt.relativedelta(months=3)).strftime('%m/%d/%Y')
 OOR=OOR[['Material','Material Description','Delv Schedule line date','Open SO quantity','Unit price']]
