@@ -62,7 +62,7 @@ def fig(PN,DT_PN):
         return graph
 dash.register_page(__name__)
 LBR_COSTS=pd.read_hdf('../H5/LBR.H5',key='Q_TRENDS')
-LBR_COSTS.rename(columns={'Q+YR':'Q+YR'},inplace=True)
+LBR_COSTS.rename(columns={'QTR+YR':'Q+YR'},inplace=True)
 OVS_COSTS=pd.read_hdf('../H5/OVS.H5',key='TREND')
 PH_COSTS=pd.read_hdf('../H5/PH.H5',key='TREND')
 PH=pd.read_pickle('../PKL/PH.PKL')
