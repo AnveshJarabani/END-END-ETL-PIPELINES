@@ -11,4 +11,4 @@ rout[convert_cols]=rout[convert_cols].applymap(lambda x: str(x).replace(',',''))
 rout[convert_cols]=rout[convert_cols].applymap(lambda x: float(x))
 ...
 
-rout.to_hdf('../H5/ST_BM_BR.H5','ROUT')cd 
+rout.to_hdf('../H5/ST_BM_BR.H5','ROUT')
