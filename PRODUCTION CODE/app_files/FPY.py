@@ -6,15 +6,16 @@ import plotly.figure_factory as ff
 import dash_bootstrap_components as dbc
 import pandas as pd
 import numpy as np
+from app_files.sql_connector import query_table,table
 dash.register_page(__name__)
-QN = pd.read_pickle('../PKL/QN_DATA.pkl')
-fiscal_cal = pd.read_pickle('../PKL/FISCAL_CAL.PKL')
-QN = QN.merge(fiscal_cal, left_on='DATE',
-              right_on='DATE', how='left')
-QN.reset_index(inplace=True)
-QN = QN.loc[QN['QTR+YR'].notna()]
+QN=query_table(
+    """
+    SELECT * from qn_data qn
+    join fiscal_cal fs on
+    fs.`DATE`=qn.`DATE`
+    WHERE qn.`QTR+YR` not Null
+    """)
 QN.drop(columns=['DATE','FISCAL PERIOD','QTR'], inplace=True)
-fiscal_cal['DATE'] = fiscal_cal['DATE'].dt.strftime('%Y-%m-%d').apply(lambda x: str(x))
 drop_down = list(QN['QTR+YR'].unique()) 
 layout = dbc.Container([
     dbc.Row([
@@ -58,6 +59,7 @@ def TABLE(QTR):
     if QTR is None:
         QTR='2023 QTR 2'
     Q=QTR
+    result=query_table(f"SELECT * from qn_data where `QTR+YR`='{QTR}'")
     result=QN.loc[QN['QTR+YR']==QTR]
     show_table=result.head(200)
     show_table=show_table.applymap(lambda x: x[:10] if isinstance(x,str) else x)

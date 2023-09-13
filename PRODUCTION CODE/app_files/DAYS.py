@@ -4,8 +4,8 @@ from dash.dependencies import Output,Input
 import plotly.express as px
 import dash_bootstrap_components as dbc
 import pandas as pd
+from app_files.sql_connector import query_table
 dash.register_page(__name__)
-DAYS_DT=pd.read_hdf('../H5/LBR.H5',key='PROCESS_DYS')
 layout = dbc.Container([
   dbc.Row([
         dbc.Col([
@@ -37,7 +37,7 @@ layout = dbc.Container([
     Input('PART-DAYS','value')
  )
 def update_graph(PART):
-    DT=DAYS_DT.loc[DAYS_DT['Material']==PART]
+    DT=query_table(f"select * from lbr_process_dys where `Material`={PART}")
     DT.reset_index(inplace=True,drop=True)
     STACKCHART = px.bar(
         DT,x='OP',y='DAYS',color='PROCESS/WAIT',
