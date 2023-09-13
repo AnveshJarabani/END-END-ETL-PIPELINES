@@ -4,7 +4,9 @@ import dash_bootstrap_components as dbc
 from dash import Output,Input,State,dcc
 import base64
 import requests
-from app_files import TOOLCOSTS,FAB,PARTSEARCH,WO_HRS,DAYS,Version,WC_LOAD,QLY_RELATIVE_TRENDS,SHEETMETAL_DEMAND,PNL,FPY,FPY_PN,QLY_TRENDS
+from app_files import FAB,PARTSEARCH,WO_HRS,DAYS,Version,WC_LOAD,QLY_RELATIVE_TRENDS,SHEETMETAL_DEMAND,PNL,FPY,FPY_PN,QLY_TRENDS
+toolcosts_url="https://raw.githubusercontent.com/AnveshJarabani/END-END-ETL-PIPELINES/main/PRODUCTION%20CODE/app_files/TOOLCOSTS.py"
+tool
 test_base64 = base64.b64encode(open('UCT.PNG', 'rb').read()).decode('ascii')
 offcanvas = html.Div([
         dbc.Button("Explore",id="Open-offcanvas", n_clicks=0,size='lg',class_name='me-1'),
