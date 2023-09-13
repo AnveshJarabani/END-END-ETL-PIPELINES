@@ -7,7 +7,7 @@ modal = html.Div(
         dbc.Modal(
             [
                 dbc.ModalHeader(dbc.ModalTitle("VERSION SUMMARY"), close_button=True),
-                dbc.ModalBody('Labor Hours: (Q2 2021 - Q3 2022)'),
+                dbc.ModalBody('Labor Hours: (Q2 2022 - Q3 2023)'),
                 dbc.ModalBody('Labor Cost: (Burdened Rate) X (Avg. Hours) X (1.15 for Over Time)'),
                 dbc.ModalBody('Material Cost: Burdened (Q3 TO CURRENT, Q2,Q1 2022, Q3,Q4 2021 Avg. in the order of last PO)'),
                 dbc.ModalBody('OVS Cost: 2022 Avg.'),

@@ -6,6 +6,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import numpy as np
 from app_files.tree_to_df import tree_to_df
+from app_files.sql_connector import table
 def costby_bom(DF,PART):
     LVLBOM=BOM_EXTRACT(PART)
     COST_CLM=DF.columns[2]
@@ -61,13 +62,13 @@ def fig(PN,DT_PN):
         graph.update_xaxes(tickfont_family="Arial Black")
         return graph
 dash.register_page(__name__)
-LBR_COSTS=pd.read_hdf('../H5/LBR.H5',key='Q_TRENDS')
+LBR_COSTS=table('lbr_q_trends')
 LBR_COSTS.rename(columns={'QTR+YR':'Q+YR'},inplace=True)
-OVS_COSTS=pd.read_hdf('../H5/OVS.H5',key='TREND')
-PH_COSTS=pd.read_hdf('../H5/PH.H5',key='TREND')
-PH=pd.read_pickle('../PKL/PH.PKL')
-BOM=pd.read_hdf('../H5/ST_BM_BR.H5',key='BOM')
-QS=pd.read_pickle('../PKL/QLY_INTS.PKL')
+OVS_COSTS=table('ovs_trend')
+PH_COSTS=table('ph_trend')
+PH=table('ph')
+BOM=table('st_bm_br_bom')
+QS=table('qly_ints')
 layout = dbc.Container([
   dbc.Row([
         dbc.Col([
