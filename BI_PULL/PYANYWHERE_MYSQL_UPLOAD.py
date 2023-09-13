@@ -50,9 +50,6 @@ today = datetime.date.today()
 pkl_files = [f"../PKL/{f}" for f in os.listdir("../PKL/")]
 h5_files = [f"../H5/{f}" for f in os.listdir("../H5/")]
 tables=pyanywhere_cn.table_names()
-#!! CAUTION -- THIS DROPS TABLES --------------------------------
-for table in tables:
-    pyanywhere_cn.execute(f'DROP TABLE `{table}`')
 
 # pkl_files = [i for i in pkl_files if datetime.date.fromtimestamp(os.path.getmtime(i)) == today]
 # h5_files = [i for i in h5_files if datetime.date.fromtimestamp(os.path.getmtime(i)) == today]
