@@ -5,6 +5,7 @@ import plotly.express as px
 import dash_bootstrap_components as dbc
 import pandas as pd
 import numpy as np
+from app_files.sql_connector import table
 def costby_bom(DF,PART):
     LVLBOM=BOM_EXTRACT(PART)
     REL_CLM=DF.columns[4]
@@ -101,12 +102,12 @@ def fig(PN,DT_PN):
         # annotation_position='top left',line=dict(color='blue',width=2.5))
         return graph
 dash.register_page(__name__)
-LBR_COSTS_REL=pd.read_hdf('../H5/LBR.H5',key='Q_TRENDS')
-OVS_COSTS_REL=pd.read_hdf('../H5/OVS.H5',key='TREND')
-PH_COSTS_REL=pd.read_hdf('../H5/PH.H5',key='TREND')
-PH=pd.read_pickle('../PKL/PH.PKL')
-BOM=pd.read_hdf('../H5/ST_BM_BR.H5',key='BOM')
-QS=pd.read_pickle('../PKL/QLY_INTS.PKL')
+LBR_COSTS_REL=table('LBR_Q_TRENDS')
+OVS_COSTS_REL=table('OVS_TREND')
+PH_COSTS_REL=table('PH_TREND')
+PH=table('PH')
+BOM=table('ST_BM_BR_BOM')
+QS=table('QLY_INTS')
 layout = dbc.Container([
   dbc.Row([
         dbc.Col([
