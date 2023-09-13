@@ -4,8 +4,9 @@ from dash.dependencies import Output,Input
 import plotly.express as px
 import dash_bootstrap_components as dbc
 import pandas as pd
+from app_files.sql_connector import query_table,table
+wcs=query_table('select distinct(`WORK_CENTER`) from lbr_wc_load').iloc[:,0].to_list()
 dash.register_page(__name__)
-WC_LOAD=pd.read_hdf('../H5/LBR.H5',key='WC_LOAD')
 layout = dbc.Container([
   dbc.Row([
         dbc.Col([
@@ -20,7 +21,7 @@ layout = dbc.Container([
             ,width={'size':4}),
         dbc.Col([
         dcc.Dropdown(id='WORK CENTER', multi= False,
-        options=WC_LOAD['WORK_CENTER'].unique(),
+        options=wcs,
         value='WELDING',
         placeholder='Select Work Center',
         maxHeight=600,
@@ -37,7 +38,7 @@ layout = dbc.Container([
     Input('WORK CENTER','value')
  )
 def update_graph(WC):
-    LOAD=WC_LOAD.loc[WC_LOAD['WORK_CENTER']==WC]
+    LOAD=query_table(f"select * from lbr_wc_load where `WORK_CENTER`='{WC}'")
     AVG=LOAD['MONTHLY AVG. HRS'].unique()[0]
     BAR = px.bar(
         LOAD,x='X',y='Hours Worked',

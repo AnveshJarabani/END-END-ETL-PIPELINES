@@ -3,10 +3,8 @@ from dash import dcc, html, callback
 from dash.dependencies import Output,Input
 import plotly.express as px
 import dash_bootstrap_components as dbc
-import pandas as pd
+from app_files.sql_connector import query_table
 dash.register_page(__name__)
-ACT_HRS=pd.read_hdf('../H5/LBR.H5',key='WO_TRENDS')
-PLN_HRS=pd.read_hdf('../H5/LBR.H5',key='PLN_HR')
 layout = dbc.Container([
   dbc.Row([
         dbc.Col([
@@ -38,8 +36,8 @@ layout = dbc.Container([
     Input('PART','value')
  )
 def update_graph(PART):
-    LBR=ACT_HRS.loc[ACT_HRS['PART_NUMBER']==PART]
-    PLN=PLN_HRS.loc[PLN_HRS['Material']==PART]
+    LBR=query_table(f"SELECT * FROM lbr_wo_trends where `PART_NUMBER`='{PART}'")
+    PLN=query_table(f"select * from lbr_pln_hr where `Material`={PART}")    
     PLN.reset_index(inplace=True,drop=True)
     PLN_SUM=PLN.iloc[0,1] 
     avg=LBR['HRS/EA'].mean()

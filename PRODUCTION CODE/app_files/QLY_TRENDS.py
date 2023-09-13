@@ -3,7 +3,6 @@ from dash import dcc, html, callback
 from dash.dependencies import Output,Input
 import plotly.express as px
 import dash_bootstrap_components as dbc
-import pandas as pd
 import numpy as np
 from app_files.tree_to_df import tree_to_df
 from app_files.sql_connector import table

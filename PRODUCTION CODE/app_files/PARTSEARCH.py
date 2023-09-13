@@ -58,7 +58,7 @@ def pie_table(PN):
     if PN is None:
         PN='UC-66-112093-00'
     PN=PN.strip().upper()
-    PH = pd.read_hdf('../H5/PH.H5',key='PH')
+    PH = table('PH')
     PH.rename(columns={'Material - Key':'PH'},inplace=True)
     # ___________BOMEXTRACT_________________________________________________
     LVLBOMS=tree_to_df(PN)
@@ -66,9 +66,9 @@ def pie_table(PN):
     LVLBOMS=LVLBOMS[['TOPLEVEL','PARENT','PN','QTY','TQ']]
     LVLBOMS.columns=['TOPLEVEL', 'MATERIAL', 'COMP', 'QTY', 'TOP LVL QTY']
     # ---------------------------------- ADD COSTS TO LEVEL BOMS --------------------------------------
-    STD=pd.read_hdf('../H5/ST_BM_BR.H5',key="STD")
-    LBR = pd.read_hdf('../H5/LBR.H5',key="ACT_V_PL_CST")
-    OVS = pd.read_hdf("../H5/OVS.H5",key='OVS')
+    STD=table("ST_BM_BR_STD")
+    LBR = table('LBR_ACT_V_PL_CST')
+    OVS = table("OVS_OVS")
     COSTS = LVLBOMS.merge(PH,left_on='COMP',right_on='PH',how='left')
     COSTS.drop(columns=['PH'],axis=1,inplace=True)
     COSTS = COSTS.merge(STD,left_on='COMP',right_on='MATERIAL',how='left')
