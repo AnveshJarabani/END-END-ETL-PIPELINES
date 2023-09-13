@@ -1,3 +1,19 @@
+import requests
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import numpy as np
 import xlwings as xl
 import pandas as pd

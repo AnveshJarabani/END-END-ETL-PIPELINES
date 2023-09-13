@@ -37,8 +37,8 @@ layout = dbc.Container([
  )
 def update_graph(PART):
     LBR=query_table(f"SELECT * FROM lbr_wo_trends where `PART_NUMBER`='{PART}'")
-    PLN=query_table(f"select * from lbr_pln_hr where `Material`={PART}")    
-    PLN_SUM=PLN.iloc[0,1]
+    PLN_SUM=query_table(f"select `PLN HR/EA` from lbr_pln_hr where `Material`='{PART}'").iloc[0,0]    
+    
     avg=LBR['HRS/EA'].mean()
     LINECHART = px.line(
         LBR,x='WORK_ORDER',y='HRS/EA',
