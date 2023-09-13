@@ -3,7 +3,7 @@ from app import app
 import dash_bootstrap_components as dbc
 from dash import Output,Input,State,dcc
 import base64
-from app_files import TOOLCOSTS,FAB,PARTSEARCH,WO_HRS,DAYS,Version,QLY_TRENDS,WC_LOAD,QLY_RELATIVE_TRENDS,SHEETMETAL_DEMAND,PNL,FPY,FPY_PN
+from app_files import TOOLCOSTS,FAB,PARTSEARCH,WO_HRS,DAYS,Version,WC_LOAD,QLY_RELATIVE_TRENDS,SHEETMETAL_DEMAND,PNL,FPY,FPY_PN,QLY_TRENDS_test #,QLY_TRENDS
 test_base64 = base64.b64encode(open('UCT.PNG', 'rb').read()).decode('ascii')
 offcanvas = html.Div([
         dbc.Button("Explore",id="Open-offcanvas", n_clicks=0,size='lg',class_name='me-1'),
@@ -12,7 +12,8 @@ offcanvas = html.Div([
             [
                 # dbc.ListGroupItem("PROFIT-LOSS", href="/apps/"),
                 dbc.ListGroupItem("TOOL COSTS", href="/apps/TOOLCOSTS"),
-                dbc.ListGroupItem("QLY. COST TRENDS", href="/apps/QLY_TRENDS"),
+                dbc.ListGroupItem("QLY. COST TRENDS", href="/apps/QLY_TRENDS_test"),
+                # dbc.ListGroupItem("QLY. COST TRENDS", href="/apps/QLY_TRENDS"),
                 dbc.ListGroupItem("DEMAND FORECAST", href="/apps/SHEETMETAL_DEMAND"),
                 dbc.ListGroupItem("QLY. RELATIVE TRENDS", href="/apps/QLY_RELATIVE_TRENDS"),
                 dbc.ListGroupItem("FRAME COSTS", href="/apps/FAB"),
@@ -77,7 +78,8 @@ def display_page(pathname):
     if pathname=='/apps/version': return Version.modal
     if pathname=='/apps/WO_HRS': return WO_HRS.layout
     if pathname=='/apps/DAYS': return DAYS.layout
-    if pathname=='/apps/QLY_TRENDS': return QLY_TRENDS.layout
+    # if pathname=='/apps/QLY_TRENDS': return QLY_TRENDS.layout
+    if pathname=='/apps/QLY_TRENDS_test': return QLY_TRENDS_test.layout
     if pathname=='/apps/QLY_RELATIVE_TRENDS': return QLY_RELATIVE_TRENDS.layout
     if pathname=='/apps/WC_LOAD': return WC_LOAD.layout
     if pathname=='/apps/FPY': return FPY.layout
@@ -87,4 +89,4 @@ def display_page(pathname):
 app.layout = dbc.Container(
     [navbar,dcc.Location(id='url',refresh=False,pathname='/apps/'),html.Div(id='page-content',children=[])],
     style={'height':'200vh'},fluid=True)
-if __name__== '__main__': app.run_server(debug=True,port=5055)
+if __name__== '__main__': (app.run_server(debug=True,port=5055))
