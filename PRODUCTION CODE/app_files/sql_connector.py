@@ -1,11 +1,7 @@
 import sqlalchemy
 from sqlalchemy import inspect
 import pandas as pd
-import h5py
-import os
 import json
-import numpy as np
-import datetime
 from paramiko import SSHClient,AutoAddPolicy
 from sshtunnel import SSHTunnelForwarder
 
@@ -44,38 +40,8 @@ pyanywhere_connection_string = f"mysql+pymysql://{pyanywhere_db_username}:{pyany
 pyanywhere_cn = sqlalchemy.create_engine(pyanywhere_connection_string)
 pyanywhere_cn.connect()
 
-
-today = datetime.date.today()
-
-pkl_files = [f"../PKL/{f}" for f in os.listdir("../PKL/")]
-h5_files = [f"../H5/{f}" for f in os.listdir("../H5/")]
-tables=pyanywhere_cn.table_names()
-for table in tables:
-    pyanywhere_cn.execute(f'DROP TABLE `{table}`')
-
-pkl_files = [i for i in pkl_files if datetime.date.fromtimestamp(os.path.getmtime(i)) == today]
-h5_files = [i for i in h5_files if datetime.date.fromtimestamp(os.path.getmtime(i)) == today]
-
-
-for x in pkl_files:
-    df = pd.read_pickle(x)
-    if isinstance(df, dict):
-        continue
-    df.replace([np.inf, -np.inf], np.nan, inplace=True)
-    df.columns = df.columns.str.replace("\n", "").str.strip()
-    nm = os.path.basename(x).split(".")[0]
-    df.to_sql(name=nm.lower(), con=pyanywhere_cn, if_exists="replace", index=False)
-    print("Uploaded", nm)
-
-for x in h5_files:
-    for i in h5py.File(x).keys():
-        df = pd.read_hdf(x, key=i)
-        df.replace([np.inf, -np.inf], np.nan, inplace=True)
-        df.columns = df.columns.str.replace("\n", "").str.strip()
-        nm = f'{os.path.basename(x).split(".")[0]}_{i}'
-        df.to_sql(name=nm.lower(), con=pyanywhere_cn, if_exists="replace", index=False)
-        print("Uploaded", nm)
-print('________ALL FILES UPLOADED TO PYTHONANYWHERE SQL DB________')
-pyanywhere_cn.dispose()
-server.stop()
-ssh_client.close()
+def table(name):
+    query=f"SELECT * FROM {name.lower()}"
+    return pd.read_sql(query,pyanywhere_cn)
+def query_table(query):
+    return pd.read_sql(query,pyanywhere_cn)

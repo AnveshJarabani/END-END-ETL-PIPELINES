@@ -6,17 +6,18 @@ import plotly.figure_factory as ff
 import dash_bootstrap_components as dbc
 import pandas as pd
 import numpy as np
+from app_files.sql_connector import table as sql,query_table
 dash.register_page(__name__)
-LAM_SMRY = pd.read_hdf('../H5/TOOLCOSTS.H5',key='LM_SMRY')
-LAM_PIE=pd.read_hdf('../H5/TOOLCOSTS.H5',key='LM_PIE')
-LAM_ACTQTDT=pd.read_hdf('../H5/TOOLCOSTS.H5',key='LM_QT_VS_ACT')
+smry_dct={'LAM':'toolcosts_lm_smry',
+          'KLA':'toolcosts_kla_smry',
+          'CYMER':'toolcosts_cy_smry',}
+LAM_PIE=sql('TOOLCOSTS_LM_PIE')
+LAM_ACTQTDT=sql('TOOLCOSTS_LM_QT_VS_ACT')
 LAM_ACTQTDT['VENDOR']=LAM_ACTQTDT['VENDOR'].str[:10]
-CYMER_SMRY=pd.read_hdf('../H5/TOOLCOSTS.H5',key='CY_SMRY')
-CYMER_PIE=pd.read_hdf('../H5/TOOLCOSTS.H5',key='CY_PIE')
-CYMER_ACTQTDT=pd.read_hdf('../H5/TOOLCOSTS.H5',key='CY_QT_VS_ACT')
-KLA_SMRY=pd.read_hdf('../H5/TOOLCOSTS.H5',key='KLA_SMRY')
-KLA_PIE=pd.read_hdf('../H5/TOOLCOSTS.H5',key='KLA_PIE')
-KLA_ACTQTDT=pd.read_hdf('../H5/TOOLCOSTS.H5',key='KLA_QT_VS_ACT')
+CYMER_PIE=sql('TOOLCOSTS_CY_PIE')
+CYMER_ACTQTDT=sql('TOOLCOSTS_CY_QT_VS_ACT')
+KLA_PIE=sql('TOOLCOSTS_KLA_PIE')
+KLA_ACTQTDT=sql('TOOLCOSTS_KLA_QT_VS_ACT')
 KLA_ACTQTDT['VENDOR']=KLA_ACTQTDT['VENDOR'].str[:10]
 new_cols=['TOP LEVEL','PN','DESC','VENDOR','QTY']
 for i in [KLA_ACTQTDT,CYMER_ACTQTDT,LAM_ACTQTDT]:
@@ -25,7 +26,7 @@ KLA_ACTQTDT.rename(columns={'DELTA T3':'DELTA'},inplace=True)
 PIE_COST=pd.concat([LAM_PIE,CYMER_PIE,KLA_PIE])
 
 
-PERIODS=pd.read_pickle('../PKL/FISCAL_CAL.PKL')
+PERIODS=sql('FISCAL_CAL')
 PERIODS.drop_duplicates(inplace=True,ignore_index=True)
 QTR=PERIODS.loc[PERIODS['FISCAL PERIOD']=='Period 9','QTR'].reset_index().iloc[0,1]
 PIE_COST_P=PIE_COST.loc[PIE_COST['QTR']==QTR]
@@ -44,8 +45,8 @@ def add_color(CUST):
     choices=['red','green']
     CUST['COLOR']=np.select(conditions,choices)
     return CUST
-for i in [LAM_SMRY,CYMER_SMRY,KLA_SMRY]:
-    add_color(i)
+# for i in [LAM_SMRY,CYMER_SMRY,KLA_SMRY]:
+#     add_color(i)
 layout = dbc.Container([
   dbc.Row([
         dbc.Col([
@@ -95,8 +96,8 @@ layout = dbc.Container([
  )
 def update_graph(CUSTOMER,PERIOD):
     global PIE_COST_P
-    CUST = pd.DataFrame(eval(CUSTOMER+'_SMRY'))
-    CUST=CUST.loc[CUST['FISCAL PERIOD']==PERIOD]
+    CUST=query_table(f'SELECT * FROM {smry_dct[CUSTOMER]} WHERE `FISCAL PERIOD`=\'{PERIOD}\'')
+    add_color(CUST)
     SHIPPED=(CUST['DELTA.CAL']*CUST['QTY Shipped']).sum()
     ACTUALCOST=(CUST['ASP']*CUST['QTY Shipped']).sum()
     wtavg=SHIPPED/ACTUALCOST
