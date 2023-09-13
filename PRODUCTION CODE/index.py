@@ -3,10 +3,8 @@ from app import app
 import dash_bootstrap_components as dbc
 from dash import Output,Input,State,dcc
 import base64
-from urllib.request import urlopen
-git_repo="https://github.com/AnveshJarabani/END-END-ETL-PIPELINES/tree/5c5b6792b3a79da9c7d37e667b6451a00942ec02/PRODUCTION%20CODE/app_files"
+import requests
 from app_files import TOOLCOSTS,FAB,PARTSEARCH,WO_HRS,DAYS,Version,WC_LOAD,QLY_RELATIVE_TRENDS,SHEETMETAL_DEMAND,PNL,FPY,FPY_PN,QLY_TRENDS
-QLY_TRENDS=urlopen(f'{git_repo}/QLY_TRENDS.py')
 test_base64 = base64.b64encode(open('UCT.PNG', 'rb').read()).decode('ascii')
 offcanvas = html.Div([
         dbc.Button("Explore",id="Open-offcanvas", n_clicks=0,size='lg',class_name='me-1'),

@@ -6,8 +6,8 @@ import plotly.figure_factory as ff
 import dash_bootstrap_components as dbc
 import pandas as pd
 import numpy as np
+from app_files.sql_connector import query_table
 dash.register_page(__name__)
-SM_DEMAND=pd.read_pickle('../PKL/SM_DEMAND_FORECAST.PKL')
 layout = dbc.Container([
   dbc.Row([
         dbc.Col([
@@ -43,7 +43,8 @@ def TABLE(PN):
     if PN is None:
         PN='40-39383'
     Num=PN
-    FILTERED_LIST=SM_DEMAND.loc[SM_DEMAND['RAW MATERIAL']==PN]
+    query=f"SELECT * FROM sm_demand_forecast WHERE `RAW MATERIAL`='{PN}'"
+    FILTERED_LIST=query_table(query)
     colorscale = [[0, '#4d004c'],[.5, '#f2e5ff'],[1, '#ffffff']]
     graph = ff.create_table(FILTERED_LIST,colorscale=colorscale)
     graph.update_layout(font={'family':'Arial Black','size':12})
