@@ -3,9 +3,9 @@ from dash import dcc, html, callback
 from dash.dependencies import Output,Input
 import plotly.express as px
 import dash_bootstrap_components as dbc
-import pandas as pd
 import numpy as np
 from app_files.sql_connector import table
+from app_files.tree_to_df import tree_to_df
 def costby_bom(DF,PART):
     LVLBOM=BOM_EXTRACT(PART)
     REL_CLM=DF.columns[4]
@@ -40,43 +40,11 @@ def sort_QS(DF):
     return pi
  #BOM EXTRACT-----------
 def BOM_EXTRACT(PN):
-    LVLBOMS = pd.DataFrame(columns=['TOPLEVEL','MATERIAL','COMP', 'QTY','TOP LVL QTY'])
-    # BOM EXTRACT ----------------------------------------
-    if (PH['PH']==PN).any():
-        LVLBOMS.loc[len(LVLBOMS.index)] = [PN,PN,PN,1,1]
-    else:
-        BM = BOM[BOM['MATERIAL']==PN].reset_index(drop=True)
-        x = 0
-        while x <= (len(BM.index)-1) :
-            if BM.iloc[x,1] in PH['PH'].values:
-                x +=1
-                continue
-            nx = BOM[BOM['MATERIAL']==BM.iloc[x, 1]].reset_index(drop=True)
-            BM = pd.concat([BM,nx],axis = 0)
-            x +=1
-        BM.reset_index(drop=True, inplace=True)
-        BM.loc[-1] = [PN,PN,1]
-        BM.index = BM.index + 1
-        BM = BM.sort_index()
-        BM.columns = ['MATERIAL', 'COMP', 'QTY']
-        # TOOL QTY ----------------------------------------
-        BM['TOP LVL QTY'] = BM[BM['MATERIAL']==PN]['QTY']
-        BM['TEMP']=BM.iloc[:,0] + " " + BM.iloc[:,1]
-        x = BM.where(BM['MATERIAL']==PN).last_valid_index() + 1
-        BM.iloc[:x-1,3] = BM.iloc[:x-1,2]
-        for k in range(x,len(BM.index)):
-            y = sum(BM.iloc[:k+1,4]==BM.iloc[k,4])
-            t = 0    
-            for l in range(0,k):
-                if BM.iloc[l,1] == BM.iloc[k,0]:
-                    t +=1    
-                    if t ==y:
-                        BM.iloc[k,3] = BM.iloc[l,3]*BM.iloc[k,2]
-        BM.insert(0,'TOPLEVEL',PN)
-        BM = BM.iloc[:,:5]
-        LVLBOMS = pd.concat([LVLBOMS,BM],ignore_index=True)
-    LVLBOMS=LVLBOMS[LVLBOMS['TOPLEVEL'].notnull()]
-    LVLBOMS=LVLBOMS.loc[~LVLBOMS['COMP'].str.endswith('-UCT',na=False)]
+    #___________BOMEXTRACT_________________________________________________
+    LVLBOMS=tree_to_df(PN)
+    LVLBOMS['TOPLEVEL']=PN
+    LVLBOMS=LVLBOMS[['TOPLEVEL','PARENT','PN','QTY','TQ']]
+    LVLBOMS.columns=['TOPLEVEL', 'MATERIAL', 'COMP', 'QTY', 'TOP LVL QTY']
     LVLBOMS=LVLBOMS.pivot_table(index=['TOPLEVEL','COMP'],values=['TOP LVL QTY'],aggfunc=np.sum)
     LVLBOMS.reset_index(inplace=True)
     return LVLBOMS
@@ -97,10 +65,11 @@ def fig(PN,DT_PN):
         return graph
 dash.register_page(__name__)
 LBR_COSTS_REL=table('LBR_Q_TRENDS')
+LBR_COSTS_REL.rename(columns={'QTR+YR':'Q+YR'},inplace=True)
 OVS_COSTS_REL=table('OVS_TREND')
 PH_COSTS_REL=table('PH_TREND')
 PH=table('PH_FOR_PLUGINS')
-PH.rename(columns={'ACT_MAT_COST':'PH'},inplace=True)
+PH.rename(columns={'PART_NUMBER':'PH'},inplace=True)
 BOM=table('ST_BM_BR_BOM')
 QS=table('QLY_INTS')
 layout = dbc.Container([

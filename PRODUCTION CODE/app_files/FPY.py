@@ -10,12 +10,11 @@ from app_files.sql_connector import query_table,table
 dash.register_page(__name__)
 QN=query_table(
     """
-    SELECT * from qn_data qn
+    SELECT fs.`QTR+YR` from qn_data qn
     join fiscal_cal fs on
     fs.`DATE`=qn.`DATE`
     WHERE fs.`QTR+YR` is not Null
     """)
-QN.drop(columns=['DATE','FISCAL PERIOD','QTR'], inplace=True)
 drop_down = list(QN['QTR+YR'].unique()) 
 layout = dbc.Container([
     dbc.Row([

@@ -8,19 +8,19 @@ import pandas as pd
 import numpy as np
 from app_files.sql_connector import query_table,table
 dash.register_page(__name__)
-QN=query_table(
-    """
-    SELECT qn.*,fs.`QTR+YR` from qn_data qn
-    join fiscal_cal fs on
-    fs.`DATE`=qn.`DATE`
-    WHERE fs.`QTR+YR` is not Null
-    """)
+# QN=query_table(
+#     """
+#     SELECT qn.*,fs.`QTR+YR` from qn_data qn
+#     join fiscal_cal fs on
+#     fs.`DATE`=qn.`DATE`
+#     WHERE fs.`QTR+YR` is not Null
+#     """)
 # fiscal_cal = table('FISCAL_CAL')
 # fiscal_cal['Month-Year'] = fiscal_cal['DATE'].dt.strftime('%b-%Y')
 # QN = QN.merge(fiscal_cal, left_on='DATE',
 #               right_on='DATE', how='left')
 # QN.drop(columns=['DATE','FISCAL PERIOD','QTR'], inplace=True)
-QN['DATE']=QN['DATE'].dt.strftime('%Y-%m-%d')
+# QN['DATE']=QN['DATE'].dt.strftime('%Y-%m-%d')
 layout = dbc.Container([
     dbc.Row([
         dbc.Col([
@@ -64,7 +64,14 @@ def TABLE(PN):
     if PN is None:
         PN='839-198032-001'
     part=PN
-    result=QN.loc[QN['Material - Key']==PN]
+    result=query_table(
+    f"""
+    SELECT fs.`QTR+YR` from qn_data qn
+    join fiscal_cal fs on
+    fs.`DATE`=qn.`DATE`
+    WHERE fs.`QTR+YR` is not Null AND
+    `Material - Key`={PN}
+    """)
     show_table=result.head(200)
     show_table=show_table.applymap(lambda x: x[:10] if isinstance(x,str) else x)
     show_table.rename(columns=lambda x: x[:15],inplace=True)

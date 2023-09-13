@@ -4,7 +4,6 @@ from dash.dependencies import Output,Input
 import plotly.express as px
 import plotly.figure_factory as ff
 import dash_bootstrap_components as dbc
-import pandas as pd
 import numpy as np
 from app_files.tree_to_df import tree_to_df
 from app_files.sql_connector import table
@@ -59,8 +58,8 @@ def pie_table(PN):
         PN='UC-66-112093-00'
     PN=PN.strip().upper()
     PH = table('ph_for_plugins')
-    PH.rename(columns={'ACT_MAT_COST':'PH'},inplace=True)
-    PH.rename(columns={'Material - Key':'PH'},inplace=True)
+    PH.rename(columns={'ACT_MAT_COST':'ACT MAT COST'},inplace=True)
+    PH.rename(columns={'PART_NUMBER':'PH'},inplace=True)
     # ___________BOMEXTRACT_________________________________________________
     LVLBOMS=tree_to_df(PN)
     LVLBOMS['TOPLEVEL']=PN
@@ -80,13 +79,13 @@ def pie_table(PN):
     COSTS.fillna(0,inplace=True)
     COSTS.loc[(COSTS['ACT MAT COST'] == 0) & (~COSTS['COMP'].isin(COSTS['MATERIAL'])),'ACT MAT COST'] = COSTS['STD COST']
     COSTS = COSTS.iloc[:,:6]
-    COSTS = COSTS.merge(LBR,left_on='COMP',right_on='Material',how='left')
-    COSTS.drop(columns=['Material','PLN COST/EA','HRS/EA'],axis=1,inplace=True)
+    COSTS = COSTS.merge(LBR,left_on='COMP',right_on='MATERIAL',how='left')
+    colrename()
+    COSTS.drop(columns=['MATERIAL','PLN COST/EA','HRS/EA'],axis=1,inplace=True)
     COSTS.rename(columns={'ACT COST/EA':'ACT LBR COST'},inplace=True)
     COSTS.loc[(COSTS['ACT MAT COST'] != 0), 'ACT LBR COST'] = 0
     COSTS = COSTS.merge(OVS,left_on='COMP',right_on='MATERIAL',how='left')
     COSTS.loc[(COSTS['ACT MAT COST'] != 0), 'OVS COST'] = 0
-    colrename()
     COSTS[['ACT MAT COST', 'ACT LBR COST', 'OVS COST']]=COSTS[['ACT MAT COST', 'ACT LBR COST', 'OVS COST']].multiply(COSTS['TOP LVL QTY'],axis=0)
     COSTS=COSTS.fillna(0)
     COSTS['BUR ACT MAT']=1.106*COSTS['ACT MAT COST']
