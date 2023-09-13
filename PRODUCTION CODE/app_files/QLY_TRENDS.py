@@ -65,7 +65,6 @@ LBR_COSTS=table('lbr_q_trends')
 LBR_COSTS.rename(columns={'QTR+YR':'Q+YR'},inplace=True)
 OVS_COSTS=table('ovs_trend')
 PH_COSTS=table('ph_trend')
-PH=table('ph')
 BOM=table('st_bm_br_bom')
 QS=table('qly_ints')
 layout = dbc.Container([

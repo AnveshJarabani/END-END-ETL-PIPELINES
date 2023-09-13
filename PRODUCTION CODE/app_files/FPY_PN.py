@@ -10,16 +10,16 @@ from app_files.sql_connector import query_table,table
 dash.register_page(__name__)
 QN=query_table(
     """
-    SELECT * from qn_data qn
+    SELECT qn.*,fs.`QTR+YR` from qn_data qn
     join fiscal_cal fs on
     fs.`DATE`=qn.`DATE`
-    WHERE qn.`QTR+YR` not Null
+    WHERE fs.`QTR+YR` is not Null
     """)
 # fiscal_cal = table('FISCAL_CAL')
 # fiscal_cal['Month-Year'] = fiscal_cal['DATE'].dt.strftime('%b-%Y')
 # QN = QN.merge(fiscal_cal, left_on='DATE',
 #               right_on='DATE', how='left')
-QN.drop(columns=['FISCAL PERIOD','QTR'], inplace=True)
+# QN.drop(columns=['DATE','FISCAL PERIOD','QTR'], inplace=True)
 QN['DATE']=QN['DATE'].dt.strftime('%Y-%m-%d')
 layout = dbc.Container([
     dbc.Row([

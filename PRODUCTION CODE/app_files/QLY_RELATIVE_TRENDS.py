@@ -81,9 +81,6 @@ def BOM_EXTRACT(PN):
     LVLBOMS.reset_index(inplace=True)
     return LVLBOMS
 def fig(PN,DT_PN):
-        # CST_22=DT_PN.iloc[-1,2]
-        # CST_21=DT_PN.iloc[-5,2]
-        # CHANGE=(CST_22-CST_21)/CST_21
         graph=px.bar(
         DT_PN,x='Q+YR',y='DELTA %',
         hover_data={'PN':True,'DELTA %':True},
@@ -97,15 +94,13 @@ def fig(PN,DT_PN):
             font={'family':'Arial','size':12},yaxis_tickformat='.2%') 
         graph.update_yaxes(tickfont_family="Arial Black")
         graph.update_xaxes(tickfont_family="Arial Black")
-        # graph.add_hline(y=CHANGE,line_dash='dot',
-        # annotation_text='<b>% CHANGE in 2022: '+str(('{:.2f}%').format(CHANGE*100)),
-        # annotation_position='top left',line=dict(color='blue',width=2.5))
         return graph
 dash.register_page(__name__)
 LBR_COSTS_REL=table('LBR_Q_TRENDS')
 OVS_COSTS_REL=table('OVS_TREND')
 PH_COSTS_REL=table('PH_TREND')
-PH=table('PH')
+PH=table('PH_FOR_PLUGINS')
+PH.rename(columns={'ACT_MAT_COST':'PH'},inplace=True)
 BOM=table('ST_BM_BR_BOM')
 QS=table('QLY_INTS')
 layout = dbc.Container([
@@ -163,9 +158,6 @@ def update_graph(PART):
         LBR=px.bar()
         is_open=False
     else:
-        # CST_22=DT_LBR.iloc[-1,2]
-        # CST_21=DT_LBR.iloc[-5,2]
-        # CHANGE=(CST_22-CST_21)/CST_21
         LBR = px.bar(
             DT_LBR,x='Q+YR',y='DELTA %',
             hover_data={'PN':True,'DELTA %':True},
@@ -180,9 +172,6 @@ def update_graph(PART):
             font={'family':'Arial','size':12},yaxis_tickformat='.2%')
         LBR.update_yaxes(tickfont_family="Arial Black")
         LBR.update_xaxes(tickfont_family="Arial Black")
-        # LBR.add_hline(y=CHANGE,line_dash='dot',
-        # annotation_text='<b>% CHANGE in 2022: '+str(('{:.2f}%').format(CHANGE*100)),
-        # annotation_position='top left',line=dict(color='blue',width=2.5))
     if len(DT_OVS)==0:
         OVS=px.bar()
         OVS.update_layout(title = dict(text='<b>'+PART + ' has NO OVS Cost',font_size=30,
@@ -191,9 +180,6 @@ def update_graph(PART):
             paper_bgcolor='rgba(0,0,0,0)',
         font={'family':'Arial','size':12})
     else:
-        # CST_22=DT_OVS.iloc[-1,2]
-        # CST_21=DT_OVS.iloc[-5,2]
-        # CHANGE=(CST_22-CST_21)/CST_21
         OVS = px.bar(
             DT_OVS,x='Q+YR',y='DELTA %',
             hover_data={'PN':True,'DELTA %':True},
@@ -208,9 +194,6 @@ def update_graph(PART):
             font={'family':'Arial','size':12},yaxis_tickformat='.2%')
         OVS.update_xaxes(tickfont_family="Arial Black")
         OVS.update_yaxes(tickfont_family="Arial Black")
-        # OVS.add_hline(y=CHANGE,line_dash='dot',
-        # annotation_text='<b>% CHANGE in 2022: '+str(('{:.2f}%').format(CHANGE*100)),
-        # annotation_position='top left',line=dict(color='blue',width=2.5))
     gs1=[]
     gs2=[]
     m=1

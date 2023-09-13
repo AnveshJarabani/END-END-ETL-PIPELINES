@@ -58,7 +58,8 @@ def pie_table(PN):
     if PN is None:
         PN='UC-66-112093-00'
     PN=PN.strip().upper()
-    PH = table('PH')
+    PH = table('ph_for_plugins')
+    PH.rename(columns={'ACT_MAT_COST':'PH'},inplace=True)
     PH.rename(columns={'Material - Key':'PH'},inplace=True)
     # ___________BOMEXTRACT_________________________________________________
     LVLBOMS=tree_to_df(PN)
