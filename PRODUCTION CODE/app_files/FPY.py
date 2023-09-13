@@ -13,7 +13,7 @@ QN=query_table(
     SELECT * from qn_data qn
     join fiscal_cal fs on
     fs.`DATE`=qn.`DATE`
-    WHERE qn.`QTR+YR` not Null
+    WHERE fs.`QTR+YR` is not Null
     """)
 QN.drop(columns=['DATE','FISCAL PERIOD','QTR'], inplace=True)
 drop_down = list(QN['QTR+YR'].unique()) 
