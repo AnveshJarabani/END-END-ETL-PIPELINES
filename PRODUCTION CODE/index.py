@@ -4,29 +4,27 @@ import dash_bootstrap_components as dbc
 from dash import Output,Input,State,dcc
 import base64
 import requests
-from app_files import FAB,PARTSEARCH,WO_HRS,DAYS,Version,WC_LOAD,QLY_RELATIVE_TRENDS,SHEETMETAL_DEMAND,PNL,FPY,FPY_PN,QLY_TRENDS
-toolcosts_url="https://raw.githubusercontent.com/AnveshJarabani/END-END-ETL-PIPELINES/main/PRODUCTION%20CODE/app_files/TOOLCOSTS.py"
-tool
+# from app_files import FAB,PARTSEARCH,WO_HRS,DAYS,Version,WC_LOAD,QLY_RELATIVE_TRENDS,SHEETMETAL_DEMAND,PNL,FPY,FPY_PN,QLY_TRENDS
+url="https://raw.githubusercontent.com/AnveshJarabani/END-END-ETL-PIPELINES/main/PRODUCTION%20CODE/app_files/{}.py"
+pages={'TOOL COSTS':'TOOLCOSTS','QLY. COST TRENDS':'QLY_TRENDS',
+       'DEMAND FORECAST':'SHEETMETAL_DEMAND',
+       'QLY. RELATIVE TRENDS':'QLY_RELATIVE_TRENDS',
+       'FRAME COSTS':'FAB','PART COST FINDER':'PARTSEARCH',
+       'BUILD HOUR TRENDS':'WO_HRS','PROCESS & WAIT DAYS':'DAYS',
+       'WORK CENTER LOAD':'WC_LOAD','QUALITY DATA':'FPY',
+       'QUALITY DATA BY PN':'FPY_PN','VERSION':'version'}
+variable_dct={i:{} for i in pages.values()}
+for i in pages.values():
+    exec(requests.get(url.format('TOOLCOSTS')).text,variable_dct[i])
 test_base64 = base64.b64encode(open('UCT.PNG', 'rb').read()).decode('ascii')
 offcanvas = html.Div([
         dbc.Button("Explore",id="Open-offcanvas", n_clicks=0,size='lg',class_name='me-1'),
         dbc.Offcanvas(
-                 dbc.ListGroup(
-            [
-                # dbc.ListGroupItem("PROFIT-LOSS", href="/apps/"),
-                dbc.ListGroupItem("TOOL COSTS", href="/apps/TOOLCOSTS"),
-                dbc.ListGroupItem("QLY. COST TRENDS", href="/apps/QLY_TRENDS"),
-                dbc.ListGroupItem("DEMAND FORECAST", href="/apps/SHEETMETAL_DEMAND"),
-                dbc.ListGroupItem("QLY. RELATIVE TRENDS", href="/apps/QLY_RELATIVE_TRENDS"),
-                dbc.ListGroupItem("FRAME COSTS", href="/apps/FAB"),
-                dbc.ListGroupItem("PART COST FINDER", href="/apps/PARTSEARCH"),
-                dbc.ListGroupItem("BUILD HOUR TRENDS", href="/apps/WO_HRS"),
-                dbc.ListGroupItem("PROCESS & WAIT DAYS", href="/apps/DAYS"),
-                dbc.ListGroupItem("WORK CENTER LOAD", href="/apps/WC_LOAD"),
-                dbc.ListGroupItem("QUALITY DATA", href="/apps/FPY"),
-                dbc.ListGroupItem("QUALITY DATA BY PN", href="/apps/FPY_PN"),
-                dbc.ListGroupItem("VERSION", href="/apps/version"),
-                ]
+
+                dbc.ListGroup( 
+                [dbc.ListGroupItem(key,href=val) for key,val in pages.items()]
+            # dbc.ListGroupItem("PROFIT-LOSS", href="/apps/"),
+                
         ),
             placement='end',
             id="offcanvas",
@@ -71,10 +69,11 @@ navbar= dbc.Navbar(
     dark=True,
     fixed='top')
 @app.callback(Output('page-content','children'),Input('url','pathname'))
-def display_page(pathname):
+def display_page(val):
     # if pathname=='/apps/':
-    #     return PNL.layout
-    if pathname=='/apps/TOOLCOSTS': return TOOLCOSTS.layout
+    #     return PNL.layout    
+    return variable_dct[val]['layout']
+    if pathname=='/apps/TOOLCOSTS': return dct['layout']
     if pathname=='/apps/FAB': return FAB.layout
     if pathname=='/apps/PARTSEARCH': return PARTSEARCH.layout
     if pathname=='/apps/version': return Version.modal
