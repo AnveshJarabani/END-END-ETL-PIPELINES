@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 from dash import Output, Input, State, dcc
 import base64
 import requests
-
+import importlib
 url = "https://raw.githubusercontent.com/AnveshJarabani/END-END-ETL-PIPELINES/main/PRODUCTION%20CODE/app_files/{}.py"
 pages = {
     "TOOL COSTS": "TOOLCOSTS",
@@ -97,12 +97,10 @@ def display_page(val):
     # if pathname=='/apps/':
     #     return PNL.layout
     val = val.lstrip("/")
-    if val=='TOOLCOSTS':
-        from app_files import TOOLCOSTS
-        return TOOLCOSTS.layout
     try:
-        exec(requests.get(url.format(val)).text, globals(), locals())
-        return locals()["layout"]
+        script=requests.get(url.format(val)).text
+        # cur_module=importlib.import_module(script)
+        return exec(script)
     except Exception as e:
         print(f"error----{val}")
         print(e)
