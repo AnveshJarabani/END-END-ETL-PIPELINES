@@ -101,7 +101,7 @@ def display_page(val):
     try:
         exec(requests.get(url.format(val)).text, dct)
         return dct["layout"]
-    except exce:
+    except:
         print(f'error----{val}')
         return 'page not found'
 
