@@ -7,7 +7,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import numpy as np
 from app_files.sql_connector import table as sql,query_table
-dash.register_page(__name__)
+# dash.register_page(__name__)
 smry_dct={'LAM':'toolcosts_lm_smry',
           'KLA':'toolcosts_kla_smry',
           'CYMER':'toolcosts_cy_smry',}
