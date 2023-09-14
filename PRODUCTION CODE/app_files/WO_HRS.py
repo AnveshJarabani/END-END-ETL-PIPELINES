@@ -4,7 +4,7 @@ from dash.dependencies import Output,Input
 import plotly.express as px
 import dash_bootstrap_components as dbc
 from app_files.sql_connector import query_table
-# dash.register_page(__name__)
+dash.register_page(__name__)
 layout = dbc.Container([
   dbc.Row([
         dbc.Col([

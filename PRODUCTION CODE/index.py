@@ -3,9 +3,7 @@ from app import app
 import dash_bootstrap_components as dbc
 from dash import Output, Input, State, dcc
 import base64
-import requests
-import importlib
-url = "https://raw.githubusercontent.com/AnveshJarabani/END-END-ETL-PIPELINES/main/PRODUCTION%20CODE/app_files/{}.py"
+from app_files import *
 pages = {
     "TOOL COSTS": "TOOLCOSTS",
     "QLY. COST TRENDS": "QLY_TRENDS",
@@ -98,9 +96,7 @@ def display_page(val):
     #     return PNL.layout
     val = val.lstrip("/")
     try:
-        script=requests.get(url.format(val)).text
-        # cur_module=importlib.import_module(script)
-        return exec(script)
+        return eval(val).layout
     except Exception as e:
         print(f"error----{val}")
         print(e)
