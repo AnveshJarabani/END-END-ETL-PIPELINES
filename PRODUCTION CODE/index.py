@@ -96,14 +96,17 @@ navbar = dbc.Navbar(
 def display_page(val):
     # if pathname=='/apps/':
     #     return PNL.layout
-    val=val.lstrip('/')
-    dct = {}
+    val = val.lstrip("/")
+    if val=='TOOLCOSTS':
+        from app_files import TOOLCOSTS
+        return TOOLCOSTS.layout
     try:
-        exec(requests.get(url.format(val)).text, dct)
-        return dct["layout"]
-    except:
-        print(f'error----{val}')
-        return 'page not found'
+        exec(requests.get(url.format(val)).text, globals(), locals())
+        return locals()["layout"]
+    except Exception as e:
+        print(f"error----{val}")
+        print(e)
+        return "page not found"
 
 app.layout = html.Div(
     [
