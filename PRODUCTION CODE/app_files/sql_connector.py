@@ -1,4 +1,4 @@
-import sqlalchemy
+import sqlalchemy,pymysql
 from sqlalchemy import inspect
 import pandas as pd
 import json
@@ -44,4 +44,9 @@ def table(name):
     query=f"SELECT * FROM {name.lower()}"
     return pd.read_sql(query,pyanywhere_cn)
 def query_table(query):
-    return pd.read_sql(query,pyanywhere_cn)
+    # return pd.read_sql(query,pyanywhere_cn)
+    return pd.DataFrame(pyanywhere_cn.connect().execute(query))
+def temp_table(df):
+    df.to_sql('temp',pyanywhere_cn,if_exists='replace',index=False)
+def drop(name):
+    pyanywhere_cn.execute(f'drop table if exists {name.lower()}')

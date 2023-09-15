@@ -8,32 +8,9 @@ import pandas as pd
 import numpy as np
 from app_files.sql_connector import table as sql,query_table
 dash.register_page(__name__)
-smry_dct={'LAM':'toolcosts_lm_smry',
-          'KLA':'toolcosts_kla_smry',
-          'CYMER':'toolcosts_cy_smry',}
-LAM_PIE=sql('TOOLCOSTS_LM_PIE')
-LAM_ACTQTDT=sql('TOOLCOSTS_LM_QT_VS_ACT')
-LAM_ACTQTDT['VENDOR']=LAM_ACTQTDT['VENDOR'].str[:10]
-CYMER_PIE=sql('TOOLCOSTS_CY_PIE')
-CYMER_ACTQTDT=sql('TOOLCOSTS_CY_QT_VS_ACT')
-KLA_PIE=sql('TOOLCOSTS_KLA_PIE')
-KLA_ACTQTDT=sql('TOOLCOSTS_KLA_QT_VS_ACT')
-KLA_ACTQTDT['VENDOR']=KLA_ACTQTDT['VENDOR'].str[:10]
-new_cols=['TOP LEVEL','PN','DESC','VENDOR','QTY']
-for i in [KLA_ACTQTDT,CYMER_ACTQTDT,LAM_ACTQTDT]:
-    i.columns=new_cols+list(i.columns[len(new_cols):])
-KLA_ACTQTDT.rename(columns={'DELTA T3':'DELTA'},inplace=True)
-PIE_COST=pd.concat([LAM_PIE,CYMER_PIE,KLA_PIE])
-
-
-PERIODS=sql('FISCAL_CAL')
-PERIODS.drop_duplicates(inplace=True,ignore_index=True)
-QTR=PERIODS.loc[PERIODS['FISCAL PERIOD']=='Period 9','QTR'].reset_index().iloc[0,1]
-PIE_COST_P=PIE_COST.loc[PIE_COST['QTR']==QTR]
-PIE_COST_P=PIE_COST_P.iloc[:,:4]
-PIE_COST_P=PIE_COST_P.transpose().reset_index()
-PIE_COST_P.columns=PIE_COST_P.iloc[0]
-PIE_COST_P=PIE_COST_P.drop(index=0)
+dct={'LAM':'lm',
+          'KLA':'kla',
+          'CYMER':'cy',}
 def add_color(CUST):
     CUST.rename(columns={'Material - Key':'PART NUMBER',
                 'Act Shipped Qty':'QTY Shipped'},inplace=True)
@@ -96,7 +73,7 @@ layout = dbc.Container([
  )
 def update_graph(CUSTOMER,PERIOD):
     global PIE_COST_P
-    CUST=query_table(f'SELECT * FROM {smry_dct[CUSTOMER]} WHERE `FISCAL PERIOD`=\'{PERIOD}\'')
+    CUST=query_table(f'SELECT * FROM toolcosts_{dct[CUSTOMER]}_smry WHERE `FISCAL PERIOD`=\'{PERIOD}\'')
     add_color(CUST)
     SHIPPED=(CUST['DELTA.CAL']*CUST['QTY Shipped']).sum()
     ACTUALCOST=(CUST['ASP']*CUST['QTY Shipped']).sum()
@@ -122,8 +99,8 @@ def update_graph(CUSTOMER,PERIOD):
         yaxis_tickformat='$,',
         yaxis={'dtick':1000},
         showlegend=False)
-    QTR=PERIODS.loc[PERIODS['FISCAL PERIOD']==PERIOD,'QTR'].reset_index().iloc[0,1]
-    PIE_COST_P=PIE_COST.loc[PIE_COST['QTR']==QTR]
+    QTR=query_table(f"select QTR from fiscal_cal where `FISCAL PERIOD`='{PERIOD}'").iloc[0,0]
+    PIE_COST_P=query_table(f"select * from toolcosts_{dct[CUSTOMER]}_pie where `QTR`='{QTR}'")
     PIE_COST_P=PIE_COST_P.iloc[:,:4]
     PIE_COST_P=PIE_COST_P.transpose().reset_index()
     PIE_COST_P.columns=PIE_COST_P.iloc[0]
@@ -148,25 +125,32 @@ def pie_table(hov_data):
     return piechart
 @callback(
     Output('QTVSACT','figure'),
-    Input('P/LGRAPH','clickData')
+    Input('P/LGRAPH','clickData'),
+    Input('CUSTOMERS','value')
 )
-def table(clk_data):
+def table(clk_data,CUSTOMER):
     global dt,y
     if clk_data is None:
-        colorscale = [[0, '#4d004c'],[.5, '#f2e5ff'],[1, '#ffffff']]
-        QTVSACT = ff.create_table([CYMER_ACTQTDT.columns],colorscale=colorscale)
+        dt = query_table(f"""
+                       SELECT * FROM toolcosts_{dct['CYMER']}_qt_vs_act
+                       """).iloc[:,:10]
     else:
         y=clk_data['points'][0]['x']
-        for i in [KLA_ACTQTDT,CYMER_ACTQTDT,LAM_ACTQTDT]:
-            if (i.iloc[:,0]==y).any():
-                dt=i.loc[i['TOP LEVEL']==str(y)]
-                continue
+        dt=query_table(f"""
+                       SELECT * FROM toolcosts_{dct[CUSTOMER]}_qt_vs_act
+                       where `TOP LEVEL`='{y}'
+                       """)
+    dt['VENDOR']=dt['VENDOR'].str[:10]
+    if 'DESC' in dt.columns:
         dt.drop(columns=['TOP LEVEL','DESC'],axis=1,inplace=True)
-        dt.iloc[:,4:] = dt.iloc[:,4:].apply(lambda series: series.apply(lambda x: "${:,.2f}".format(float(x))))
-        dt.sort_values(by='DELTA',ascending=True,inplace=True)
-        colorscale = [[0, '#4d004c'],[.5, '#f2e5ff'],[1, '#ffffff']]
-        QTVSACT = ff.create_table(dt,colorscale=colorscale)
-        QTVSACT.update_layout(font={'family':'Arial Black','size':12})
+    else:
+        dt.drop(columns=['TOP LEVEL','DESCRIPTION'],axis=1,inplace=True)
+    dt.iloc[:,2:]=dt.iloc[:,2:].applymap(lambda x:round(x,2) if isinstance(x,float) else x)
+    dt.iloc[:,4:] = dt.iloc[:,4:].apply(lambda series: series.apply(lambda x: "${:,.2f}".format(float(x))))
+    dt.sort_values(by='DELTA',ascending=True,inplace=True)
+    colorscale = [[0, '#4d004c'],[.5, '#f2e5ff'],[1, '#ffffff']]
+    QTVSACT = ff.create_table(dt[:30],colorscale=colorscale)
+    QTVSACT.update_layout(font={'family':'Arial Black','size':12})
     return QTVSACT
 @callback(
     Output('download-comp','data'),
