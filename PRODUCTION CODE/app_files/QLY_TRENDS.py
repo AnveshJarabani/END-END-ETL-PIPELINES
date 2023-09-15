@@ -9,7 +9,7 @@ from app_files.sql_connector import table,query_table,temp_table,drop
 def costby_bom(name,PART):
     cols={
         'ovs_trend':['OVS COST','Q+YR','MATERIAL'],
-        'lbr_q_trends':['ACT LBR COST/EA','QTR+YR','PN'],
+        'lbr_q_trends':['ACT LBR COST/EA','Q+YR','PN'],
         'ph_trend':['BUY COST','Q+YR','PN']}
     LVLBOM=BOM_EXTRACT(PART)
     temp_table(LVLBOM)

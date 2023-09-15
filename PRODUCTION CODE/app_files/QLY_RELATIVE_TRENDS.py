@@ -18,12 +18,12 @@ def costby_bom(name,PART):
         str=f'''
                 WITH CTE AS (select *,
                 `{cols[name][0]}`*`TOP LVL QTY` as COST_CLM,
-                `DELTA %`*`TOP LVL QTY` as `REL_CLM`
+                `QLY_DELTA`*`TOP LVL QTY` as `REL_CLM`
                 from temp tp
                 join {name.lower()} df on df.`{cols[name][2]}`=tp.`COMP`
                 WHERE `{cols[name][0]}` is not null)
                 SELECT `{cols[name][1]}`,`TOPLEVEL` AS `PN`,SUM(`COST_CLM`) AS `QLY_COST`,
-                ROUND(SUM(`REL_CLM`),2) AS `DELTA %`
+                ROUND(SUM(`REL_CLM`),2) AS `QLY_DELTA`
                 FROM CTE
                 GROUP BY 1,2
                 '''

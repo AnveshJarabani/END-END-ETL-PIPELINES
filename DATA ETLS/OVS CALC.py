@@ -32,9 +32,9 @@ OVS['OVS COST']=OVS['OVS COST'].round(2)
 OVS=sort_QS(OVS)
 for i in OVS['MATERIAL'].unique():
     OVS.loc[OVS['MATERIAL']==i,'LAST Q COST']=OVS.loc[OVS['MATERIAL']==i,'OVS COST'].shift(1)
-OVS['DELTA %']=(OVS['OVS COST']-OVS['LAST Q COST'])/OVS['LAST Q COST']
-OVS[['OVS COST','DELTA %']]=OVS[['OVS COST','DELTA %']].round(2)
-OVS['DELTA %'].replace(np.nan,0,inplace=True)
+OVS['QLY_DELTA']=(OVS['OVS COST']-OVS['LAST Q COST'])/OVS['LAST Q COST']
+OVS[['OVS COST','QLY_DELTA']]=OVS[['OVS COST','QLY_DELTA']].round(2)
+OVS['QLY_DELTA'].replace(np.nan,0,inplace=True)
 OVS.dropna(how='all',inplace=True)
 OVS.to_hdf('../H5/OVS.H5',key='TREND',mode='a') # OVS TREND FOR THE DASHBOARD
 for i in OVS.iloc[:,1].unique():
