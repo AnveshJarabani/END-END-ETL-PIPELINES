@@ -6,14 +6,8 @@ import plotly.figure_factory as ff
 import dash_bootstrap_components as dbc
 import pandas as pd
 import numpy as np
-from app_files.sql_connector import table,query_table
+from app_files.sql_connector import table as sql_table,query_table
 dash.register_page(__name__)
-ACTVSQT=table('FRAMES_QT_VS_ACT')
-ACTVSQT=ACTVSQT.fillna(0)
-PIE_COST=table('FRAMES_PIE')
-PIE_COST=PIE_COST.transpose().reset_index()
-PIE_COST.columns=PIE_COST.iloc[0]
-PIE_COST=PIE_COST.drop(index=0)
 layout = dbc.Container([
   dbc.Row([
         dbc.Col([
@@ -53,7 +47,11 @@ layout = dbc.Container([
     Input('TIER','value')
  )
 def update_graph(TIER):
-    TEMP=ACTVSQT[['P/N','BUR ACT',TIER, '▲ '+TIER]]
+    # ACTVSQT=table('FRAMES_QT_VS_ACT')
+    # ACTVSQT=ACTVSQT.fillna(0)
+    TEMP=query_table(f"select `P/N`,`BUR ACT`,`{TIER}`,`▲ {TIER}` FROM frames_qt_vs_act")
+    # TEMP=ACTVSQT[['P/N','BUR ACT',TIER, '▲ '+TIER]]
+    TEMP=TEMP.fillna(0)
     TEMP.sort_values(by=['▲ '+TIER],ignore_index=True,ascending=True,inplace=True)
     TEMP['P/L%']=(TEMP['▲ '+TIER]/TEMP[TIER])
     conditions=[TEMP['▲ '+TIER]<0,TEMP['▲ '+TIER]==0,
@@ -64,7 +62,7 @@ def update_graph(TIER):
         data_frame=TEMP,
         x='P/N',
         y='▲ '+TIER,
-        hover_data={'COLOR':False,TIER:':$,.2f','P/L%':':.2%',
+        hover_data={'COLOR':False,'P/L%':':.2%', #TIER:':$,.2f',
         '▲ '+TIER:':$,.2f'},
         title='FRAMES PERFORMANCE BY TIER PRICING',
         template='seaborn',
@@ -87,6 +85,10 @@ def pie_table(hov_data):
         x='839-198032-001'
     else:
         x=hov_data['points'][0]['x']
+    PIE_COST=query_table(f'select *  from frames_pie where `TOPLEVEL`="{x}"')
+    PIE_COST=PIE_COST.transpose().reset_index()
+    PIE_COST.columns=PIE_COST.iloc[0]
+    PIE_COST=PIE_COST.drop(index=0)
     SUM_COST=PIE_COST[x].sum()
     te='<b>ACTUAL COST = <b>' + str('${:,.1f}'.format(SUM_COST))
     piechart=px.pie(data_frame=PIE_COST,values=x,names='TOPLEVEL',color='TOPLEVEL',
@@ -106,9 +108,11 @@ def pie_table(hov_data):
 )
 def table(clk_data):
     global dtf,y
-    y=clk_data['points'][0]['x']
-    
-    dtf=query_table(f"select * from FRAME where `TOPLEVEL`='{y}'")
+    if not clk_data or isinstance(clk_data,str):
+        y='839-198032-001'
+    else:
+        y=clk_data['points'][0]['x']
+    dtf=query_table(f"select * from frame where `TOPLEVEL`='{y}'")
     dtf.iloc[:,1] = dtf.iloc[:,1].astype(str)
     dtf.drop(columns=['TOPLEVEL'],axis=1,inplace=True)
     dtf.iloc[:,2:4] = dtf.iloc[:,2:4].apply(lambda series: series.apply(lambda x: "{:,.2f}".format(float(x))))

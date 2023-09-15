@@ -31,8 +31,6 @@ def costby_bom(name,PART):
                             WHERE `{cols[name][0]}` is not null
                             """)
     drop('temp')
-    if 'QTR+YR' in DT.columns:
-        DT.rename(columns={'QTR+YR':'Q+YR'},inplace=True)
     return DT
  #BOM EXTRACT-----------
 def BOM_EXTRACT(PN):

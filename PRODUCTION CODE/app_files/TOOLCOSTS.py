@@ -4,7 +4,6 @@ from dash.dependencies import Output,Input
 import plotly.express as px
 import plotly.figure_factory as ff
 import dash_bootstrap_components as dbc
-import pandas as pd
 import numpy as np
 from app_files.sql_connector import table as sql,query_table
 dash.register_page(__name__)
@@ -22,8 +21,6 @@ def add_color(CUST):
     choices=['red','green']
     CUST['COLOR']=np.select(conditions,choices)
     return CUST
-# for i in [LAM_SMRY,CYMER_SMRY,KLA_SMRY]:
-#     add_color(i)
 layout = dbc.Container([
   dbc.Row([
         dbc.Col([

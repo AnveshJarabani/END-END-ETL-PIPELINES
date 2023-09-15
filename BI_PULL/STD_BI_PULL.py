@@ -6,7 +6,7 @@ from datetime import datetime
 import dateutil.relativedelta as delt
 import pandas as pd
 import numpy as np
-import time, glob, os, zipfile, json
+import time, os, json
 
 chromeOptions = webdriver.ChromeOptions()
 today = datetime.today().strftime("%m/%d/%y")
