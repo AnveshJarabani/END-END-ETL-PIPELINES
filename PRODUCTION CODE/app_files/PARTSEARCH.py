@@ -8,13 +8,6 @@ import numpy as np
 from app_files.tree_to_df import tree_to_df
 from app_files.sql_connector import table
 dash.register_page(__name__)
-BOM=table('ST_BM_BR_BOM')
-FRAMECOSTS=table('FRAME')
-FRAMECOSTS.iloc[:,1] = FRAMECOSTS.iloc[:,1].astype(str)
-PIE_COST=table('FRAMES_PIE')
-PIE_COST=PIE_COST.transpose().reset_index()
-PIE_COST.columns=PIE_COST.iloc[0]
-PIE_COST=PIE_COST.drop(index=0)
 layout = dbc.Container([
   dbc.Row([
         dbc.Col([
@@ -54,6 +47,12 @@ def pie_table(PN):
     global COSTS
     global PART_NM
     PART_NM=PN
+    FRAMECOSTS=table('FRAME')
+    FRAMECOSTS.iloc[:,1] = FRAMECOSTS.iloc[:,1].astype(str)
+    PIE_COST=table('FRAMES_PIE')
+    PIE_COST=PIE_COST.transpose().reset_index()
+    PIE_COST.columns=PIE_COST.iloc[0]
+    PIE_COST=PIE_COST.drop(index=0)
     if PN is None:
         PN='UC-66-112093-00'
     PN=PN.strip().upper()
