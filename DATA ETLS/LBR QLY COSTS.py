@@ -22,17 +22,17 @@ pi2.reset_index(inplace=True)
 pi3 = pi2.pivot_table(index=['QTR+YR',"PART_NUMBER"],values=['ACT COST/EA'],aggfunc= np.sum)
 pi3.reset_index(inplace=True)
 pi3=pi3[['QTR+YR','PART_NUMBER','ACT COST/EA']]
-pi3.columns=['QTR+YR','PN','ACT LBR COST/EA']
+pi3.columns=['Q+YR','PN','ACT LBR COST/EA']
 pi3.drop_duplicates(inplace=True)
 for i in pi3['PN'].unique():
     pi3.loc[pi3['PN']==i,'LAST Q COST']=pi3.loc[pi3['PN']==i,'ACT LBR COST/EA'].shift(1)
-pi3['DELTA %']=(pi3['ACT LBR COST/EA']-pi3['LAST Q COST'])/pi3['LAST Q COST']
-pi3[['ACT LBR COST/EA','DELTA %']]=pi3[['ACT LBR COST/EA','DELTA %']].round(2)
+pi3['QLY_DELTA']=(pi3['ACT LBR COST/EA']-pi3['LAST Q COST'])/pi3['LAST Q COST']
+pi3[['ACT LBR COST/EA','QLY_DELTA']]=pi3[['ACT LBR COST/EA','QLY_DELTA']].round(2)
 pi3.replace([np.inf,-np.inf],np.nan,inplace=True)
-pi3['DELTA %'].replace(np.nan,0,inplace=True)
+pi3['QLY_DELTA'].replace(np.nan,0,inplace=True)
 pi3.dropna(how='all',inplace=True)
-pi3['YR']=pi3['QTR+YR'].str[-2:].astype(int)
-pi3['QTR']=pi3['QTR']=pi3['QTR+YR'].str[1].astype(int)
+pi3['YR']=pi3['Q+YR'].str[-2:].astype(int)
+pi3['QTR']=pi3['QTR']=pi3['Q+YR'].str[1].astype(int)
 pi3.sort_values(by=['YR','QTR'],ignore_index=True,inplace=True)
 pi3.drop(columns=['QTR','YR'],inplace=True)
 pi3.to_hdf('../H5/LBR.H5',key='Q_TRENDS',mode='a')

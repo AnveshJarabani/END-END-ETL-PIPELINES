@@ -28,9 +28,9 @@ if __name__=='__main__':
     PH.columns=['Q+YR','PN','BUY COST']
     PH=PH.loc[PH.iloc[:,1].notna()].reset_index(drop=True)
     PH['LAST Q COST'] = PH.groupby('PN')['BUY COST'].shift(-1)
-    PH['DELTA %']=(PH['BUY COST']-PH['LAST Q COST'])/PH['LAST Q COST']
-    PH[['BUY COST','DELTA %']]=PH[['BUY COST','DELTA %']].round(2)
-    PH['DELTA %'].replace(np.nan,0,inplace=True)
+    PH['QLY_DELTA']=(PH['BUY COST']-PH['LAST Q COST'])/PH['LAST Q COST']
+    PH[['BUY COST','QLY_DELTA']]=PH[['BUY COST','QLY_DELTA']].round(2)
+    PH['QLY_DELTA'].replace(np.nan,0,inplace=True)
     PH.dropna(how='all',inplace=True)
     PH.to_hdf('../H5/PH.H5',key='TREND',mode='w') # DONT PUT BREAKPOINTS ON THIS CODE! PH KEYS WILL BE LOST!
     print('PH.H5 TREND COMPLETE')
