@@ -4,22 +4,53 @@ from dash.dependencies import Output,Input
 import plotly.express as px
 import dash_bootstrap_components as dbc
 import numpy as np
-from app_files.sql_connector import table
+from app_files.sql_connector import table,query_table,drop,temp_table
 from app_files.tree_to_df import tree_to_df
-def costby_bom(DF,PART):
+def costby_bom(name,PART):
+    percent='%'
+    cols={
+    'ovs_trend':['OVS COST','Q+YR','MATERIAL'],
+    'lbr_q_trends':['ACT LBR COST/EA','QTR+YR','PN'],
+    'ph_trend':['BUY COST','Q+YR','PN']}
     LVLBOM=BOM_EXTRACT(PART)
-    REL_CLM=DF.columns[4]
-    CST_CLM=DF.columns[2]
-    PN=DF.columns[1]
-    DT_LBR=LVLBOM.merge(DF,left_on='COMP',right_on=PN,how='left')
-    DT_LBR=DT_LBR.loc[DT_LBR[REL_CLM].notna()]
-    DT_LBR[REL_CLM]=DT_LBR[REL_CLM]*DT_LBR['TOP LVL QTY']
-    DT_LBR=DT_LBR.pivot_table(index=['Q+YR','TOPLEVEL'],values=[CST_CLM,REL_CLM],aggfunc=np.sum)
-    DT_LBR.reset_index(inplace=True)
-    DT_LBR.rename(columns={'TOPLEVEL':'PN'},inplace=True)
-    DT_LBR=DT_LBR[['Q+YR','PN',CST_CLM,REL_CLM]]
-    DT_LBR=sort_QS(DT_LBR)
-    return DT_LBR
+    temp_table(LVLBOM)
+    if name in ('ovs_trend','lbr_q_trends'):
+        str=f'''
+                WITH CTE AS (select *,
+                `{cols[name][0]}`*`TOP LVL QTY` as COST_CLM,
+                `DELTA %`*`TOP LVL QTY` as `REL_CLM`
+                from temp tp
+                join {name.lower()} df on df.`{cols[name][2]}`=tp.`COMP`
+                WHERE `{cols[name][0]}` is not null)
+                SELECT `{cols[name][1]}`,`TOPLEVEL` AS `PN`,SUM(`COST_CLM`) AS `QLY_COST`,
+                ROUND(SUM(`REL_CLM`),2) AS `DELTA %`
+                FROM CTE
+                GROUP BY 1,2
+                '''
+        DT=query_table(str)
+    else:
+        DT=query_table(f"""
+                            select `Q+YR`,`PN`,
+                            `{cols[name][0]}` as QLY_COST,
+                            `DELTA %` from temp tp
+                            join {name.lower()} df on df.`{cols[name][2]}`=tp.`COMP`
+                            WHERE `{cols[name][0]}` is not null
+                            """)
+    drop('temp')
+    if 'QTR+YR' in DT.columns:
+        DT.rename(columns={'QTR+YR':'Q+YR'},inplace=True)
+    # LVLBOM=BOM_EXTRACT(PART)
+    # REL_CLM=DF.columns[4]
+    # CST_CLM=DF.columns[2]
+    # PN=DF.columns[1]
+    # DT_LBR=LVLBOM.merge(DF,left_on='COMP',right_on=PN,how='left')
+    # DT_LBR=DT_LBR.loc[DT_LBR[REL_CLM].notna()]
+    # DT_LBR[REL_CLM]=DT_LBR[REL_CLM]*DT_LBR['TOP LVL QTY']
+    # DT_LBR=DT_LBR.pivot_table(index=['Q+YR','TOPLEVEL'],values=[CST_CLM,REL_CLM],aggfunc=np.sum)
+    # DT_LBR.reset_index(inplace=True)
+    # DT_LBR.rename(columns={'TOPLEVEL':'PN'},inplace=True)
+    # DT_LBR=DT_LBR[['Q+YR','PN',CST_CLM,REL_CLM]]
+    return DT
 def costby_buy_bom(DF,PART):
     LVLBOM=BOM_EXTRACT(PART)
     REL_CLM=DF.columns[4]
@@ -30,14 +61,7 @@ def costby_buy_bom(DF,PART):
     DT_BUY=DT_BUY[['Q+YR','PN',CST_CLM,REL_CLM]].drop_duplicates()
     DT_BUY.reset_index(inplace=True,drop=True)
     DT_BUY.rename(columns={'TOPLEVEL':'PN'},inplace=True)
-    DT_BUY=sort_QS(DT_BUY)
     return DT_BUY
-def sort_QS(DF):
-    pi=DF.merge(QS,left_on='Q+YR',right_on='Q+YR',how='left')
-    pi.sort_values(by=['YR','MONTH'],ascending=True,inplace=True)
-    pi=pi[DF.columns]
-    pi.drop_duplicates(inplace=True)
-    return pi
  #BOM EXTRACT-----------
 def BOM_EXTRACT(PN):
     #___________BOMEXTRACT_________________________________________________
@@ -64,14 +88,6 @@ def fig(PN,DT_PN):
         graph.update_xaxes(tickfont_family="Arial Black")
         return graph
 dash.register_page(__name__)
-LBR_COSTS_REL=table('LBR_Q_TRENDS')
-LBR_COSTS_REL.rename(columns={'QTR+YR':'Q+YR'},inplace=True)
-OVS_COSTS_REL=table('OVS_TREND')
-PH_COSTS_REL=table('PH_TREND')
-PH=table('PH_FOR_PLUGINS')
-PH.rename(columns={'PART_NUMBER':'PH'},inplace=True)
-BOM=table('ST_BM_BR_BOM')
-QS=table('QLY_INTS')
 layout = dbc.Container([
   dbc.Row([
         dbc.Col([
@@ -119,9 +135,9 @@ layout = dbc.Container([
     Input('PART-COSTS_REL','value'),
  )
 def update_graph(PART):
-    DT_LBR=costby_bom(LBR_COSTS_REL,PART)
-    DT_OVS=costby_bom(OVS_COSTS_REL,PART)
-    DT_PH=costby_buy_bom(PH_COSTS_REL,PART)
+    DT_LBR=costby_bom('lbr_q_trends',PART)
+    DT_OVS=costby_bom('ovs_trend',PART)
+    DT_PH=costby_buy_bom('ph_trend',PART)
     is_open=True
     if len(DT_LBR)==0:
         LBR=px.bar()

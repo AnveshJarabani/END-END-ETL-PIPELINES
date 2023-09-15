@@ -5,36 +5,35 @@ import plotly.express as px
 import dash_bootstrap_components as dbc
 import numpy as np
 from app_files.tree_to_df import tree_to_df
-from app_files.sql_connector import table
-def costby_bom(DF,PART):
+from app_files.sql_connector import table,query_table,temp_table,drop
+def costby_bom(name,PART):
+    cols={
+        'ovs_trend':['OVS COST','Q+YR','MATERIAL'],
+        'lbr_q_trends':['ACT LBR COST/EA','QTR+YR','PN'],
+        'ph_trend':['BUY COST','Q+YR','PN']}
     LVLBOM=BOM_EXTRACT(PART)
-    COST_CLM=DF.columns[2]
-    PN=DF.columns[1]
-    DT_LBR=LVLBOM.merge(DF,left_on='COMP',right_on=PN,how='left')
-    DT_LBR=DT_LBR.loc[DT_LBR[COST_CLM].notna()]
-    DT_LBR[COST_CLM]=DT_LBR[COST_CLM]*DT_LBR['TOP LVL QTY']
-    DT_LBR=DT_LBR.pivot_table(index=['Q+YR','TOPLEVEL'],values=[COST_CLM],aggfunc=np.sum)
-    DT_LBR.reset_index(inplace=True)
-    DT_LBR.rename(columns={'TOPLEVEL':'PN'},inplace=True)
-    DT_LBR=sort_QS(DT_LBR)
-    return DT_LBR
-def costby_buy_bom(DF,PART):
-    LVLBOM=BOM_EXTRACT(PART)
-    COST_CLM=DF.columns[2]
-    PN=DF.columns[1]
-    DT_LBR=LVLBOM.merge(DF,left_on='COMP',right_on=PN,how='left')
-    DT_LBR=DT_LBR.loc[DT_LBR[COST_CLM].notna()]
-    DT_LBR=DT_LBR[['Q+YR','PN',COST_CLM]].drop_duplicates()
-    DT_LBR.reset_index(inplace=True,drop=True)
-    DT_LBR.rename(columns={'TOPLEVEL':'PN'},inplace=True)
-    DT_LBR=sort_QS(DT_LBR)
-    return DT_LBR
-def sort_QS(DF):
-    pi=DF.merge(QS,left_on='Q+YR',right_on='Q+YR',how='left')
-    pi.sort_values(by=['YR','MONTH'],ascending=True,inplace=True)
-    pi=pi[DF.columns]
-    pi.drop_duplicates(inplace=True)
-    return pi
+    temp_table(LVLBOM)
+    if name in ('ovs_trend','lbr_q_trends'):
+        DT=query_table(f"""
+                            WITH CTE AS (select *,
+                            `{cols[name][0]}`*`TOP LVL QTY` as COST_CLM from temp tp
+                            join {name.lower()} df on df.`{cols[name][2]}`=tp.`COMP`
+                            WHERE `{cols[name][0]}` is not null)
+                            SELECT `{cols[name][1]}`,`TOPLEVEL` AS `PN`,SUM(`COST_CLM`) AS `QLY_COST`
+                            FROM CTE
+                            GROUP BY 1,2
+                            """)
+    else:
+        DT=query_table(f"""
+                            select `Q+YR`,`PN`,
+                            `{cols[name][0]}` as QLY_COST from temp tp
+                            join {name.lower()} df on df.`{cols[name][2]}`=tp.`COMP`
+                            WHERE `{cols[name][0]}` is not null
+                            """)
+    drop('temp')
+    if 'QTR+YR' in DT.columns:
+        DT.rename(columns={'QTR+YR':'Q+YR'},inplace=True)
+    return DT
  #BOM EXTRACT-----------
 def BOM_EXTRACT(PN):
     #___________BOMEXTRACT_________________________________________________
@@ -47,10 +46,10 @@ def BOM_EXTRACT(PN):
     return LVLBOMS
 def fig(PN,DT_PN):
         graph=px.bar(
-        DT_PN,x='Q+YR',y='BUY COST',
-        hover_data={'PN':True,'BUY COST':':$,.2f'},
+        DT_PN,x='Q+YR',y='QLY_COST',
+        hover_data={'PN':True,'QLY_COST':':$,.2f'},
         template='seaborn',text_auto=True,
-        labels={'Q+YR': '<b>Y.LY QUARTERS','BUY COST':'<b> BUY COST TREND (QLY. AVG.)'})
+        labels={'Q+YR': '<b>Y.LY QUARTERS','QLY_COST':'<b> BUY COST TREND (QLY. AVG.)'})
         graph.update_traces(textfont_size=16)
         graph.update_layout(title = dict(text='<b>'+PN + ' BUY Cost Trend',font_size=30,
             yanchor='bottom', x=0.5,y=.95),
@@ -61,11 +60,6 @@ def fig(PN,DT_PN):
         graph.update_xaxes(tickfont_family="Arial Black")
         return graph
 dash.register_page(__name__)
-LBR_COSTS=table('lbr_q_trends')
-LBR_COSTS.rename(columns={'QTR+YR':'Q+YR'},inplace=True)
-OVS_COSTS=table('ovs_trend')
-PH_COSTS=table('ph_trend')
-BOM=table('st_bm_br_bom')
 QS=table('qly_ints')
 layout = dbc.Container([
   dbc.Row([
@@ -115,19 +109,19 @@ layout = dbc.Container([
  )
 def update_graph(PART):
     PART=PART.strip().upper()
-    DT_LBR=costby_bom(LBR_COSTS,PART)
-    DT_OVS=costby_bom(OVS_COSTS,PART)
-    DT_PH=costby_buy_bom(PH_COSTS,PART)
+    DT_LBR=costby_bom('lbr_q_trends',PART)
+    DT_OVS=costby_bom('ovs_trend',PART)
+    DT_PH=costby_bom('ph_trend',PART)
     is_open=True
     if len(DT_LBR)==0:
         LBR=px.bar()
         is_open=False
     else:
         LBR = px.bar(
-            DT_LBR,x='Q+YR',y='ACT LBR COST/EA',
-            hover_data={'PN':True,'ACT LBR COST/EA':':$,.2f'},
+            DT_LBR,x='Q+YR',y='QLY_COST',
+            hover_data={'PN':True,'QLY_COST':':$,.2f'},
             template='seaborn',text_auto=True,
-            labels={'Q+YR': '<b>Y.LY QUARTERS','ACT LBR COST/EA':'<b> ACT LABOR COST TREND (QLY. AVG.)'}
+            labels={'Q+YR': '<b>Y.LY QUARTERS','QLY_COST':'<b> ACT LABOR COST TREND (QLY. AVG.)'}
             )
         LBR.update_traces(textfont_size=16)
         LBR.update_layout(title = dict(text='<b>'+PART + ' Labor Trend (Includes Subs)',font_size=30,
@@ -146,10 +140,10 @@ def update_graph(PART):
         font={'family':'Arial','size':12})
     else:
         OVS = px.bar(
-            DT_OVS,x='Q+YR',y='OVS COST',
-            hover_data={'PN':True,'OVS COST':':$,.2f'},
+            DT_OVS,x='Q+YR',y='QLY_COST',
+            hover_data={'PN':True,'QLY_COST':':$,.2f'},
             template='seaborn',text_auto=True,
-            labels={'Q+YR': '<b>Y.LY QUARTERS','OVS COST':'<b> OVS COST TREND (QLY. AVG.)'}
+            labels={'Q+YR': '<b>Y.LY QUARTERS','QLY_COST':'<b> OVS COST TREND (QLY. AVG.)'}
             )
         OVS.update_traces(textfont_size=16)
         OVS.update_layout(title = dict(text='<b>'+PART + ' OVS Cost Trend',font_size=30,
@@ -162,7 +156,7 @@ def update_graph(PART):
     gs1 , gs2 = [] , []
     m=1
     if len(DT_PH['PN'].unique())!=1:
-        DT_PH=DT_PH.loc[DT_PH['BUY COST']>10]
+        DT_PH=DT_PH.loc[DT_PH['QLY_COST']>10]
     for i in DT_PH['PN'].unique():
         DT_PN=DT_PH.loc[DT_PH['PN']==i]
         if (m%2)!=0:
