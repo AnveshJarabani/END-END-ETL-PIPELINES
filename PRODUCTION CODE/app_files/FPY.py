@@ -8,14 +8,13 @@ import pandas as pd
 import numpy as np
 from app_files.sql_connector import query_table,table
 dash.register_page(__name__)
-QN=query_table(
+drop_down=query_table(
     """
-    SELECT fs.`QTR+YR` from qn_data qn
+    SELECT distinct fs.`QTR+YR` from qn_data qn
     join fiscal_cal fs on
     fs.`DATE`=qn.`DATE`
     WHERE fs.`QTR+YR` is not Null
-    """)
-drop_down = list(QN['QTR+YR'].unique()) 
+    """).iloc[:,0].to_list()
 layout = dbc.Container([
     dbc.Row([
         dbc.Col([
@@ -58,9 +57,12 @@ def TABLE(QTR):
     if QTR is None:
         QTR='2023 QTR 2'
     Q=QTR
-    result=query_table(f"SELECT * from qn_data where `QTR+YR`='{QTR}'")
-    result=QN.loc[QN['QTR+YR']==QTR]
-    show_table=result.head(200)
+    result=query_table(f"""
+                           SELECT qn.* from qn_data qn
+                            join fiscal_cal fs on
+                            fs.`DATE`=qn.`DATE`
+                            WHERE fs.`QTR+YR` ='{QTR}'""")
+    show_table=result.head(100)
     show_table=show_table.applymap(lambda x: x[:10] if isinstance(x,str) else x)
     colorscale = [[0, '#4d004c'], [.5, '#f2e5ff'], [1, '#ffffff']]
     table = ff.create_table(show_table, colorscale=colorscale,index=False)
