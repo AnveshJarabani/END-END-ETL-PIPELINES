@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "bi-data-automatic-pulling"
+version = "0.1.0"
+description = "THIS PACKAGE PULLS ALL THE BI SOURCE DATA AND STORES IN LOCAL AND PRODUCTION DATABASES UPON TRANSFORMATIONS."
+authors = ["AJARABANI"]
+license = "NA"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[tool.poetry.group.dev.dependencies]
+sshtunnel = "^0.4.0"
+paramiko = "^3.3.1"
+h5py = "^3.9.0"
+pandas = "^2.1.0"
+sqlalchemy = "^2.0.21"
+selenium = "^4.12.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
