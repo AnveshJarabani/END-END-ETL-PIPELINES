@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "production-code-base"
+version = "0.1.0"
+description = "ALL PRODUCTION FILES NEEDED TO PULL DATA AND RENDER ON THE DASH WEBSITE"
+authors = ["AJARABANI"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[tool.poetry.group.dev.dependencies]
+paramiko = "^3.3.1"
+sqlalchemy = "^2.0.21"
+bigtree = "^0.12.3"
+pandas = "^2.1.0"
+sshtunnel = "^0.4.0"
+plotly = "^5.17.0"
+dash = "^2.13.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
