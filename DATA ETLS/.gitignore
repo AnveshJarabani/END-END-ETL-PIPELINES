@@ -1,0 +1,12 @@
+*.pem
+venv/
+*pyc
+*xlsm
+*XLSM
+*pkl
+*5
+*PKL
+*pycache*
+PKL/
+H5/
+PRIVATE/
