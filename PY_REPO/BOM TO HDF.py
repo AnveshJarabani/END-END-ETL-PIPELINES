@@ -64,5 +64,5 @@ BOM["QTY"] = BOM["QTY"].round(5)
 # PH = pd.read_hdf("../H5/PH.H5", key="PH")
 # BOM = BOM[~BOM["MATERIAL"].isin(PH["PH"])]
 # AGILE_BOM = pd.read_hdf("../H5/ST_BM_BR.Hk5", key="AGILE_BOM")
-# BOM = BOM[BOM["MATERIAL"].isin(AGILE_BOM["PART_NUMBER"])]
+# BOM = BOM[BOM["MATERIAL"].isin(AGILE_BOM["PART_NUMBER"])] test commit
 BOM.to_hdf("../H5/ST_BM_BR.H5", key="BOM")
