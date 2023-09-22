@@ -30,10 +30,10 @@ int_bom = int_bom.pivot_table(
 int_bom.reset_index(inplace=True)
 int_bom["PLANT"] = "INTEGRATION"
 wl = pd.read_pickle("../PKL/RAW_LBR.PKL")
-wl = wl.loc[:, ["Order - Material (Key)", "Operation Quantity"]]
-wl = wl[wl["Order - Material (Key)"] != "#"]
+wl = wl.loc[:, ["PART_NUMBER", "OP_QTY"]]
+wl = wl[wl["PART_NUMBER"] != "#"]
 QTY = wl.pivot_table(
-    index=["Order - Material (Key)"], values=["Operation Quantity"], aggfunc=np.mean
+    index=["PART_NUMBER"], values=["OP_QTY"], aggfunc=np.mean
 )
 QTY.reset_index(inplace=True)
 QTY.columns = ["MATERIALKEY", "OP QTY"]
