@@ -1,1 +1,1 @@
-{"_invocation_id": "af5508e1-7367-47ef-9632-3fee8a81ef42", "linked": {"0": {"name": "model.dbt_project.labor_hrs", "type": "model"}}, "with_test_edges": {"0": {"name": "model.dbt_project.labor_hrs", "type": "model"}}}
+{"_invocation_id": "7e2021a3-719b-4d70-97df-b42456b02047", "linked": {"0": {"name": "model.dbt_project.labor_hrs", "type": "model"}}, "with_test_edges": {"0": {"name": "model.dbt_project.labor_hrs", "type": "model"}}}
