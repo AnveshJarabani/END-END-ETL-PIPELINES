@@ -1,0 +1,1 @@
+{"_invocation_id": "aad6cd77-6443-4a96-8bfb-089c79e06dcc", "linked": {"0": {"name": "model.dbt_project.labor_hrs", "type": "model"}}, "with_test_edges": {"0": {"name": "model.dbt_project.labor_hrs", "type": "model"}}}
